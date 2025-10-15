@@ -1,0 +1,75 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './lib/useAuth';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import Home from './pages/Home';
+import Explore from './pages/Explore';
+import ToolDetails from './pages/ToolDetails';
+import TopTools from './pages/TopTools';
+import SubmitTool from './pages/SubmitTool';
+import Compare from './pages/Compare';
+import About from './pages/About';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Pricing from './pages/Pricing';
+import AdminLogin from './pages/admin/AdminLogin';
+import AdminLayout from './components/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import ManageTools from './pages/admin/ManageTools';
+import ManageNews from './pages/admin/ManageNews';
+import ManageReviews from './pages/admin/ManageReviews';
+import ManageSubmissions from './pages/admin/ManageSubmissions';
+import ProtectedRoute from './components/ProtectedRoute';
+
+function App() {
+  return (
+    <Router>
+      <AuthProvider>
+        <Routes>
+          <Route path="/adminpn" element={<AdminLogin />} />
+
+          <Route
+            path="/adminpn/*"
+            element={
+              <ProtectedRoute>
+                <AdminLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="tools" element={<ManageTools />} />
+            <Route path="news" element={<ManageNews />} />
+            <Route path="reviews" element={<ManageReviews />} />
+            <Route path="submissions" element={<ManageSubmissions />} />
+          </Route>
+
+          <Route
+            path="*"
+            element={
+              <div className="min-h-screen flex flex-col">
+                <Header />
+                <main className="flex-1">
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/explore" element={<Explore />} />
+                    <Route path="/tool/:slug" element={<ToolDetails />} />
+                    <Route path="/top-tools" element={<TopTools />} />
+                    <Route path="/submit" element={<SubmitTool />} />
+                    <Route path="/compare" element={<Compare />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/pricing" element={<Pricing />} />
+                  </Routes>
+                </main>
+                <Footer />
+              </div>
+            }
+          />
+        </Routes>
+      </AuthProvider>
+    </Router>
+  );
+}
+
+export default App;
