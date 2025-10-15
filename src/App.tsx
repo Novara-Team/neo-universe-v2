@@ -20,6 +20,7 @@ import ManageNews from './pages/admin/ManageNews';
 import ManageReviews from './pages/admin/ManageReviews';
 import ManageSubmissions from './pages/admin/ManageSubmissions';
 import ProtectedRoute from './components/ProtectedRoute';
+import { Analytics } from '@vercel/analytics/react'; // ✅ Import Analytics
 
 function App() {
   return (
@@ -63,6 +64,7 @@ function App() {
                   </Routes>
                 </main>
                 <Footer />
+                <Analytics /> {/* ✅ Add Analytics here at the root */}
               </div>
             }
           />
