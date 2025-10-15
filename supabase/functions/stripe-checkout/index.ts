@@ -12,7 +12,7 @@ const stripe = new Stripe(stripeSecret, {
 });
 
 // ✅ Allow only your domain (better security than '*')
-const allowedOrigin = 'https://ai-universe.bolt.host';
+const allowedOrigin = 'https://neo-universe.vercel.app';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': allowedOrigin,
