@@ -3,7 +3,7 @@
 ## Admin Panel Access
 
 **URL:** `/adminpn`
-**Password:** `20102010`
+**Password:** `20102010moha`
 
 ## Database Information
 
