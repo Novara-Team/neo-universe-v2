@@ -8,17 +8,14 @@ interface FavoriteTool {
   id: string;
   created_at: string;
   tool_id: string;
-  tools: {
+  ai_tools: {
     id: string;
     name: string;
     description: string;
     website_url: string;
     logo_url: string;
-    category: string;
     pricing_type: string;
     rating: number;
-    total_reviews: number;
-    is_featured: boolean;
   };
 }
 
@@ -152,10 +149,10 @@ export default function FavoriteTools() {
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center space-x-3 flex-1">
-                    {favorite.tools.logo_url ? (
+                    {favorite.ai_tools.logo_url ? (
                       <img
-                        src={favorite.tools.logo_url}
-                        alt={favorite.tools.name}
+                        src={favorite.ai_tools.logo_url}
+                        alt={favorite.ai_tools.name}
                         className="w-12 h-12 rounded-lg object-cover"
                       />
                     ) : (
@@ -165,9 +162,9 @@ export default function FavoriteTools() {
                     )}
                     <div className="flex-1 min-w-0">
                       <h3 className="text-white font-semibold group-hover:text-cyan-400 transition-colors truncate">
-                        {favorite.tools.name}
+                        {favorite.ai_tools.name}
                       </h3>
-                      <p className="text-slate-400 text-sm">{favorite.tools.pricing_type}</p>
+                      <p className="text-slate-400 text-sm">{favorite.ai_tools.pricing_type}</p>
                     </div>
                   </div>
                   <button
@@ -179,22 +176,19 @@ export default function FavoriteTools() {
                   </button>
                 </div>
 
-                <p className="text-slate-300 text-sm mb-4 line-clamp-2">{favorite.tools.description}</p>
+                <p className="text-slate-300 text-sm mb-4 line-clamp-2">{favorite.ai_tools.description}</p>
 
                 <div className="flex items-center space-x-2 mb-4">
-                  <span className="px-2 py-1 bg-slate-700/50 text-cyan-400 text-xs rounded">
-                    {favorite.tools.category}
-                  </span>
-                  {favorite.tools.rating > 0 && (
+                  {favorite.ai_tools.rating > 0 && (
                     <span className="text-yellow-400 text-sm flex items-center">
-                      ★ {favorite.tools.rating.toFixed(1)}
+                      ★ {favorite.ai_tools.rating.toFixed(1)}
                     </span>
                   )}
                 </div>
 
                 <div className="flex space-x-2">
                   <a
-                    href={favorite.tools.website_url}
+                    href={favorite.ai_tools.website_url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex-1 flex items-center justify-center space-x-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white text-sm rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all"

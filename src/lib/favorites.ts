@@ -97,17 +97,14 @@ export async function getUserFavorites(userId: string) {
       id,
       created_at,
       tool_id,
-      tools (
+      ai_tools (
         id,
         name,
         description,
         website_url,
         logo_url,
-        category,
         pricing_type,
         rating,
-        total_reviews,
-        is_featured,
         created_at
       )
     `)
