@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Sparkles, User, LogOut, Crown, Zap, Settings } from 'lucide-react';
+import { Sparkles, User, LogOut, Crown, Zap, Settings, Heart } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
 import { useState } from 'react';
 
@@ -99,6 +99,15 @@ export default function Header() {
                       </div>
 
                       <div className="p-2">
+                        <Link
+                          to="/favorites"
+                          onClick={() => setShowUserMenu(false)}
+                          className="flex items-center gap-3 px-4 py-2 text-slate-300 hover:bg-slate-700 rounded-lg transition-colors"
+                        >
+                          <Heart className="w-4 h-4" />
+                          Favorite Tools
+                        </Link>
+
                         <Link
                           to="/pricing"
                           onClick={() => setShowUserMenu(false)}

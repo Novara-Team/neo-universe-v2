@@ -1,19 +1,67 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ExternalLink, Calendar, DollarSign, Star, Sparkles } from 'lucide-react';
+import { ExternalLink, Calendar, DollarSign, Star, Sparkles, Heart } from 'lucide-react';
 import { supabase, AITool } from '../lib/supabase';
+import { useAuth } from '../lib/useAuth';
+import { addFavorite, removeFavorite, isFavorite } from '../lib/favorites';
 
 export default function ToolDetails() {
   const { slug } = useParams<{ slug: string }>();
   const [tool, setTool] = useState<AITool | null>(null);
   const [relatedTools, setRelatedTools] = useState<AITool[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [favoriteLoading, setFavoriteLoading] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     if (slug) {
       loadTool();
     }
   }, [slug]);
+
+  useEffect(() => {
+    if (user && tool) {
+      checkFavoriteStatus();
+    }
+  }, [user, tool]);
+
+  const checkFavoriteStatus = async () => {
+    if (!user || !tool) return;
+    const favorited = await isFavorite(user.id, tool.id);
+    setIsFavorited(favorited);
+  };
+
+  const handleFavoriteToggle = async () => {
+    if (!user || !tool) {
+      alert('Please log in to favorite tools');
+      return;
+    }
+
+    setFavoriteLoading(true);
+    try {
+      if (isFavorited) {
+        const result = await removeFavorite(user.id, tool.id);
+        if (result.success) {
+          setIsFavorited(false);
+        } else {
+          alert(result.error || 'Failed to remove favorite');
+        }
+      } else {
+        const result = await addFavorite(user.id, tool.id);
+        if (result.success) {
+          setIsFavorited(true);
+        } else {
+          alert(result.error || 'Failed to add favorite');
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+      alert('An error occurred');
+    } finally {
+      setFavoriteLoading(false);
+    }
+  };
 
   const loadTool = async () => {
     setLoading(true);
@@ -160,15 +208,30 @@ export default function ToolDetails() {
                 </div>
               </div>
 
-              <a
-                href={tool.website_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center space-x-2 w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg shadow-cyan-500/50 font-medium"
-              >
-                <span>Visit Tool</span>
-                <ExternalLink className="w-4 h-4" />
-              </a>
+              <div className="space-y-3">
+                <button
+                  onClick={handleFavoriteToggle}
+                  disabled={favoriteLoading}
+                  className={`flex items-center justify-center space-x-2 w-full px-6 py-3 rounded-lg transition-all font-medium ${
+                    isFavorited
+                      ? 'bg-red-500/20 text-red-400 border-2 border-red-500 hover:bg-red-500/30'
+                      : 'bg-slate-700/50 text-slate-300 border-2 border-slate-600 hover:bg-slate-700 hover:border-cyan-500'
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  <Heart className={`w-4 h-4 ${isFavorited ? 'fill-current' : ''}`} />
+                  <span>{isFavorited ? 'Favorited' : 'Add to Favorites'}</span>
+                </button>
+
+                <a
+                  href={tool.website_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center space-x-2 w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg shadow-cyan-500/50 font-medium"
+                >
+                  <span>Visit Tool</span>
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              </div>
             </div>
           </div>
         </div>

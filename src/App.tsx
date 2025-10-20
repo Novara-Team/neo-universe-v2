@@ -12,6 +12,7 @@ import About from './pages/About';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Pricing from './pages/Pricing';
+import FavoriteTools from './pages/FavoriteTools';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminLayout from './components/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -61,6 +62,7 @@ function App() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/pricing" element={<Pricing />} />
+                    <Route path="/favorites" element={<FavoriteTools />} />
                   </Routes>
                 </main>
                 <Footer />
