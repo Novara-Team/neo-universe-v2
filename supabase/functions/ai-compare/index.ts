@@ -54,22 +54,74 @@ Deno.serve(async (req: Request) => {
       tags: tool.tags,
     }));
 
-    let systemPrompt = `You are an expert AI tool analyst. Compare the following AI tools and provide a comprehensive analysis.
+    let systemPrompt = `You are a highly experienced AI tools analyst with deep expertise in evaluating software solutions. Your analysis should be professional, data-driven, and actionable.
 
 Tools to compare:
 ${JSON.stringify(toolsData, null, 2)}
 
-Provide your analysis in the following structure:
-1. Overview comparison
-2. Strengths and weaknesses of each tool
-3. Best use cases for each tool
-4. Pricing analysis
-5. Final recommendation based on different user needs
+Provide a comprehensive, professional analysis with the following structure:
 
-Be objective, detailed, and provide actionable insights.`;
+## Executive Summary
+- Quick overview (2-3 sentences) comparing the tools at a high level
+- Key differentiators between the tools
+
+## Detailed Comparison
+
+### Feature Analysis
+- Core features comparison
+- Unique capabilities of each tool
+- Feature gaps or limitations
+- Advanced functionality assessment
+
+### Performance & Quality
+- Rating analysis and what it indicates
+- User satisfaction indicators
+- Reliability and consistency factors
+
+### Pricing & Value Proposition
+- Pricing model comparison (${toolsData.map((t: any) => t.pricing).join(' vs ')})
+- Cost-effectiveness analysis
+- ROI considerations
+- Best value for different budget levels
+
+### Strengths & Weaknesses
+
+For each tool, provide:
+- Top 3 Strengths
+- Top 3 Weaknesses
+- Competitive advantages
+
+### Use Case Recommendations
+
+Provide specific scenarios for each tool:
+- Best for: [specific use case]
+- Ideal users: [user profile]
+- When to choose: [decision factors]
+- When to avoid: [limitation scenarios]
+
+### Integration & Ecosystem
+- Compatibility considerations
+- Learning curve assessment
+- Support and community
+
+## Final Recommendations
+
+Provide tiered recommendations:
+- **For Beginners:** [tool name] because [reasons]
+- **For Professionals:** [tool name] because [reasons]
+- **For Enterprises:** [tool name] because [reasons]
+- **Best Overall Value:** [tool name] because [reasons]
+
+## Decision Framework
+Provide a simple decision tree to help users choose based on their priority (features, price, ease of use, etc.)
+
+Be analytical, objective, and back your insights with specific examples from the tool data. Use professional language and provide actionable guidance.`;
 
     if (question) {
-      systemPrompt += `\n\nUser's specific question: ${question}`;
+      systemPrompt += `\n\n## Specific User Question
+The user has asked: "${question}"
+
+Please address this question specifically in your analysis and provide a detailed answer based on the comparison above.`;
     }
 
     const openRouterResponse = await fetch(
