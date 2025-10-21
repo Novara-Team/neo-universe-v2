@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Sparkles, ExternalLink, Plus, X, TrendingUp, Calendar, Eye, Star, DollarSign, Check, Minus, Crown, Zap, Loader2, MessageSquare, ThumbsUp, Activity, Users, Target } from 'lucide-react';
+import { Search, Sparkles, ExternalLink, Plus, X, TrendingUp, Calendar, Eye, Star, DollarSign, Check, Minus, Crown, Zap, Loader2, MessageSquare, ThumbsUp, Activity, Users, Target, BarChart3, PieChart, LineChart } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase, AITool } from '../lib/supabase';
 import { useAuth } from '../lib/useAuth';
@@ -543,6 +543,276 @@ export default function CompareAdvanced() {
                 </div>
               </div>
             )}
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">
+                <h3 className="text-xl font-semibold text-white mb-6 flex items-center space-x-2">
+                  <BarChart3 className="w-6 h-6 text-cyan-400" />
+                  <span>Rating Comparison</span>
+                </h3>
+                <div className="space-y-4">
+                  {selectedTools.map((tool) => {
+                    const percentage = (tool.rating / 5) * 100;
+                    const isWinner = getWinner('rating') === tool.id;
+                    return (
+                      <div key={tool.id} className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            {tool.logo_url ? (
+                              <img src={tool.logo_url} alt={tool.name} className="w-6 h-6 rounded object-cover" />
+                            ) : (
+                              <Sparkles className="w-6 h-6 text-cyan-400" />
+                            )}
+                            <span className="text-white font-medium">{tool.name}</span>
+                            {isWinner && <Crown className="w-4 h-4 text-yellow-400" />}
+                          </div>
+                          <span className="text-white font-bold">{tool.rating.toFixed(1)}</span>
+                        </div>
+                        <div className="relative h-8 bg-slate-700 rounded-lg overflow-hidden">
+                          <div
+                            className={`h-full rounded-lg transition-all duration-500 ${
+                              isWinner
+                                ? 'bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500'
+                                : 'bg-gradient-to-r from-cyan-500 to-blue-500'
+                            }`}
+                            style={{ width: `${percentage}%` }}
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <span className="text-white text-sm font-semibold drop-shadow-lg">
+                              {percentage.toFixed(0)}%
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">
+                <h3 className="text-xl font-semibold text-white mb-6 flex items-center space-x-2">
+                  <PieChart className="w-6 h-6 text-green-400" />
+                  <span>Pricing Distribution</span>
+                </h3>
+                <div className="flex items-center justify-center h-48 mb-4">
+                  <div className="relative w-48 h-48">
+                    {(() => {
+                      const pricingCounts = selectedTools.reduce((acc, tool) => {
+                        acc[tool.pricing_type] = (acc[tool.pricing_type] || 0) + 1;
+                        return acc;
+                      }, {} as Record<string, number>);
+
+                      const total = selectedTools.length;
+                      let currentAngle = 0;
+                      const colors = {
+                        'Free': { from: '#10b981', to: '#059669' },
+                        'Freemium': { from: '#3b82f6', to: '#2563eb' },
+                        'Paid': { from: '#f59e0b', to: '#d97706' }
+                      };
+
+                      return (
+                        <svg viewBox="0 0 100 100" className="transform -rotate-90">
+                          {Object.entries(pricingCounts).map(([type, count], idx) => {
+                            const percentage = (count / total) * 100;
+                            const angle = (percentage / 100) * 360;
+                            const startAngle = currentAngle;
+                            currentAngle += angle;
+
+                            const startX = 50 + 40 * Math.cos((startAngle * Math.PI) / 180);
+                            const startY = 50 + 40 * Math.sin((startAngle * Math.PI) / 180);
+                            const endX = 50 + 40 * Math.cos((currentAngle * Math.PI) / 180);
+                            const endY = 50 + 40 * Math.sin((currentAngle * Math.PI) / 180);
+                            const largeArc = angle > 180 ? 1 : 0;
+
+                            return (
+                              <path
+                                key={type}
+                                d={`M 50 50 L ${startX} ${startY} A 40 40 0 ${largeArc} 1 ${endX} ${endY} Z`}
+                                fill={`url(#gradient-${idx})`}
+                                className="hover:opacity-80 transition-opacity cursor-pointer"
+                              >
+                                <defs>
+                                  <linearGradient id={`gradient-${idx}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stopColor={colors[type as keyof typeof colors]?.from || '#6b7280'} />
+                                    <stop offset="100%" stopColor={colors[type as keyof typeof colors]?.to || '#4b5563'} />
+                                  </linearGradient>
+                                </defs>
+                              </path>
+                            );
+                          })}
+                          <circle cx="50" cy="50" r="25" fill="#1e293b" />
+                        </svg>
+                      );
+                    })()}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  {Object.entries(
+                    selectedTools.reduce((acc, tool) => {
+                      acc[tool.pricing_type] = (acc[tool.pricing_type] || 0) + 1;
+                      return acc;
+                    }, {} as Record<string, number>)
+                  ).map(([type, count]) => (
+                    <div key={type} className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <div className={`w-3 h-3 rounded-full ${
+                          type === 'Free' ? 'bg-green-500' :
+                          type === 'Freemium' ? 'bg-blue-500' :
+                          'bg-amber-500'
+                        }`} />
+                        <span className="text-slate-300">{type}</span>
+                      </div>
+                      <span className="text-white font-semibold">
+                        {count} ({((count / selectedTools.length) * 100).toFixed(0)}%)
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">
+                <h3 className="text-xl font-semibold text-white mb-6 flex items-center space-x-2">
+                  <LineChart className="w-6 h-6 text-purple-400" />
+                  <span>Popularity Comparison</span>
+                </h3>
+                <div className="space-y-4">
+                  {selectedTools
+                    .sort((a, b) => b.views - a.views)
+                    .map((tool) => {
+                      const maxViews = Math.max(...selectedTools.map(t => t.views));
+                      const percentage = (tool.views / maxViews) * 100;
+                      const isWinner = getWinner('views') === tool.id;
+                      return (
+                        <div key={tool.id} className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              {tool.logo_url ? (
+                                <img src={tool.logo_url} alt={tool.name} className="w-6 h-6 rounded object-cover" />
+                              ) : (
+                                <Sparkles className="w-6 h-6 text-cyan-400" />
+                              )}
+                              <span className="text-white font-medium">{tool.name}</span>
+                              {isWinner && <Crown className="w-4 h-4 text-yellow-400" />}
+                            </div>
+                            <span className="text-white font-bold">{tool.views.toLocaleString()}</span>
+                          </div>
+                          <div className="relative h-8 bg-slate-700 rounded-lg overflow-hidden">
+                            <div
+                              className={`h-full rounded-lg transition-all duration-500 ${
+                                isWinner
+                                  ? 'bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500'
+                                  : 'bg-gradient-to-r from-purple-500 to-pink-500'
+                              }`}
+                              style={{ width: `${percentage}%` }}
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <span className="text-white text-sm font-semibold drop-shadow-lg">
+                                {percentage.toFixed(0)}%
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+
+              <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">
+                <h3 className="text-xl font-semibold text-white mb-6 flex items-center space-x-2">
+                  <Target className="w-6 h-6 text-orange-400" />
+                  <span>Overall Score Breakdown</span>
+                </h3>
+                <div className="space-y-4">
+                  {selectedTools
+                    .map((tool) => {
+                      const ratingScore = (tool.rating / 5) * 30;
+                      const viewsScore = (Math.min(tool.views / 100, 100) * 0.3);
+                      const featuresScore = tool.features.length * 2;
+                      const pricingScore = tool.pricing_type === 'Free' ? 10 : tool.pricing_type === 'Freemium' ? 5 : 0;
+                      const overallScore = Math.round(ratingScore + viewsScore + featuresScore + pricingScore);
+
+                      return {
+                        tool,
+                        overallScore,
+                        ratingScore,
+                        viewsScore,
+                        featuresScore,
+                        pricingScore
+                      };
+                    })
+                    .sort((a, b) => b.overallScore - a.overallScore)
+                    .map(({ tool, overallScore, ratingScore, viewsScore, featuresScore, pricingScore }) => {
+                      const maxScore = Math.max(...selectedTools.map(t => {
+                        const rs = (t.rating / 5) * 30;
+                        const vs = (Math.min(t.views / 100, 100) * 0.3);
+                        const fs = t.features.length * 2;
+                        const ps = t.pricing_type === 'Free' ? 10 : t.pricing_type === 'Freemium' ? 5 : 0;
+                        return Math.round(rs + vs + fs + ps);
+                      }));
+                      const isWinner = overallScore === maxScore;
+
+                      return (
+                        <div key={tool.id} className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              {tool.logo_url ? (
+                                <img src={tool.logo_url} alt={tool.name} className="w-6 h-6 rounded object-cover" />
+                              ) : (
+                                <Sparkles className="w-6 h-6 text-cyan-400" />
+                              )}
+                              <span className="text-white font-medium">{tool.name}</span>
+                              {isWinner && <Crown className="w-4 h-4 text-yellow-400" />}
+                            </div>
+                            <span className="text-white font-bold">{overallScore}</span>
+                          </div>
+                          <div className="space-y-1">
+                            <div className="flex items-center space-x-2 text-xs">
+                              <span className="text-slate-400 w-16">Rating:</span>
+                              <div className="flex-1 h-2 bg-slate-700 rounded overflow-hidden">
+                                <div
+                                  className="h-full bg-gradient-to-r from-yellow-500 to-orange-500"
+                                  style={{ width: `${(ratingScore / 30) * 100}%` }}
+                                />
+                              </div>
+                              <span className="text-white w-10 text-right">{ratingScore.toFixed(0)}</span>
+                            </div>
+                            <div className="flex items-center space-x-2 text-xs">
+                              <span className="text-slate-400 w-16">Views:</span>
+                              <div className="flex-1 h-2 bg-slate-700 rounded overflow-hidden">
+                                <div
+                                  className="h-full bg-gradient-to-r from-purple-500 to-pink-500"
+                                  style={{ width: `${(viewsScore / 30) * 100}%` }}
+                                />
+                              </div>
+                              <span className="text-white w-10 text-right">{viewsScore.toFixed(0)}</span>
+                            </div>
+                            <div className="flex items-center space-x-2 text-xs">
+                              <span className="text-slate-400 w-16">Features:</span>
+                              <div className="flex-1 h-2 bg-slate-700 rounded overflow-hidden">
+                                <div
+                                  className="h-full bg-gradient-to-r from-cyan-500 to-blue-500"
+                                  style={{ width: `${Math.min((featuresScore / 30) * 100, 100)}%` }}
+                                />
+                              </div>
+                              <span className="text-white w-10 text-right">{featuresScore.toFixed(0)}</span>
+                            </div>
+                            <div className="flex items-center space-x-2 text-xs">
+                              <span className="text-slate-400 w-16">Pricing:</span>
+                              <div className="flex-1 h-2 bg-slate-700 rounded overflow-hidden">
+                                <div
+                                  className="h-full bg-gradient-to-r from-green-500 to-emerald-500"
+                                  style={{ width: `${(pricingScore / 10) * 100}%` }}
+                                />
+                              </div>
+                              <span className="text-white w-10 text-right">{pricingScore.toFixed(0)}</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+            </div>
 
             <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">
               <h3 className="text-xl font-semibold text-white mb-4">Detailed Information</h3>

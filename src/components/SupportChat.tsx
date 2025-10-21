@@ -43,10 +43,16 @@ export default function SupportChat() {
     if (conversationId) {
       loadMessages();
       const unsubscribe = subscribeToMessages();
+
+      const pollInterval = setInterval(() => {
+        loadMessages();
+      }, 5000);
+
       return () => {
         if (unsubscribe) {
           unsubscribe();
         }
+        clearInterval(pollInterval);
       };
     }
   }, [conversationId]);
@@ -118,7 +124,28 @@ export default function SupportChat() {
           filter: `conversation_id=eq.${conversationId}`
         },
         (payload) => {
-          setMessages((prev) => [...prev, payload.new as Message]);
+          const newMessage = payload.new as Message;
+          setMessages((prev) => {
+            if (prev.find(m => m.id === newMessage.id)) {
+              return prev;
+            }
+            return [...prev, newMessage];
+          });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'support_messages',
+          filter: `conversation_id=eq.${conversationId}`
+        },
+        (payload) => {
+          const updatedMessage = payload.new as Message;
+          setMessages((prev) =>
+            prev.map(m => m.id === updatedMessage.id ? updatedMessage : m)
+          );
         }
       )
       .subscribe();
@@ -136,22 +163,18 @@ export default function SupportChat() {
     const messageText = newMessage.trim();
     setNewMessage('');
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('support_messages')
       .insert({
         conversation_id: conversationId,
         sender_id: user.id,
         sender_type: 'user',
         message: messageText
-      })
-      .select()
-      .single();
+      });
 
     if (error) {
       console.error('Error sending message:', error);
       setNewMessage(messageText);
-    } else if (data) {
-      setMessages((prev) => [...prev, data as Message]);
     }
 
     setIsLoading(false);
