@@ -5,6 +5,7 @@ import { useAuth } from '../lib/useAuth';
 import { getCollectionBySlug, addToolToCollection, removeToolFromCollection } from '../lib/collections';
 import { supabase, AITool } from '../lib/supabase';
 import { trackCollectionView, trackCollectionShare, getCollectionAnalytics, exportCollectionToCSV, exportCollectionToPDF } from '../lib/collection-analytics';
+import { trackEvent } from '../lib/analytics';
 
 interface CollectionData {
   id: string;
@@ -53,6 +54,12 @@ export default function CollectionDetail() {
   useEffect(() => {
     if (collection && collection.id) {
       trackCollectionView(collection.id, user?.id);
+      if (user) {
+        trackEvent('collection_view', {
+          collection_id: collection.id,
+          collection_name: collection.name
+        });
+      }
       if (user && user.id === collection.user_id) {
         loadAnalytics();
       }

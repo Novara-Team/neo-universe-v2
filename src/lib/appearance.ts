@@ -81,8 +81,6 @@ export async function saveAppearancePreferences(
   const finalPrefs = { ...DEFAULT_PREFERENCES, ...preferences };
   applyAppearancePreferences(finalPrefs);
 
-  window.location.reload();
-
   return { success: true };
 }
 

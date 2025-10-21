@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Plus, Folder, Lock, Globe, Trash2, Share2, Crown } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
 import { getUserCollections, createCollection, deleteCollection, Collection } from '../lib/collections';
+import { trackEvent } from '../lib/analytics';
 
 export default function Collections() {
   const { user, profile } = useAuth();
@@ -56,6 +57,12 @@ export default function Collections() {
         setNewCollectionName('');
         setNewCollectionDescription('');
         setNewCollectionPublic(false);
+
+        trackEvent('collection_create', {
+          collection_id: result.data.id,
+          collection_name: result.data.name,
+          is_public: result.data.is_public
+        });
       } else {
         alert(result.error || 'Failed to create collection');
       }

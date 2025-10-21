@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from './supabase';
+import { initializeAppearancePreferences } from './appearance';
 
 interface UserProfile {
   id: string;
@@ -88,6 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (data) {
         setProfile(data as UserProfile);
         setLimits(DEFAULT_LIMITS[data.subscription_plan] || DEFAULT_LIMITS.free);
+        await initializeAppearancePreferences(userId);
       }
     } catch (error) {
       console.error('Error loading profile:', error);

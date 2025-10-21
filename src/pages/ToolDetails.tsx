@@ -18,6 +18,7 @@ import { supabase, AITool } from '../lib/supabase';
 import { useAuth } from '../lib/useAuth';
 import { addFavorite, removeFavorite, isFavorite } from '../lib/favorites';
 import { trackToolInteraction } from '../lib/recommendations';
+import { trackEvent } from '../lib/analytics';
 
 export default function ToolDetails() {
   const { slug } = useParams<{ slug: string }>();
@@ -66,6 +67,10 @@ export default function ToolDetails() {
         if (result.success) {
           setIsFavorited(true);
           trackToolInteraction(user.id, tool.id, 'favorite');
+          trackEvent('tool_favorite', {
+            tool_id: tool.id,
+            tool_name: tool.name
+          });
         } else {
           alert(result.error || 'Failed to add favorite');
         }
@@ -98,6 +103,11 @@ export default function ToolDetails() {
 
       if (user) {
         trackToolInteraction(user.id, data.id, 'view');
+        trackEvent('tool_view', {
+          tool_id: data.id,
+          tool_name: data.name,
+          category: data.category?.name || 'Unknown'
+        });
       }
 
       if (data.category_id) {

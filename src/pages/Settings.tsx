@@ -518,6 +518,11 @@ export default function Settings() {
                   <div>
                     <h2 className="text-2xl font-bold text-white mb-2">Appearance Settings</h2>
                     <p className="text-slate-400">Customize the look and feel of the application</p>
+                    <div className="mt-3 bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
+                      <p className="text-blue-400 text-sm">
+                        <strong>Note:</strong> Color theme customization is currently limited. The app uses a fixed color scheme. Theme (dark/light) and font size settings work fully.
+                      </p>
+                    </div>
                   </div>
 
                   <div className="space-y-6">

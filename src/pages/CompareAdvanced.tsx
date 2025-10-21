@@ -3,6 +3,7 @@ import { Search, Sparkles, ExternalLink, Plus, X, TrendingUp, Calendar, Eye, Sta
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase, AITool } from '../lib/supabase';
 import { useAuth } from '../lib/useAuth';
+import { trackEvent } from '../lib/analytics';
 
 export default function CompareAdvanced() {
   const { user, profile } = useAuth();
@@ -44,6 +45,13 @@ export default function CompareAdvanced() {
       setSelectedTools([...selectedTools, tool]);
       setSearch('');
       setShowResults(false);
+
+      if (selectedTools.length > 0) {
+        trackEvent('tool_compare', {
+          tool_ids: [...selectedTools.map(t => t.id), tool.id],
+          tool_names: [...selectedTools.map(t => t.name), tool.name]
+        });
+      }
     }
   };
 
