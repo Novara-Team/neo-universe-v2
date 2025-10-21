@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Folder, Globe, Lock, Plus, X, Search, Sparkles, ExternalLink, ArrowLeft, Share2 } from 'lucide-react';
+import { Folder, Globe, Lock, Plus, X, Search, Sparkles, ExternalLink, ArrowLeft, Share2, Eye, FileText, Download } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
 import { getCollectionBySlug, addToolToCollection, removeToolFromCollection } from '../lib/collections';
 import { supabase, AITool } from '../lib/supabase';
+import { trackCollectionView, trackCollectionShare, getCollectionAnalytics, exportCollectionToCSV, exportCollectionToPDF } from '../lib/collection-analytics';
 
 interface CollectionData {
   id: string;
@@ -40,6 +41,7 @@ export default function CollectionDetail() {
   const [search, setSearch] = useState('');
   const [tools, setTools] = useState<AITool[]>([]);
   const [showResults, setShowResults] = useState(false);
+  const [analytics, setAnalytics] = useState<{ totalViews: number; totalShares: number; recentViews: any[]; recentShares: any[] }>({ totalViews: 0, totalShares: 0, recentViews: [], recentShares: [] });
 
   useEffect(() => {
     if (slug) {
@@ -47,6 +49,15 @@ export default function CollectionDetail() {
       loadTools();
     }
   }, [slug]);
+
+  useEffect(() => {
+    if (collection && collection.id) {
+      trackCollectionView(collection.id, user?.id);
+      if (user && user.id === collection.user_id) {
+        loadAnalytics();
+      }
+    }
+  }, [collection?.id]);
 
   const loadCollection = async () => {
     try {
@@ -62,6 +73,12 @@ export default function CollectionDetail() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadAnalytics = async () => {
+    if (!collection) return;
+    const data = await getCollectionAnalytics(collection.id);
+    setAnalytics(data as any);
   };
 
   const loadTools = async () => {
@@ -161,12 +178,46 @@ export default function CollectionDetail() {
               )}
             </div>
 
-            <div className="flex items-center space-x-3">
+            <div className="flex flex-wrap items-center gap-3">
+              {isOwner && (
+                <>
+                  <div className="flex items-center space-x-4 px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <Eye className="w-4 h-4 text-cyan-400" />
+                      <span className="text-white font-medium">{analytics.totalViews}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Share2 className="w-4 h-4 text-cyan-400" />
+                      <span className="text-white font-medium">{analytics.totalShares}</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => exportCollectionToCSV(collection, collection.collection_tools)}
+                    className="flex items-center space-x-2 px-4 py-2 bg-slate-800 border border-slate-700 text-slate-300 rounded-lg hover:bg-slate-700 hover:text-cyan-400 transition-all"
+                    title="Export as CSV"
+                  >
+                    <FileText className="w-4 h-4" />
+                    <span>CSV</span>
+                  </button>
+                  <button
+                    onClick={() => exportCollectionToPDF(collection, collection.collection_tools)}
+                    className="flex items-center space-x-2 px-4 py-2 bg-slate-800 border border-slate-700 text-slate-300 rounded-lg hover:bg-slate-700 hover:text-cyan-400 transition-all"
+                    title="Export as PDF"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>PDF</span>
+                  </button>
+                </>
+              )}
               {collection.is_public && (
                 <button
-                  onClick={() => {
+                  onClick={async () => {
+                    await trackCollectionShare(collection.id, user?.id);
                     navigator.clipboard.writeText(window.location.href);
                     alert('Collection link copied!');
+                    if (user && user.id === collection.user_id) {
+                      loadAnalytics();
+                    }
                   }}
                   className="flex items-center space-x-2 px-4 py-2 bg-slate-800 border border-slate-700 text-cyan-400 rounded-lg hover:bg-slate-700 transition-all"
                 >
@@ -177,7 +228,7 @@ export default function CollectionDetail() {
               {isOwner && (
                 <button
                   onClick={() => setShowAddTool(true)}
-                  className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all"
+                  className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg shadow-cyan-500/30"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Add Tool</span>

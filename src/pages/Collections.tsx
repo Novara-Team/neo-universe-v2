@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, Folder, Lock, Globe, Sparkles, Trash2, Edit, Share2, Crown } from 'lucide-react';
+import { Plus, Folder, Lock, Globe, Trash2, Share2, Crown } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
 import { getUserCollections, createCollection, deleteCollection, Collection } from '../lib/collections';
 

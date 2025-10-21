@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Search, Filter, Sparkles, Star, TrendingUp, Calendar, X } from 'lucide-react';
 import { supabase, AITool, Category } from '../lib/supabase';
+import Checkbox from '../components/Checkbox';
 
 export default function Explore() {
   const [searchParams] = useSearchParams();
@@ -227,17 +228,15 @@ export default function Explore() {
 
                 <div>
                   <label className="block text-sm font-medium text-slate-300 mb-3">Tags</label>
-                  <div className="max-h-48 overflow-y-auto space-y-2">
+                  <div className="max-h-48 overflow-y-auto space-y-2.5 pr-2">
                     {availableTags.slice(0, 20).map(tag => (
-                      <label key={tag} className="flex items-center space-x-2 cursor-pointer group">
-                        <input
-                          type="checkbox"
-                          checked={selectedTags.includes(tag)}
-                          onChange={() => toggleTag(tag)}
-                          className="w-4 h-4 text-cyan-500 bg-slate-700 border-slate-600 rounded focus:ring-cyan-500"
-                        />
-                        <span className="text-slate-300 text-sm group-hover:text-cyan-400 transition-colors">{tag}</span>
-                      </label>
+                      <Checkbox
+                        key={tag}
+                        checked={selectedTags.includes(tag)}
+                        onChange={() => toggleTag(tag)}
+                        label={tag}
+                        id={`tag-${tag}`}
+                      />
                     ))}
                   </div>
                   {selectedTags.length > 0 && (
@@ -257,18 +256,17 @@ export default function Explore() {
                 </div>
 
                 <div>
-                  <label className="flex items-center space-x-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={featuredOnly}
-                      onChange={(e) => setFeaturedOnly(e.target.checked)}
-                      className="w-4 h-4 text-cyan-500 bg-slate-700 border-slate-600 rounded focus:ring-cyan-500"
-                    />
-                    <span className="text-slate-300 text-sm flex items-center space-x-1">
-                      <Sparkles className="w-4 h-4 text-yellow-400" />
-                      <span>Featured Only</span>
-                    </span>
-                  </label>
+                  <Checkbox
+                    checked={featuredOnly}
+                    onChange={setFeaturedOnly}
+                    label={
+                      <span className="flex items-center space-x-1.5">
+                        <Sparkles className="w-4 h-4 text-yellow-400" />
+                        <span>Featured Only</span>
+                      </span>
+                    }
+                    id="featured-only"
+                  />
                 </div>
 
                 <div>
