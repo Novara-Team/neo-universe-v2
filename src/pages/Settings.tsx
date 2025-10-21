@@ -1,8 +1,15 @@
 import { useState, useEffect } from 'react';
-import { User, Mail, Bell, Shield, CreditCard, Save, Loader, Check, X, Settings as SettingsIcon } from 'lucide-react';
+import { User, Mail, Bell, Shield, CreditCard, Save, Loader, Check, X, Settings as SettingsIcon, Palette } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
+import {
+  AppearancePreferences,
+  DEFAULT_PREFERENCES,
+  THEME_COLORS,
+  getUserAppearancePreferences,
+  saveAppearancePreferences
+} from '../lib/appearance';
 
 interface UserProfile {
   full_name: string;
@@ -26,7 +33,7 @@ interface Subscription {
 export default function Settings() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'profile' | 'account' | 'notifications' | 'subscription'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'account' | 'notifications' | 'subscription' | 'appearance'>('profile');
   const [isSaving, setIsSaving] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -45,11 +52,16 @@ export default function Settings() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const [appearancePrefs, setAppearancePrefs] = useState<AppearancePreferences>({
+    ...DEFAULT_PREFERENCES,
+    user_id: user?.id || ''
+  });
 
   useEffect(() => {
     if (user) {
       loadProfile();
       loadSubscription();
+      loadAppearancePreferences();
     }
   }, [user]);
 
@@ -85,6 +97,33 @@ export default function Settings() {
     } else {
       setSubscription(data);
     }
+  };
+
+  const loadAppearancePreferences = async () => {
+    if (!user) return;
+    const prefs = await getUserAppearancePreferences(user.id);
+    if (prefs) {
+      setAppearancePrefs(prefs);
+    }
+  };
+
+  const saveAppearance = async () => {
+    if (!user) return;
+
+    setIsSaving(true);
+    setErrorMessage('');
+    setSuccessMessage('');
+
+    const result = await saveAppearancePreferences(user.id, appearancePrefs);
+
+    if (result.success) {
+      setSuccessMessage('Appearance settings saved successfully');
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } else {
+      setErrorMessage(result.error || 'Failed to save appearance settings');
+    }
+
+    setIsSaving(false);
   };
 
   const saveProfile = async () => {
@@ -205,6 +244,7 @@ export default function Settings() {
     { id: 'profile' as const, label: 'Profile', icon: User },
     { id: 'account' as const, label: 'Account', icon: Shield },
     { id: 'notifications' as const, label: 'Notifications', icon: Bell },
+    { id: 'appearance' as const, label: 'Appearance', icon: Palette },
     { id: 'subscription' as const, label: 'Subscription', icon: CreditCard }
   ];
 
@@ -469,6 +509,150 @@ export default function Settings() {
                   >
                     {isSaving ? <Loader className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                     Save Preferences
+                  </button>
+                </div>
+              )}
+
+              {activeTab === 'appearance' && (
+                <div className="space-y-6">
+                  <div>
+                    <h2 className="text-2xl font-bold text-white mb-2">Appearance Settings</h2>
+                    <p className="text-slate-400">Customize the look and feel of the application</p>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-3">Theme</label>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        {(['light', 'dark', 'auto'] as const).map((theme) => (
+                          <button
+                            key={theme}
+                            onClick={() => setAppearancePrefs({ ...appearancePrefs, theme })}
+                            className={`p-4 rounded-xl border-2 transition-all ${
+                              appearancePrefs.theme === theme
+                                ? 'border-cyan-500 bg-cyan-500/10 shadow-lg shadow-cyan-500/20'
+                                : 'border-slate-700 bg-slate-900/30 hover:border-slate-600'
+                            }`}
+                          >
+                            <div className="text-center">
+                              <div className="text-lg font-semibold text-white capitalize mb-1">{theme}</div>
+                              <div className="text-xs text-slate-400">
+                                {theme === 'light' && 'Always use light mode'}
+                                {theme === 'dark' && 'Always use dark mode'}
+                                {theme === 'auto' && 'Match system preference'}
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-3">Color Theme</label>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        {THEME_COLORS.map((colorTheme) => (
+                          <button
+                            key={colorTheme.name}
+                            onClick={() =>
+                              setAppearancePrefs({
+                                ...appearancePrefs,
+                                primary_color: colorTheme.primary,
+                                accent_color: colorTheme.accent
+                              })
+                            }
+                            className={`p-4 rounded-xl border-2 transition-all ${
+                              appearancePrefs.primary_color === colorTheme.primary
+                                ? 'border-cyan-500 bg-cyan-500/10 shadow-lg shadow-cyan-500/20'
+                                : 'border-slate-700 bg-slate-900/30 hover:border-slate-600'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm font-semibold text-white">{colorTheme.name}</span>
+                              {appearancePrefs.primary_color === colorTheme.primary && (
+                                <Check className="w-4 h-4 text-cyan-400" />
+                              )}
+                            </div>
+                            <div className="flex space-x-2">
+                              <div
+                                className="flex-1 h-8 rounded-lg shadow-md"
+                                style={{ backgroundColor: colorTheme.primary }}
+                              />
+                              <div
+                                className="flex-1 h-8 rounded-lg shadow-md"
+                                style={{ backgroundColor: colorTheme.accent }}
+                              />
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-3">Font Size</label>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        {(['small', 'medium', 'large'] as const).map((size) => (
+                          <button
+                            key={size}
+                            onClick={() => setAppearancePrefs({ ...appearancePrefs, font_size: size })}
+                            className={`p-4 rounded-xl border-2 transition-all ${
+                              appearancePrefs.font_size === size
+                                ? 'border-cyan-500 bg-cyan-500/10 shadow-lg shadow-cyan-500/20'
+                                : 'border-slate-700 bg-slate-900/30 hover:border-slate-600'
+                            }`}
+                          >
+                            <div className="text-center">
+                              <div
+                                className={`font-semibold text-white capitalize mb-1 ${
+                                  size === 'small' ? 'text-sm' : size === 'large' ? 'text-xl' : 'text-base'
+                                }`}
+                              >
+                                {size}
+                              </div>
+                              <div className="text-xs text-slate-400">
+                                {size === 'small' && '14px base size'}
+                                {size === 'medium' && '16px base size'}
+                                {size === 'large' && '18px base size'}
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-5 bg-slate-900/30 border border-slate-700 rounded-xl hover:border-cyan-500/30 transition-all">
+                      <div>
+                        <h3 className="font-medium text-white mb-1">Reduced Motion</h3>
+                        <p className="text-sm text-slate-400">Minimize animations for better accessibility</p>
+                      </div>
+                      <button
+                        onClick={() =>
+                          setAppearancePrefs({
+                            ...appearancePrefs,
+                            reduced_motion: !appearancePrefs.reduced_motion
+                          })
+                        }
+                        className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
+                          appearancePrefs.reduced_motion
+                            ? 'bg-gradient-to-r from-cyan-500 to-blue-500 shadow-lg shadow-cyan-500/30'
+                            : 'bg-slate-700'
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform shadow-md ${
+                            appearancePrefs.reduced_motion ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                        />
+                      </button>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={saveAppearance}
+                    disabled={isSaving}
+                    className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-6 py-3 rounded-lg transition-all disabled:opacity-50 flex items-center gap-2 font-medium shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50"
+                  >
+                    {isSaving ? <Loader className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                    Save Appearance Settings
                   </button>
                 </div>
               )}

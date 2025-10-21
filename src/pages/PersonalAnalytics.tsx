@@ -109,7 +109,7 @@ export default function PersonalAnalytics() {
     return { value: Math.abs(Math.round(trend)), isPositive: trend >= 0 };
   };
 
-  if (!user || profile?.subscription_tier !== 'universe_master') {
+  if (!user || profile?.subscription_plan !== 'pro') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex flex-col">
         <Header />
@@ -118,13 +118,13 @@ export default function PersonalAnalytics() {
             <Award className="h-16 w-16 text-gray-400 mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Personal Analytics</h1>
             <p className="text-gray-600 mb-6">
-              Unlock detailed insights and analytics about your activity with Universe Master plan.
+              Unlock detailed insights and analytics about your activity with the Pro plan.
             </p>
             <Link
               to="/pricing"
               className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              Upgrade to Universe Master
+              Upgrade to Pro
             </Link>
           </div>
         </div>
