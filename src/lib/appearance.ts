@@ -130,8 +130,11 @@ export function applyAppearancePreferences(preferences: Partial<AppearancePrefer
     styleElement.textContent = `
       .bg-gradient-to-r.from-cyan-500, .bg-gradient-to-r.from-cyan-500.to-blue-500 { background-image: linear-gradient(to right, ${preferences.primary_color}, ${preferences.accent_color}) !important; }
       .bg-gradient-to-r.from-cyan-600, .bg-gradient-to-r.from-cyan-600.to-blue-600 { background-image: linear-gradient(to right, ${preferences.primary_color}, ${preferences.accent_color}) !important; }
+      .bg-gradient-to-r.from-cyan-400 { background-image: linear-gradient(to right, ${preferences.primary_color}, ${preferences.accent_color}) !important; }
       .from-cyan-400, .bg-gradient-to-r.from-cyan-400 { --tw-gradient-from: ${preferences.primary_color} !important; }
+      .via-blue-500 { --tw-gradient-via: ${preferences.accent_color} !important; }
       .to-blue-500, .bg-gradient-to-r.to-blue-500 { --tw-gradient-to: ${preferences.accent_color} !important; }
+      .to-cyan-400 { --tw-gradient-to: ${preferences.primary_color} !important; }
       .text-cyan-400 { color: ${preferences.primary_color} !important; }
       .text-cyan-500 { color: ${preferences.primary_color} !important; }
       .border-cyan-500 { border-color: ${preferences.primary_color} !important; }
@@ -147,6 +150,9 @@ export function applyAppearancePreferences(preferences: Partial<AppearancePrefer
       .from-cyan-900\\/20 { --tw-gradient-from: var(--color-primary-100) !important; }
       .border-t-cyan-400 { border-top-color: ${preferences.primary_color} !important; }
       .bg-gradient-to-b.from-slate-950, .bg-gradient-to-br.from-slate-50 { background-color: ${preferences.theme === 'light' ? '#f8fafc' : '#020617'} !important; }
+      .from-slate-900, .bg-gradient-to-b.from-slate-900 { background-color: ${preferences.theme === 'light' ? '#f1f5f9' : '#0f172a'} !important; }
+      .bg-slate-900\\/95, header.bg-slate-900\\/95 { background-color: ${preferences.theme === 'light' ? 'rgba(241, 245, 249, 0.95)' : 'rgba(15, 23, 42, 0.95)'} !important; }
+      .border-slate-800 { border-color: ${preferences.theme === 'light' ? '#cbd5e1' : '#1e293b'} !important; }
     `;
     if (!document.getElementById('dynamic-theme-styles')) {
       document.head.appendChild(styleElement);

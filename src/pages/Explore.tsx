@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Search, Filter, Sparkles, Star, TrendingUp, Calendar, X } from 'lucide-react';
+import { Search, Filter, Sparkles, Star, TrendingUp, Calendar, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { supabase, AITool, Category } from '../lib/supabase';
 import Checkbox from '../components/Checkbox';
 
@@ -18,6 +18,7 @@ export default function Explore() {
   const [sortBy, setSortBy] = useState('newest');
   const [loading, setLoading] = useState(true);
   const [availableTags, setAvailableTags] = useState<string[]>([]);
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     loadCategories();
@@ -146,8 +147,25 @@ export default function Explore() {
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           <div className="lg:col-span-1">
-            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6 sticky top-24">
-              <div className="flex items-center space-x-2 mb-6">
+            <div className="lg:hidden mb-4">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="w-full flex items-center justify-between px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white hover:border-cyan-500/50 transition-all"
+              >
+                <div className="flex items-center space-x-2">
+                  <Filter className="w-5 h-5 text-cyan-400" />
+                  <span className="font-semibold">Filters</span>
+                </div>
+                {showFilters ? (
+                  <ChevronUp className="w-5 h-5 text-slate-400" />
+                ) : (
+                  <ChevronDown className="w-5 h-5 text-slate-400" />
+                )}
+              </button>
+            </div>
+
+            <div className={`${showFilters ? 'block' : 'hidden'} lg:block bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6 lg:sticky lg:top-24`}>
+              <div className="hidden lg:flex items-center space-x-2 mb-6">
                 <Filter className="w-5 h-5 text-cyan-400" />
                 <h2 className="text-lg font-semibold text-white">Filters</h2>
               </div>

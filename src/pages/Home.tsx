@@ -270,24 +270,6 @@ export default function Home() {
           </div>
         )}
       </div>
-
-      <div className="bg-gradient-to-r from-cyan-900/20 via-blue-900/20 to-cyan-900/20 border-t border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-          <div className="text-center">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">Ready to Discover More?</h2>
-            <p className="text-slate-400 mb-8 max-w-2xl mx-auto">
-              Join thousands of users exploring the best AI tools for productivity, creativity, and innovation
-            </p>
-            <Link
-              to="/explore"
-              className="inline-flex items-center space-x-2 px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-all font-semibold shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 hover:scale-105"
-            >
-              <span>Explore All Tools</span>
-              <ArrowRight className="w-5 h-5" />
-            </Link>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

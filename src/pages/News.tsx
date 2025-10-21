@@ -1,0 +1,271 @@
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Newspaper, TrendingUp, Calendar, ExternalLink, Crown, Lock, Filter, Search, X } from 'lucide-react';
+import { supabase, AINews } from '../lib/supabase';
+import { useAuth } from '../lib/useAuth';
+
+export default function News() {
+  const { user, profile } = useAuth();
+  const [news, setNews] = useState<AINews[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest'>('newest');
+  const [showFilters, setShowFilters] = useState(false);
+
+  const isPaidUser = profile && (profile.subscription_plan === 'plus' || profile.subscription_plan === 'pro');
+
+  useEffect(() => {
+    loadNews();
+  }, [searchQuery, categoryFilter, sortBy]);
+
+  const loadNews = async () => {
+    setLoading(true);
+    let query = supabase
+      .from('ai_news')
+      .select('*')
+      .order('publication_date', { ascending: sortBy === 'oldest' });
+
+    if (searchQuery) {
+      query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+    }
+
+    if (categoryFilter) {
+      query = query.eq('source_name', categoryFilter);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('Error loading news:', error);
+    } else {
+      setNews(data || []);
+    }
+
+    setLoading(false);
+  };
+
+  const uniqueSources = Array.from(new Set(news.map(item => item.source_name))).sort();
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (diffInDays === 0) return 'Today';
+    if (diffInDays === 1) return 'Yesterday';
+    if (diffInDays < 7) return `${diffInDays} days ago`;
+    if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`;
+
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+    });
+  };
+
+  if (!user || !isPaidUser) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pt-24 pb-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="text-center max-w-2xl">
+              <div className="inline-flex p-6 bg-gradient-to-br from-amber-500/10 to-orange-500/10 rounded-3xl mb-6">
+                <Lock className="h-20 w-20 text-amber-400" />
+              </div>
+              <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+                AI News Hub
+              </h1>
+              <p className="text-xl text-slate-400 mb-8 leading-relaxed">
+                Access exclusive, curated AI news and insights with detailed analysis. Stay ahead with the latest developments in artificial intelligence.
+              </p>
+              <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-8 mb-8">
+                <div className="flex items-center justify-center mb-6">
+                  <Crown className="h-8 w-8 text-amber-400 mr-3" />
+                  <h3 className="text-2xl font-bold text-white">Premium Feature</h3>
+                </div>
+                <ul className="text-left text-slate-300 space-y-3 mb-8">
+                  <li className="flex items-start">
+                    <TrendingUp className="h-5 w-5 text-cyan-400 mr-3 mt-1 flex-shrink-0" />
+                    <span>Daily curated AI news from top sources</span>
+                  </li>
+                  <li className="flex items-start">
+                    <Newspaper className="h-5 w-5 text-cyan-400 mr-3 mt-1 flex-shrink-0" />
+                    <span>Detailed analysis and expert commentary</span>
+                  </li>
+                  <li className="flex items-start">
+                    <Calendar className="h-5 w-5 text-cyan-400 mr-3 mt-1 flex-shrink-0" />
+                    <span>Advanced filtering and search capabilities</span>
+                  </li>
+                </ul>
+                <Link
+                  to="/pricing"
+                  className="inline-flex items-center space-x-2 px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-all font-semibold shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 hover:scale-105"
+                >
+                  <Crown className="w-5 h-5" />
+                  <span>Upgrade to Access</span>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pt-24 pb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mb-8">
+          <div className="flex items-center space-x-3 mb-4">
+            <div className="p-3 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl">
+              <Newspaper className="w-8 h-8 text-cyan-400" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold text-white">AI News Hub</h1>
+              <p className="text-slate-400 mt-1">Stay informed with the latest AI developments</p>
+            </div>
+          </div>
+
+          {profile?.subscription_plan === 'pro' && (
+            <div className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-full">
+              <Crown className="w-4 h-4 text-amber-400" />
+              <span className="text-amber-400 text-sm font-medium">Pro Member Exclusive</span>
+            </div>
+          )}
+        </div>
+
+        <div className="mb-8 space-y-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search news articles..."
+                className="w-full pl-12 pr-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all"
+              />
+            </div>
+
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center justify-center space-x-2 px-6 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white hover:border-cyan-500/50 transition-all"
+            >
+              <Filter className="w-5 h-5" />
+              <span>Filters</span>
+            </button>
+          </div>
+
+          {showFilters && (
+            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Source</label>
+                  <select
+                    value={categoryFilter}
+                    onChange={(e) => setCategoryFilter(e.target.value)}
+                    className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  >
+                    <option value="">All Sources</option>
+                    {uniqueSources.map(source => (
+                      <option key={source} value={source}>{source}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Sort By</label>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest')}
+                    className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  >
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                  </select>
+                </div>
+              </div>
+
+              {(searchQuery || categoryFilter) && (
+                <div className="mt-4 pt-4 border-t border-slate-700">
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      setCategoryFilter('');
+                    }}
+                    className="flex items-center space-x-2 text-cyan-400 hover:text-cyan-300 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                    <span className="text-sm">Clear all filters</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500 mb-4"></div>
+              <p className="text-slate-400">Loading latest news...</p>
+            </div>
+          </div>
+        ) : news.length === 0 ? (
+          <div className="text-center py-20">
+            <Newspaper className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+            <p className="text-slate-400 text-lg">No news articles found</p>
+          </div>
+        ) : (
+          <>
+            <div className="mb-6 flex items-center justify-between">
+              <p className="text-slate-400">
+                Showing {news.length} article{news.length !== 1 ? 's' : ''}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {news.map((item) => (
+                <a
+                  key={item.id}
+                  href={item.source_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/10 transition-all"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center space-x-2">
+                      <div className="text-xs font-medium text-cyan-400 bg-cyan-500/10 px-3 py-1 rounded-full border border-cyan-500/20">
+                        {item.source_name}
+                      </div>
+                      {item.featured && (
+                        <div className="text-xs font-medium text-amber-400 bg-amber-500/10 px-2 py-1 rounded-full border border-amber-500/20">
+                          Featured
+                        </div>
+                      )}
+                    </div>
+                    <ExternalLink className="w-4 h-4 text-slate-500 group-hover:text-cyan-400 transition-colors" />
+                  </div>
+
+                  <h3 className="text-xl font-bold text-white mb-3 group-hover:text-cyan-400 transition-colors line-clamp-2 leading-snug">
+                    {item.title}
+                  </h3>
+
+                  <p className="text-slate-400 mb-4 line-clamp-3 text-sm leading-relaxed">
+                    {item.description}
+                  </p>
+
+                  <div className="flex items-center space-x-2 text-xs text-slate-500">
+                    <Calendar className="w-4 h-4" />
+                    <span>{formatDate(item.publication_date)}</span>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}

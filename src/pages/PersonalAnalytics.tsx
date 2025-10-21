@@ -110,11 +110,11 @@ export default function PersonalAnalytics() {
 
   if (!user || profile?.subscription_plan !== 'pro') {
     return (
-      <div className="flex items-center justify-center px-4 py-20">
+      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center px-4 py-20">
         <div className="text-center max-w-md">
-          <Award className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Personal Analytics</h1>
-          <p className="text-gray-600 mb-6">
+          <Award className="h-16 w-16 text-slate-400 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-white mb-2">Personal Analytics</h1>
+          <p className="text-slate-400 mb-6">
             Unlock detailed insights and analytics about your activity with the Pro plan.
           </p>
           <Link
@@ -130,7 +130,7 @@ export default function PersonalAnalytics() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center px-4 py-20">
+      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center px-4 py-20">
         <div className="text-center max-w-md">
           <div className="relative mb-8">
             <div className="absolute inset-0 flex items-center justify-center">
@@ -142,8 +142,8 @@ export default function PersonalAnalytics() {
           </div>
 
           <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-slate-900 animate-pulse">Loading Your Analytics</h2>
-            <p className="text-slate-600">Gathering your activity data and insights...</p>
+            <h2 className="text-2xl font-bold text-white animate-pulse">Loading Your Analytics</h2>
+          <p className="text-slate-400">Gathering your activity data and insights...</p>
 
             <div className="grid grid-cols-3 gap-3 mt-8">
               <div className="h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl animate-pulse"></div>
@@ -168,11 +168,11 @@ export default function PersonalAnalytics() {
   const trend = calculateTrend();
 
   return (
-    <div className="py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="mb-8 text-center md:text-left">
             <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2">Personal Analytics</h1>
-            <p className="text-slate-600 text-base md:text-lg">Track your AI tool discovery journey and engagement</p>
+            <p className="text-slate-400 text-base md:text-lg">Track your AI tool discovery journey and engagement</p>
           </div>
 
           <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

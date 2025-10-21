@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Send, CheckCircle } from 'lucide-react';
+import { Send, CheckCircle, HelpCircle, X } from 'lucide-react';
 import { supabase, Category } from '../lib/supabase';
 import { useAuth } from '../lib/useAuth';
 import SubmitToolPro from './SubmitToolPro';
@@ -9,6 +9,7 @@ export default function SubmitTool() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showEmailInfo, setShowEmailInfo] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     category: '',
@@ -178,9 +179,19 @@ export default function SubmitTool() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Your Email <span className="text-red-400">*</span>
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-slate-300">
+                  Your Email <span className="text-red-400">*</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowEmailInfo(true)}
+                  className="flex items-center space-x-1 text-cyan-400 hover:text-cyan-300 transition-colors text-sm"
+                >
+                  <HelpCircle className="w-4 h-4" />
+                  <span className="underline">Why My Email?</span>
+                </button>
+              </div>
               <input
                 type="email"
                 required
@@ -201,6 +212,90 @@ export default function SubmitTool() {
             </button>
           </div>
         </form>
+
+        {showEmailInfo && (
+          <>
+            <div
+              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
+              onClick={() => setShowEmailInfo(false)}
+            />
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <div className="bg-slate-800 border border-slate-700 rounded-2xl p-8 max-w-lg w-full shadow-2xl">
+                <div className="flex items-start justify-between mb-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-cyan-500/20 rounded-lg">
+                      <HelpCircle className="w-6 h-6 text-cyan-400" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-white">Why We Need Your Email</h3>
+                  </div>
+                  <button
+                    onClick={() => setShowEmailInfo(false)}
+                    className="text-slate-400 hover:text-white transition-colors"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+
+                <div className="space-y-4 text-slate-300">
+                  <p className="leading-relaxed">
+                    We require your email address for the following important reasons:
+                  </p>
+
+                  <div className="bg-slate-900/50 rounded-xl p-4 space-y-3">
+                    <div className="flex items-start space-x-3">
+                      <div className="w-6 h-6 rounded-full bg-cyan-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-cyan-400 text-sm font-bold">1</span>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-white mb-1">Status Updates</h4>
+                        <p className="text-sm text-slate-400">
+                          We'll notify you when your submission is reviewed and published on our platform.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start space-x-3">
+                      <div className="w-6 h-6 rounded-full bg-cyan-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-cyan-400 text-sm font-bold">2</span>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-white mb-1">Verification</h4>
+                        <p className="text-sm text-slate-400">
+                          Your email helps us verify the authenticity of submissions and prevent spam.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start space-x-3">
+                      <div className="w-6 h-6 rounded-full bg-cyan-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-cyan-400 text-sm font-bold">3</span>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-white mb-1">Communication</h4>
+                        <p className="text-sm text-slate-400">
+                          We may need to contact you if we have questions or need additional information about the tool.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4">
+                    <p className="text-sm text-cyan-400">
+                      <strong>Privacy Promise:</strong> Your email is kept private and will never be shared with third parties or used for marketing without your consent.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setShowEmailInfo(false)}
+                  className="mt-6 w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg shadow-cyan-500/30 font-medium"
+                >
+                  Got it, thanks!
+                </button>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
