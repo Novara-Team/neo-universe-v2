@@ -7,6 +7,7 @@ interface UserProfile {
   email: string;
   full_name: string | null;
   subscription_plan: 'free' | 'plus' | 'pro';
+  subscription_tier?: 'universe_master';
   subscription_status: 'active' | 'cancelled' | 'past_due' | 'trialing';
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
