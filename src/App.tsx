@@ -26,6 +26,7 @@ import ManageSubmissions from './pages/admin/ManageSubmissions';
 import ManageSupport from './pages/admin/ManageSupport';
 import Settings from './pages/Settings';
 import Recommendations from './pages/Recommendations';
+import PersonalAnalytics from './pages/PersonalAnalytics';
 import SupportChat from './components/SupportChat';
 import ProtectedRoute from './components/ProtectedRoute';
 import { Analytics } from '@vercel/analytics/react';
@@ -75,6 +76,7 @@ function App() {
                     <Route path="/collections" element={<Collections />} />
                     <Route path="/collections/:slug" element={<CollectionDetail />} />
                     <Route path="/recommendations" element={<Recommendations />} />
+                    <Route path="/analytics" element={<PersonalAnalytics />} />
                     <Route path="/settings" element={<Settings />} />
                   </Routes>
                 </main>

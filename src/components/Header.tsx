@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Sparkles, User, LogOut, Crown, Zap, Settings, Heart, Folder, Lightbulb } from 'lucide-react';
+import { Sparkles, User, LogOut, Crown, Zap, Settings, Heart, Folder, Lightbulb, BarChart3 } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
 import { useState } from 'react';
 
@@ -130,6 +130,22 @@ export default function Header() {
                               Recommendations
                               <span className="px-1.5 py-0.5 bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded">
                                 PRO
+                              </span>
+                            </span>
+                          </Link>
+                        )}
+
+                        {profile && profile.subscription_tier === 'universe_master' && (
+                          <Link
+                            to="/analytics"
+                            onClick={() => setShowUserMenu(false)}
+                            className="flex items-center gap-3 px-4 py-2 text-slate-300 hover:bg-slate-700 rounded-lg transition-colors"
+                          >
+                            <BarChart3 className="w-4 h-4 text-purple-400" />
+                            <span className="flex items-center gap-2">
+                              Personal Analytics
+                              <span className="px-1.5 py-0.5 bg-purple-500/20 text-purple-400 text-xs font-bold rounded">
+                                MASTER
                               </span>
                             </span>
                           </Link>
