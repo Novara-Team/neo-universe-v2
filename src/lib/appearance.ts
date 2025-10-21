@@ -78,7 +78,11 @@ export async function saveAppearancePreferences(
     }
   }
 
-  applyAppearancePreferences({ ...DEFAULT_PREFERENCES, ...preferences });
+  const finalPrefs = { ...DEFAULT_PREFERENCES, ...preferences };
+  applyAppearancePreferences(finalPrefs);
+
+  window.location.reload();
+
   return { success: true };
 }
 

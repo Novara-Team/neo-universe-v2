@@ -135,7 +135,7 @@ export default function Header() {
                           </Link>
                         )}
 
-                        {profile && profile.subscription_tier === 'universe_master' && (
+                        {profile && profile.subscription_plan === 'pro' && (
                           <Link
                             to="/analytics"
                             onClick={() => setShowUserMenu(false)}
@@ -145,7 +145,7 @@ export default function Header() {
                             <span className="flex items-center gap-2">
                               Personal Analytics
                               <span className="px-1.5 py-0.5 bg-purple-500/20 text-purple-400 text-xs font-bold rounded">
-                                MASTER
+                                PRO
                               </span>
                             </span>
                           </Link>
