@@ -20,7 +20,8 @@ import {
   GitCompare,
   Folder,
   Bell,
-  ArrowRight
+  ArrowRight,
+  Mail
 } from 'lucide-react';
 
 interface DocSection {

@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -25,24 +26,27 @@ Deno.serve(async (req: Request) => {
   try {
     const { name, email, subject, message, priority }: ContactRequest = await req.json();
 
-    const emailContent = `
-New Contact Form Submission
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
-From: ${name}
-Email: ${email}
-Priority: ${priority.toUpperCase()}
+    const { error: insertError } = await supabase
+      .from('contact_messages')
+      .insert({
+        name,
+        email,
+        subject,
+        message,
+        priority,
+        status: 'pending'
+      });
 
-Subject: ${subject}
+    if (insertError) {
+      console.error('Database error:', insertError);
+      throw new Error('Failed to save message');
+    }
 
-Message:
-${message}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Submitted at: ${new Date().toLocaleString()}
-    `.trim();
-
-    console.log('Contact form submission:', {
+    console.log('Contact form submission saved:', {
       from: email,
       name,
       subject,
@@ -50,34 +54,10 @@ Submitted at: ${new Date().toLocaleString()}
       timestamp: new Date().toISOString()
     });
 
-    const emailResponse = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${Deno.env.get('RESEND_API_KEY')}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'AI Universe Support <support@aiuniverse.app>',
-        to: ['novara.team.company@gmail.com'],
-        reply_to: email,
-        subject: `[${priority.toUpperCase()}] ${subject}`,
-        text: emailContent,
-      }),
-    });
-
-    if (!emailResponse.ok) {
-      const errorText = await emailResponse.text();
-      console.error('Resend API error:', errorText);
-      throw new Error('Failed to send email');
-    }
-
-    const result = await emailResponse.json();
-
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'Message sent successfully',
-        emailId: result.id
+        message: 'Message sent successfully. We will respond within 24 hours.'
       }),
       {
         headers: {

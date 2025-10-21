@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Newspaper, TrendingUp, Calendar, ExternalLink, Crown, Lock, Filter, Search, X } from 'lucide-react';
+import { Newspaper, TrendingUp, Calendar, ExternalLink, Crown, Lock, Filter, Search, X, Star, Clock, SlidersHorizontal } from 'lucide-react';
 import { supabase, AINews } from '../lib/supabase';
 import { useAuth } from '../lib/useAuth';
 
@@ -10,21 +10,19 @@ export default function News() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
-  const [sortBy, setSortBy] = useState<'newest' | 'oldest'>('newest');
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'featured'>('newest');
   const [showFilters, setShowFilters] = useState(false);
+  const [timeFilter, setTimeFilter] = useState<'all' | 'today' | 'week' | 'month'>('all');
 
   const isPaidUser = profile && (profile.subscription_plan === 'plus' || profile.subscription_plan === 'pro');
 
   useEffect(() => {
     loadNews();
-  }, [searchQuery, categoryFilter, sortBy]);
+  }, [searchQuery, categoryFilter, sortBy, timeFilter]);
 
   const loadNews = async () => {
     setLoading(true);
-    let query = supabase
-      .from('ai_news')
-      .select('*')
-      .order('publication_date', { ascending: sortBy === 'oldest' });
+    let query = supabase.from('ai_news').select('*');
 
     if (searchQuery) {
       query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
@@ -32,6 +30,31 @@ export default function News() {
 
     if (categoryFilter) {
       query = query.eq('source_name', categoryFilter);
+    }
+
+    if (timeFilter !== 'all') {
+      const now = new Date();
+      let startDate = new Date();
+
+      switch (timeFilter) {
+        case 'today':
+          startDate.setHours(0, 0, 0, 0);
+          break;
+        case 'week':
+          startDate.setDate(now.getDate() - 7);
+          break;
+        case 'month':
+          startDate.setMonth(now.getMonth() - 1);
+          break;
+      }
+
+      query = query.gte('publication_date', startDate.toISOString());
+    }
+
+    if (sortBy === 'featured') {
+      query = query.order('featured', { ascending: false }).order('publication_date', { ascending: false });
+    } else {
+      query = query.order('publication_date', { ascending: sortBy === 'oldest' });
     }
 
     const { data, error } = await query;
@@ -158,46 +181,121 @@ export default function News() {
           </div>
 
           {showFilters && (
-            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm border border-slate-700 rounded-2xl p-6 shadow-xl">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2">
+                  <SlidersHorizontal className="w-5 h-5 text-cyan-400" />
+                  <h3 className="text-lg font-bold text-white">Filter & Sort</h3>
+                </div>
+                <button
+                  onClick={() => setShowFilters(false)}
+                  className="p-1 hover:bg-slate-700/50 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5 text-slate-400" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Source</label>
-                  <select
-                    value={categoryFilter}
-                    onChange={(e) => setCategoryFilter(e.target.value)}
-                    className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                  >
-                    <option value="">All Sources</option>
-                    {uniqueSources.map(source => (
-                      <option key={source} value={source}>{source}</option>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-slate-300 mb-3">
+                    <Newspaper className="w-4 h-4 text-cyan-400" />
+                    Source
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    <button
+                      onClick={() => setCategoryFilter('')}
+                      className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                        categoryFilter === ''
+                          ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg'
+                          : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700 border border-slate-600'
+                      }`}
+                    >
+                      All Sources
+                    </button>
+                    {uniqueSources.slice(0, 5).map(source => (
+                      <button
+                        key={source}
+                        onClick={() => setCategoryFilter(source)}
+                        className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                          categoryFilter === source
+                            ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg'
+                            : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700 border border-slate-600'
+                        }`}
+                      >
+                        {source}
+                      </button>
                     ))}
-                  </select>
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Sort By</label>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest')}
-                    className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                  >
-                    <option value="newest">Newest First</option>
-                    <option value="oldest">Oldest First</option>
-                  </select>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-slate-300 mb-3">
+                    <Clock className="w-4 h-4 text-green-400" />
+                    Time Range
+                  </label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[
+                      { value: 'all', label: 'All Time' },
+                      { value: 'today', label: 'Today' },
+                      { value: 'week', label: 'This Week' },
+                      { value: 'month', label: 'This Month' }
+                    ].map(({ value, label }) => (
+                      <button
+                        key={value}
+                        onClick={() => setTimeFilter(value as typeof timeFilter)}
+                        className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                          timeFilter === value
+                            ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg'
+                            : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700 border border-slate-600'
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-slate-300 mb-3">
+                    <TrendingUp className="w-4 h-4 text-purple-400" />
+                    Sort By
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { value: 'newest', label: 'Newest', icon: Clock },
+                      { value: 'oldest', label: 'Oldest', icon: Calendar },
+                      { value: 'featured', label: 'Featured', icon: Star }
+                    ].map(({ value, label, icon: Icon }) => (
+                      <button
+                        key={value}
+                        onClick={() => setSortBy(value as typeof sortBy)}
+                        className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                          sortBy === value
+                            ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                            : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700 border border-slate-600'
+                        }`}
+                      >
+                        <Icon className="w-4 h-4" />
+                        {label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              {(searchQuery || categoryFilter) && (
-                <div className="mt-4 pt-4 border-t border-slate-700">
+              {(searchQuery || categoryFilter !== '' || timeFilter !== 'all' || sortBy !== 'newest') && (
+                <div className="mt-6 pt-6 border-t border-slate-700">
                   <button
                     onClick={() => {
                       setSearchQuery('');
                       setCategoryFilter('');
+                      setTimeFilter('all');
+                      setSortBy('newest');
                     }}
-                    className="flex items-center space-x-2 text-cyan-400 hover:text-cyan-300 transition-colors"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg hover:bg-red-500/20 transition-all font-medium"
                   >
                     <X className="w-4 h-4" />
-                    <span className="text-sm">Clear all filters</span>
+                    Clear All Filters
                   </button>
                 </div>
               )}

@@ -167,8 +167,24 @@ export default function PersonalAnalytics() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center px-4 py-20">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-cyan-500 mb-4"></div>
-          <p className="text-slate-400 text-lg">Loading your analytics...</p>
+          <div className="relative w-32 h-32 mx-auto mb-8">
+            <div className="absolute inset-0 rounded-full border-4 border-slate-700"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-cyan-500 border-r-blue-500 animate-spin"></div>
+            <div className="absolute inset-3 rounded-full border-4 border-transparent border-t-blue-500 border-r-purple-500 animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1s' }}></div>
+            <div className="absolute inset-6 rounded-full border-4 border-transparent border-t-purple-500 border-r-pink-500 animate-spin" style={{ animationDuration: '0.7s' }}></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <BarChart3 className="w-10 h-10 text-cyan-400 animate-pulse" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <p className="text-white text-xl font-semibold">Loading Analytics</p>
+            <p className="text-slate-400">Analyzing your activity data...</p>
+          </div>
+          <div className="flex items-center justify-center gap-1.5 mt-6">
+            <div className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+            <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+          </div>
         </div>
       </div>
     );

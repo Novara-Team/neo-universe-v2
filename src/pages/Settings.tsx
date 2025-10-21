@@ -269,17 +269,45 @@ export default function Settings() {
 
     setIsSaving(true);
     setErrorMessage('');
+    setSuccessMessage('');
 
-    const { error } = await supabase
-      .from('subscriptions')
-      .update({ cancel_at_period_end: true })
-      .eq('id', subscription.id);
+    try {
+      const { data: customerData } = await supabase
+        .from('stripe_customers')
+        .select('customer_id')
+        .eq('user_id', user?.id)
+        .maybeSingle();
 
-    if (error) {
-      setErrorMessage('Failed to cancel subscription');
-    } else {
+      if (customerData?.customer_id) {
+        const { error: stripeError } = await supabase
+          .from('stripe_subscriptions')
+          .update({ cancel_at_period_end: true })
+          .eq('customer_id', customerData.customer_id);
+
+        if (stripeError) {
+          console.error('Error updating Stripe subscription:', stripeError);
+        }
+      }
+
+      const { error: profileError } = await supabase
+        .from('user_profiles')
+        .update({
+          subscription_status: 'canceling'
+        })
+        .eq('id', user?.id);
+
+      if (profileError) {
+        throw profileError;
+      }
+
       setSuccessMessage('Subscription will be canceled at the end of the billing period');
-      loadSubscription();
+      setTimeout(() => {
+        setSuccessMessage('');
+        loadSubscription();
+      }, 2000);
+    } catch (error) {
+      console.error('Error canceling subscription:', error);
+      setErrorMessage('Failed to cancel subscription. Please contact support.');
     }
 
     setIsSaving(false);
@@ -290,17 +318,45 @@ export default function Settings() {
 
     setIsSaving(true);
     setErrorMessage('');
+    setSuccessMessage('');
 
-    const { error } = await supabase
-      .from('subscriptions')
-      .update({ cancel_at_period_end: false })
-      .eq('id', subscription.id);
+    try {
+      const { data: customerData } = await supabase
+        .from('stripe_customers')
+        .select('customer_id')
+        .eq('user_id', user?.id)
+        .maybeSingle();
 
-    if (error) {
-      setErrorMessage('Failed to reactivate subscription');
-    } else {
+      if (customerData?.customer_id) {
+        const { error: stripeError } = await supabase
+          .from('stripe_subscriptions')
+          .update({ cancel_at_period_end: false })
+          .eq('customer_id', customerData.customer_id);
+
+        if (stripeError) {
+          console.error('Error updating Stripe subscription:', stripeError);
+        }
+      }
+
+      const { error: profileError } = await supabase
+        .from('user_profiles')
+        .update({
+          subscription_status: 'active'
+        })
+        .eq('id', user?.id);
+
+      if (profileError) {
+        throw profileError;
+      }
+
       setSuccessMessage('Subscription reactivated successfully');
-      loadSubscription();
+      setTimeout(() => {
+        setSuccessMessage('');
+        loadSubscription();
+      }, 2000);
+    } catch (error) {
+      console.error('Error reactivating subscription:', error);
+      setErrorMessage('Failed to reactivate subscription. Please contact support.');
     }
 
     setIsSaving(false);
