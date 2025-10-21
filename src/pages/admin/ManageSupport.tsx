@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { MessageCircle, Send, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { MessageCircle, Send, CheckCircle, Clock, XCircle, Paperclip, FileText, Image as ImageIcon, Download, X } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 interface Conversation {
@@ -17,6 +17,9 @@ interface Message {
   sender_type: 'user' | 'admin';
   created_at: string;
   read: boolean;
+  attachment_url?: string;
+  attachment_type?: string;
+  attachment_name?: string;
 }
 
 export default function ManageSupport() {
@@ -27,6 +30,9 @@ export default function ManageSupport() {
   const [isLoading, setIsLoading] = useState(false);
   const [filter, setFilter] = useState<'all' | 'open' | 'in_progress' | 'closed'>('all');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadingFile, setUploadingFile] = useState(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -110,7 +116,13 @@ export default function ManageSupport() {
           filter: `conversation_id=eq.${selectedConversation.id}`
         },
         (payload) => {
-          setMessages((prev) => [...prev, payload.new as Message]);
+          const newMessage = payload.new as Message;
+          setMessages((prev) => {
+            if (prev.find(m => m.id === newMessage.id)) {
+              return prev;
+            }
+            return [...prev, newMessage];
+          });
           loadConversations();
         }
       )
@@ -121,14 +133,57 @@ export default function ManageSupport() {
     };
   };
 
+  const uploadFile = async (file: File): Promise<string | null> => {
+    if (!selectedConversation) return null;
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/${selectedConversation.id}/${Date.now()}.${fileExt}`;
+
+      const { data, error } = await supabase.storage
+        .from('support-files')
+        .upload(fileName, file);
+
+      if (error) throw error;
+
+      const { data: urlData } = supabase.storage
+        .from('support-files')
+        .getPublicUrl(data.path);
+
+      return urlData.publicUrl;
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      return null;
+    }
+  };
+
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !selectedConversation) return;
+    if ((!newMessage.trim() && !selectedFile) || !selectedConversation) return;
 
     setIsLoading(true);
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
+
+    const messageText = newMessage.trim() || (selectedFile ? 'Sent a file' : '');
+    let attachmentUrl = null;
+    let attachmentType = null;
+    let attachmentName = null;
+
+    if (selectedFile) {
+      setUploadingFile(true);
+      attachmentUrl = await uploadFile(selectedFile);
+      if (attachmentUrl) {
+        attachmentType = selectedFile.type;
+        attachmentName = selectedFile.name;
+      }
+      setUploadingFile(false);
+      setSelectedFile(null);
+    }
 
     const { error } = await supabase
       .from('support_messages')
@@ -136,7 +191,10 @@ export default function ManageSupport() {
         conversation_id: selectedConversation.id,
         sender_id: user.id,
         sender_type: 'admin',
-        message: newMessage.trim()
+        message: messageText,
+        attachment_url: attachmentUrl,
+        attachment_type: attachmentType,
+        attachment_name: attachmentName
       });
 
     if (error) {
@@ -188,6 +246,21 @@ export default function ManageSupport() {
       default:
         return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        alert('File size must be less than 10MB');
+        return;
+      }
+      setSelectedFile(file);
+    }
+  };
+
+  const isImage = (type?: string) => {
+    return type?.startsWith('image/');
   };
 
   return (
@@ -296,6 +369,32 @@ export default function ManageSupport() {
                     }`}
                   >
                     <p className="text-sm">{msg.message}</p>
+                    {msg.attachment_url && (
+                      <div className="mt-2">
+                        {isImage(msg.attachment_type) ? (
+                          <img
+                            src={msg.attachment_url}
+                            alt={msg.attachment_name}
+                            className="max-w-full rounded-lg border border-white/20"
+                            style={{ maxHeight: '200px' }}
+                          />
+                        ) : (
+                          <a
+                            href={msg.attachment_url}
+                            download={msg.attachment_name}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors ${
+                              msg.sender_type === 'admin'
+                                ? 'border-white/30 hover:bg-white/10'
+                                : 'border-gray-300 hover:bg-gray-50'
+                            }`}
+                          >
+                            <FileText className="w-4 h-4" />
+                            <span className="text-xs truncate flex-1">{msg.attachment_name}</span>
+                            <Download className="w-4 h-4" />
+                          </a>
+                        )}
+                      </div>
+                    )}
                     <p
                       className={`text-xs mt-1 ${
                         msg.sender_type === 'admin' ? 'text-blue-100' : 'text-gray-500'
@@ -313,21 +412,70 @@ export default function ManageSupport() {
             </div>
 
             <form onSubmit={sendMessage} className="p-4 border-t border-gray-200">
+              {selectedFile && (
+                <div className="mb-3 flex items-center gap-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
+                  {isImage(selectedFile.type) ? (
+                    <ImageIcon className="w-4 h-4 text-blue-600" />
+                  ) : (
+                    <FileText className="w-4 h-4 text-blue-600" />
+                  )}
+                  <span className="text-sm text-blue-700 flex-1 truncate">{selectedFile.name}</span>
+                  <span className="text-xs text-blue-500">
+                    {(selectedFile.size / 1024).toFixed(1)} KB
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedFile(null)}
+                    className="text-blue-400 hover:text-blue-600 transition-colors"
+                    disabled={uploadingFile}
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+              {uploadingFile && (
+                <div className="mb-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="flex items-center gap-3">
+                    <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                    <span className="text-sm text-blue-700">Uploading file...</span>
+                  </div>
+                </div>
+              )}
               <div className="flex gap-2">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileSelect}
+                  accept="image/*,.pdf,.doc,.docx,.txt"
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isLoading || uploadingFile || selectedConversation.status === 'closed'}
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 p-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  aria-label="Attach file"
+                >
+                  <Paperclip className="w-5 h-5" />
+                </button>
                 <input
                   type="text"
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   placeholder="Type your response..."
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
-                  disabled={isLoading || selectedConversation.status === 'closed'}
+                  disabled={isLoading || uploadingFile || selectedConversation.status === 'closed'}
                 />
                 <button
                   type="submit"
-                  disabled={isLoading || !newMessage.trim() || selectedConversation.status === 'closed'}
+                  disabled={isLoading || uploadingFile || (!newMessage.trim() && !selectedFile) || selectedConversation.status === 'closed'}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
-                  <Send className="w-4 h-4" />
+                  {uploadingFile ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Send className="w-4 h-4" />
+                  )}
                   Send
                 </button>
               </div>
