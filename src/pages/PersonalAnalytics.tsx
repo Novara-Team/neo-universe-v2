@@ -109,7 +109,7 @@ export default function PersonalAnalytics() {
     return { value: Math.abs(Math.round(trend)), isPositive: trend >= 0 };
   };
 
-  if (!user || profile?.subscription_plan !== 'pro') {
+  if (!user || profile?.subscription_plan !== 'free') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex flex-col">
         <Header />
