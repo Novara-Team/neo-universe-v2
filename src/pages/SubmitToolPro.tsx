@@ -246,6 +246,11 @@ export default function SubmitToolPro() {
                   className="w-full px-5 py-4 bg-slate-700/50 border border-slate-600/50 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
                   placeholder="your@email.com"
                 />
+                <div className="mt-3 p-4 bg-cyan-500/5 border border-cyan-500/20 rounded-lg">
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    <span className="font-semibold text-cyan-400">Why do we need your email?</span> We use it to notify you about your submission status and to contact you if we need clarification about your tool. Your email is never shared with third parties or used for marketing without your consent.
+                  </p>
+                </div>
               </div>
             </div>
 

@@ -227,11 +227,9 @@ export default function News() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {news.map((item) => (
-                <a
+                <Link
                   key={item.id}
-                  href={item.source_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  to={`/news/${item.id}`}
                   className="group bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/10 transition-all"
                 >
                   <div className="flex items-start justify-between mb-4">
@@ -260,7 +258,7 @@ export default function News() {
                     <Calendar className="w-4 h-4" />
                     <span>{formatDate(item.publication_date)}</span>
                   </div>
-                </a>
+                </Link>
               ))}
             </div>
           </>

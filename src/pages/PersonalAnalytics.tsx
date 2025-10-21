@@ -10,14 +10,17 @@ import {
   Calendar,
   Award,
   BarChart3,
-  PieChart,
   Clock,
   Zap,
   Target,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  Sun,
+  Moon,
+  Sunrise,
+  Sunset,
+  TrendingDown
 } from 'lucide-react';
-import Header from '../components/Header';
 import { useAuth } from '../lib/useAuth';
 import {
   getAnalyticsSummary,
@@ -26,10 +29,16 @@ import {
   getEventBreakdown,
   getCategoryBreakdown,
   getRecentActivity,
+  getPeakActivityTimes,
+  getWeekdayActivity,
+  getMonthlyComparison,
   type AnalyticsSummary,
   type ActivityStreak,
   type TimeSeriesData,
-  type CategoryBreakdown
+  type CategoryBreakdown,
+  type PeakActivityTime,
+  type WeekdayActivity,
+  type MonthlyComparison
 } from '../lib/analytics';
 
 export default function PersonalAnalytics() {
@@ -44,6 +53,9 @@ export default function PersonalAnalytics() {
     event_data: Record<string, unknown>;
     created_at: string;
   }>>([]);
+  const [peakTimes, setPeakTimes] = useState<PeakActivityTime[]>([]);
+  const [weekdayActivity, setWeekdayActivity] = useState<WeekdayActivity[]>([]);
+  const [monthlyComparison, setMonthlyComparison] = useState<MonthlyComparison | null>(null);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<7 | 30 | 90>(30);
 
@@ -54,13 +66,26 @@ export default function PersonalAnalytics() {
   const loadAnalytics = async () => {
     setLoading(true);
     try {
-      const [summaryData, streakData, timeSeriesData, eventsData, categoriesData, activityData] = await Promise.all([
+      const [
+        summaryData,
+        streakData,
+        timeSeriesData,
+        eventsData,
+        categoriesData,
+        activityData,
+        peakTimesData,
+        weekdayData,
+        monthlyData
+      ] = await Promise.all([
         getAnalyticsSummary(),
         getActivityStreak(),
         getActivityTimeSeries(timeRange),
         getEventBreakdown(),
         getCategoryBreakdown(),
-        getRecentActivity(20)
+        getRecentActivity(20),
+        getPeakActivityTimes(),
+        getWeekdayActivity(),
+        getMonthlyComparison()
       ]);
 
       setSummary(summaryData);
@@ -69,6 +94,9 @@ export default function PersonalAnalytics() {
       setEventBreakdown(eventsData);
       setCategoryBreakdown(categoriesData);
       setRecentActivity(activityData);
+      setPeakTimes(peakTimesData);
+      setWeekdayActivity(weekdayData);
+      setMonthlyComparison(monthlyData);
     } catch (error) {
       console.error('Error loading analytics:', error);
     } finally {
@@ -76,12 +104,12 @@ export default function PersonalAnalytics() {
     }
   };
 
-  const getEngagementLevel = (score: number): { level: string; color: string } => {
-    if (score >= 500) return { level: 'Elite', color: 'text-purple-600' };
-    if (score >= 300) return { level: 'Expert', color: 'text-blue-600' };
-    if (score >= 150) return { level: 'Advanced', color: 'text-green-600' };
-    if (score >= 50) return { level: 'Active', color: 'text-yellow-600' };
-    return { level: 'Beginner', color: 'text-gray-600' };
+  const getEngagementLevel = (score: number): { level: string; color: string; icon: any } => {
+    if (score >= 500) return { level: 'Elite', color: 'from-purple-500 to-pink-500', icon: Zap };
+    if (score >= 300) return { level: 'Expert', color: 'from-blue-500 to-cyan-500', icon: Award };
+    if (score >= 150) return { level: 'Advanced', color: 'from-green-500 to-emerald-500', icon: Target };
+    if (score >= 50) return { level: 'Active', color: 'from-yellow-500 to-orange-500', icon: TrendingUp };
+    return { level: 'Beginner', color: 'from-slate-500 to-slate-600', icon: Activity };
   };
 
   const formatEventType = (type: string): string => {
@@ -94,6 +122,13 @@ export default function PersonalAnalytics() {
     if (type.includes('favorite')) return <Star className="h-4 w-4" />;
     if (type.includes('collection')) return <Folder className="h-4 w-4" />;
     return <Activity className="h-4 w-4" />;
+  };
+
+  const getTimeIcon = (hour: number) => {
+    if (hour >= 5 && hour < 12) return <Sunrise className="h-5 w-5 text-orange-400" />;
+    if (hour >= 12 && hour < 17) return <Sun className="h-5 w-5 text-yellow-400" />;
+    if (hour >= 17 && hour < 21) return <Sunset className="h-5 w-5 text-orange-500" />;
+    return <Moon className="h-5 w-5 text-blue-400" />;
   };
 
   const calculateTrend = (): { value: number; isPositive: boolean } => {
@@ -131,312 +166,336 @@ export default function PersonalAnalytics() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center px-4 py-20">
-        <div className="text-center max-w-md">
-          <div className="relative mb-8">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-32 h-32 bg-gradient-to-br from-blue-200 to-cyan-200 rounded-full animate-pulse"></div>
-            </div>
-            <div className="relative flex items-center justify-center">
-              <div className="w-28 h-28 border-8 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-white animate-pulse">Loading Your Analytics</h2>
-          <p className="text-slate-400">Gathering your activity data and insights...</p>
-
-            <div className="grid grid-cols-3 gap-3 mt-8">
-              <div className="h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl animate-pulse"></div>
-              <div className="h-16 bg-gradient-to-br from-green-100 to-green-200 rounded-xl animate-pulse delay-75"></div>
-              <div className="h-16 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-xl animate-pulse delay-150"></div>
-            </div>
-
-            <div className="mt-6 space-y-2">
-              <div className="flex items-center justify-center space-x-2 text-sm text-slate-500">
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce delay-100"></div>
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce delay-200"></div>
-              </div>
-            </div>
-          </div>
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-cyan-500 mb-4"></div>
+          <p className="text-slate-400 text-lg">Loading your analytics...</p>
         </div>
       </div>
     );
   }
 
-  const engagement = summary ? getEngagementLevel(summary.engagement_score) : { level: 'Beginner', color: 'text-gray-600' };
+  const engagement = summary ? getEngagementLevel(summary.engagement_score) : { level: 'Beginner', color: 'from-slate-500 to-slate-600', icon: Activity };
   const trend = calculateTrend();
+  const EngagementIcon = engagement.icon;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-8 text-center md:text-left">
-            <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2">Personal Analytics</h1>
-            <p className="text-slate-400 text-base md:text-lg">Track your AI tool discovery journey and engagement</p>
-          </div>
-
-          <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center space-x-2">
-              <Award className={`h-5 w-5 sm:h-6 sm:w-6 ${engagement.color}`} />
-              <span className="text-base sm:text-lg font-semibold text-slate-900">
-                Engagement Level: <span className={engagement.color}>{engagement.level}</span>
-              </span>
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-4xl font-bold text-white mb-2">Personal Analytics</h1>
+              <p className="text-slate-400">Your comprehensive activity dashboard</p>
             </div>
-
-            <div className="flex space-x-2 w-full sm:w-auto">
-              {[7, 30, 90].map((days) => (
-                <button
-                  key={days}
-                  onClick={() => setTimeRange(days as 7 | 30 | 90)}
-                  className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    timeRange === days
-                      ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/30'
-                      : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
-                  }`}
-                >
-                  {days}D
-                </button>
-              ))}
+            <div className={`px-6 py-3 bg-gradient-to-r ${engagement.color} rounded-2xl shadow-xl flex items-center gap-3`}>
+              <EngagementIcon className="w-6 h-6 text-white" />
+              <span className="text-white font-bold text-lg">{engagement.level}</span>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
-            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-blue-100 rounded-xl">
-                  <Eye className="h-6 w-6 text-blue-600" />
-                </div>
-                <div className={`flex items-center space-x-1 text-sm font-medium ${trend.isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                  {trend.isPositive ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}
-                  <span>{trend.value}%</span>
-                </div>
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-1">{summary?.total_tool_views || 0}</h3>
-              <p className="text-gray-600 text-sm">Total Tool Views</p>
-            </div>
+          <div className="flex space-x-2">
+            {[7, 30, 90].map((days) => (
+              <button
+                key={days}
+                onClick={() => setTimeRange(days as 7 | 30 | 90)}
+                className={`px-6 py-2.5 rounded-xl font-medium transition-all ${
+                  timeRange === days
+                    ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg'
+                    : 'bg-slate-800 text-slate-400 hover:text-white'
+                }`}
+              >
+                {days} Days
+              </button>
+            ))}
+          </div>
+        </div>
 
-            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-green-100 rounded-xl">
-                  <GitCompare className="h-6 w-6 text-green-600" />
-                </div>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20 rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-blue-500/20 rounded-xl">
+                <Eye className="h-6 w-6 text-blue-400" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-1">{summary?.total_comparisons || 0}</h3>
-              <p className="text-gray-600 text-sm">Comparisons Made</p>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-yellow-100 rounded-xl">
-                  <Star className="h-6 w-6 text-yellow-600" />
-                </div>
+              <div className={`flex items-center gap-1 text-sm font-bold ${trend.isPositive ? 'text-green-400' : 'text-red-400'}`}>
+                {trend.isPositive ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}
+                {trend.value}%
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-1">{summary?.total_favorites || 0}</h3>
-              <p className="text-gray-600 text-sm">Favorite Tools</p>
             </div>
-
-            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-purple-100 rounded-xl">
-                  <Folder className="h-6 w-6 text-purple-600" />
-                </div>
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-1">{summary?.total_collections || 0}</h3>
-              <p className="text-gray-600 text-sm">Collections Created</p>
-            </div>
+            <h3 className="text-3xl font-bold text-white mb-1">{summary?.total_tool_views || 0}</h3>
+            <p className="text-slate-400 text-sm">Tool Views</p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            <div className="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-gray-900 flex items-center">
-                  <TrendingUp className="h-6 w-6 mr-2 text-blue-600" />
-                  Activity Over Time
-                </h2>
-                <BarChart3 className="h-5 w-5 text-gray-400" />
-              </div>
-
-              {timeSeries.length > 0 ? (
-                <div className="space-y-2">
-                  {timeSeries.slice(-14).map((data, index) => {
-                    const maxCount = Math.max(...timeSeries.map(d => d.count));
-                    const percentage = maxCount > 0 ? (data.count / maxCount) * 100 : 0;
-
-                    return (
-                      <div key={index} className="flex items-center space-x-3">
-                        <span className="text-sm text-gray-600 w-24">
-                          {new Date(data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                        </span>
-                        <div className="flex-1 bg-gray-100 rounded-full h-8 overflow-hidden">
-                          <div
-                            className="bg-gradient-to-r from-blue-500 to-blue-600 h-full rounded-full flex items-center justify-end px-3 transition-all duration-500"
-                            style={{ width: `${Math.max(percentage, 5)}%` }}
-                          >
-                            {data.count > 0 && (
-                              <span className="text-white text-xs font-semibold">{data.count}</span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p className="text-center text-gray-500 py-12">No activity data available yet</p>
-              )}
+          <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-2xl p-6">
+            <div className="p-3 bg-green-500/20 rounded-xl mb-4 w-fit">
+              <GitCompare className="h-6 w-6 text-green-400" />
             </div>
-
-            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
-                <Zap className="h-6 w-6 mr-2 text-yellow-600" />
-                Activity Streak
-              </h2>
-
-              <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-br from-orange-400 to-red-500 rounded-full mb-4 shadow-lg">
-                  <div className="text-center">
-                    <div className="text-4xl font-bold text-white">{streak?.current_streak || 0}</div>
-                    <div className="text-sm text-white opacity-90">days</div>
-                  </div>
-                </div>
-                <p className="text-gray-600 text-sm">Current Streak</p>
-              </div>
-
-              <div className="space-y-4 pt-4 border-t border-gray-100">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Award className="h-5 w-5 text-yellow-600" />
-                    <span className="text-sm text-gray-700">Longest Streak</span>
-                  </div>
-                  <span className="text-lg font-bold text-gray-900">{streak?.longest_streak || 0} days</span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Target className="h-5 w-5 text-blue-600" />
-                    <span className="text-sm text-gray-700">Engagement Score</span>
-                  </div>
-                  <span className="text-lg font-bold text-gray-900">{summary?.engagement_score || 0}</span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Calendar className="h-5 w-5 text-green-600" />
-                    <span className="text-sm text-gray-700">Last Active</span>
-                  </div>
-                  <span className="text-sm font-medium text-gray-900">
-                    {streak?.last_activity_date ? new Date(streak.last_activity_date).toLocaleDateString() : 'N/A'}
-                  </span>
-                </div>
-              </div>
-            </div>
+            <h3 className="text-3xl font-bold text-white mb-1">{summary?.total_comparisons || 0}</h3>
+            <p className="text-slate-400 text-sm">Comparisons</p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
-                <PieChart className="h-6 w-6 mr-2 text-green-600" />
-                Activity Breakdown
-              </h2>
-
-              {eventBreakdown.length > 0 ? (
-                <div className="space-y-3">
-                  {eventBreakdown.slice(0, 5).map((event, index) => {
-                    const total = eventBreakdown.reduce((sum, e) => sum + e.count, 0);
-                    const percentage = Math.round((event.count / total) * 100);
-
-                    return (
-                      <div key={index} className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2">
-                            {getEventIcon(event.event_type)}
-                            <span className="text-sm font-medium text-gray-700">{formatEventType(event.event_type)}</span>
-                          </div>
-                          <span className="text-sm font-bold text-gray-900">{event.count}</span>
-                        </div>
-                        <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-                          <div
-                            className="bg-gradient-to-r from-green-400 to-green-600 h-full rounded-full transition-all duration-500"
-                            style={{ width: `${percentage}%` }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p className="text-center text-gray-500 py-12">No activity breakdown available yet</p>
-              )}
+          <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 rounded-2xl p-6">
+            <div className="p-3 bg-yellow-500/20 rounded-xl mb-4 w-fit">
+              <Star className="h-6 w-6 text-yellow-400" />
             </div>
-
-            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
-                <Activity className="h-6 w-6 mr-2 text-purple-600" />
-                Category Interests
-              </h2>
-
-              {categoryBreakdown.length > 0 ? (
-                <div className="space-y-4">
-                  {categoryBreakdown.slice(0, 6).map((category, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-medium text-gray-900">{category.category}</span>
-                          <span className="text-sm font-bold text-purple-600">{category.percentage}%</span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
-                          <div
-                            className="bg-gradient-to-r from-purple-400 to-purple-600 h-full rounded-full transition-all duration-500"
-                            style={{ width: `${category.percentage}%` }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-center text-gray-500 py-12">No category data available yet</p>
-              )}
-            </div>
+            <h3 className="text-3xl font-bold text-white mb-1">{summary?.total_favorites || 0}</h3>
+            <p className="text-slate-400 text-sm">Favorites</p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-            <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
-              <Clock className="h-6 w-6 mr-2 text-blue-600" />
-              Recent Activity
+          <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-2xl p-6">
+            <div className="p-3 bg-purple-500/20 rounded-xl mb-4 w-fit">
+              <Folder className="h-6 w-6 text-purple-400" />
+            </div>
+            <h3 className="text-3xl font-bold text-white mb-1">{summary?.total_collections || 0}</h3>
+            <p className="text-slate-400 text-sm">Collections</p>
+          </div>
+        </div>
+
+        {monthlyComparison && (
+          <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700 rounded-2xl p-6 mb-8">
+            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <Calendar className="h-6 w-6 text-cyan-400" />
+              Monthly Activity Comparison
             </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <p className="text-slate-400 text-sm mb-2">Current Month</p>
+                <p className="text-3xl font-bold text-white">{monthlyComparison.current_month}</p>
+              </div>
+              <div>
+                <p className="text-slate-400 text-sm mb-2">Previous Month</p>
+                <p className="text-3xl font-bold text-slate-300">{monthlyComparison.previous_month}</p>
+              </div>
+              <div>
+                <p className="text-slate-400 text-sm mb-2">Growth</p>
+                <div className="flex items-center gap-2">
+                  <p className={`text-3xl font-bold ${monthlyComparison.growth_percentage >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {monthlyComparison.growth_percentage >= 0 ? '+' : ''}{monthlyComparison.growth_percentage}%
+                  </p>
+                  {monthlyComparison.growth_percentage >= 0 ? (
+                    <TrendingUp className="h-6 w-6 text-green-400" />
+                  ) : (
+                    <TrendingDown className="h-6 w-6 text-red-400" />
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
-            {recentActivity.length > 0 ? (
-              <div className="space-y-2 max-h-96 overflow-y-auto">
-                {recentActivity.map((activity, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors border border-gray-100">
-                    <div className="flex items-center space-x-3">
-                      <div className="p-2 bg-blue-50 rounded-lg">
-                        {getEventIcon(activity.event_type)}
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">{formatEventType(activity.event_type)}</p>
-                        {activity.event_data?.tool_name && (
-                          <p className="text-xs text-gray-600">{String(activity.event_data.tool_name)}</p>
-                        )}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700 rounded-2xl p-6">
+            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+              <Clock className="h-6 w-6 text-cyan-400" />
+              Peak Activity Hours
+            </h2>
+            {peakTimes.length > 0 ? (
+              <div className="space-y-3">
+                {peakTimes.slice(0, 5).map((time, index) => {
+                  const maxCount = Math.max(...peakTimes.map(t => t.count));
+                  const percentage = (time.count / maxCount) * 100;
+                  return (
+                    <div key={index} className="flex items-center gap-3">
+                      {getTimeIcon(time.hour)}
+                      <span className="text-slate-300 w-16">{time.label}</span>
+                      <div className="flex-1 bg-slate-700/50 rounded-full h-8 overflow-hidden">
+                        <div
+                          className="bg-gradient-to-r from-cyan-500 to-blue-500 h-full flex items-center justify-end px-3"
+                          style={{ width: `${Math.max(percentage, 10)}%` }}
+                        >
+                          <span className="text-white text-sm font-bold">{time.count}</span>
+                        </div>
                       </div>
                     </div>
-                    <span className="text-xs text-gray-500">
-                      {new Date(activity.created_at).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </span>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-slate-400 text-center py-8">No activity data yet</p>
+            )}
+          </div>
+
+          <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700 rounded-2xl p-6">
+            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+              <Calendar className="h-6 w-6 text-green-400" />
+              Activity by Day
+            </h2>
+            {weekdayActivity.length > 0 ? (
+              <div className="space-y-3">
+                {weekdayActivity.map((day, index) => (
+                  <div key={index}>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-slate-300 text-sm font-medium">{day.day}</span>
+                      <span className="text-slate-400 text-sm">{day.count} actions</span>
+                    </div>
+                    <div className="w-full bg-slate-700/50 rounded-full h-2.5">
+                      <div
+                        className="bg-gradient-to-r from-green-500 to-emerald-500 h-full rounded-full"
+                        style={{ width: `${day.percentage}%` }}
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-center text-gray-500 py-12">No recent activity to display</p>
+              <p className="text-slate-400 text-center py-8">No activity data yet</p>
             )}
           </div>
         </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <div className="lg:col-span-2 bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700 rounded-2xl p-6">
+            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+              <BarChart3 className="h-6 w-6 text-blue-400" />
+              Activity Timeline
+            </h2>
+            {timeSeries.length > 0 ? (
+              <div className="space-y-2">
+                {timeSeries.slice(-14).map((data, index) => {
+                  const maxCount = Math.max(...timeSeries.map(d => d.count));
+                  const percentage = maxCount > 0 ? (data.count / maxCount) * 100 : 0;
+                  return (
+                    <div key={index} className="flex items-center gap-3">
+                      <span className="text-sm text-slate-400 w-20">
+                        {new Date(data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </span>
+                      <div className="flex-1 bg-slate-700/50 rounded-full h-10 overflow-hidden">
+                        <div
+                          className="bg-gradient-to-r from-blue-500 to-cyan-500 h-full rounded-full flex items-center justify-end px-4 transition-all duration-500"
+                          style={{ width: `${Math.max(percentage, 8)}%` }}
+                        >
+                          {data.count > 0 && (
+                            <span className="text-white text-sm font-bold">{data.count}</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-slate-400 text-center py-12">No activity data yet</p>
+            )}
+          </div>
+
+          <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700 rounded-2xl p-6">
+            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+              <Zap className="h-6 w-6 text-yellow-400" />
+              Streak Stats
+            </h2>
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-br from-orange-500 to-red-500 rounded-full mb-4 shadow-xl">
+                <div>
+                  <div className="text-5xl font-bold text-white">{streak?.current_streak || 0}</div>
+                  <div className="text-sm text-white/90">days</div>
+                </div>
+              </div>
+              <p className="text-slate-400">Current Streak</p>
+            </div>
+            <div className="space-y-4 pt-4 border-t border-slate-700">
+              <div className="flex justify-between items-center">
+                <span className="text-slate-400 text-sm">Longest Streak</span>
+                <span className="text-white font-bold text-lg">{streak?.longest_streak || 0} days</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-400 text-sm">Engagement Score</span>
+                <span className="text-white font-bold text-lg">{summary?.engagement_score || 0}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700 rounded-2xl p-6">
+            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+              <Activity className="h-6 w-6 text-green-400" />
+              Event Distribution
+            </h2>
+            {eventBreakdown.length > 0 ? (
+              <div className="space-y-4">
+                {eventBreakdown.slice(0, 5).map((event, index) => {
+                  const total = eventBreakdown.reduce((sum, e) => sum + e.count, 0);
+                  const percentage = Math.round((event.count / total) * 100);
+                  return (
+                    <div key={index}>
+                      <div className="flex justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          {getEventIcon(event.event_type)}
+                          <span className="text-slate-300 font-medium">{formatEventType(event.event_type)}</span>
+                        </div>
+                        <span className="text-white font-bold">{event.count}</span>
+                      </div>
+                      <div className="w-full bg-slate-700/50 rounded-full h-3">
+                        <div
+                          className="bg-gradient-to-r from-green-500 to-emerald-500 h-full rounded-full"
+                          style={{ width: `${percentage}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-slate-400 text-center py-12">No events tracked yet</p>
+            )}
+          </div>
+
+          <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700 rounded-2xl p-6">
+            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+              <Target className="h-6 w-6 text-purple-400" />
+              Top Categories
+            </h2>
+            {categoryBreakdown.length > 0 ? (
+              <div className="space-y-4">
+                {categoryBreakdown.slice(0, 6).map((category, index) => (
+                  <div key={index} className="bg-slate-700/30 rounded-xl p-4 hover:bg-slate-700/50 transition-colors">
+                    <div className="flex justify-between mb-2">
+                      <span className="text-white font-medium">{category.category}</span>
+                      <span className="text-purple-400 font-bold">{category.percentage}%</span>
+                    </div>
+                    <div className="w-full bg-slate-700 rounded-full h-2">
+                      <div
+                        className="bg-gradient-to-r from-purple-500 to-pink-500 h-full rounded-full"
+                        style={{ width: `${category.percentage}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-slate-400 text-center py-12">No category data yet</p>
+            )}
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700 rounded-2xl p-6">
+          <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            <Clock className="h-6 w-6 text-blue-400" />
+            Recent Activity Feed
+          </h2>
+          {recentActivity.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-96 overflow-y-auto">
+              {recentActivity.map((activity, index) => (
+                <div key={index} className="flex items-center gap-3 p-4 bg-slate-700/30 rounded-xl hover:bg-slate-700/50 transition-colors">
+                  <div className="p-2.5 bg-blue-500/20 rounded-lg">
+                    {getEventIcon(activity.event_type)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white font-medium text-sm truncate">{formatEventType(activity.event_type)}</p>
+                    {activity.event_data?.tool_name && (
+                      <p className="text-slate-400 text-xs truncate">{String(activity.event_data.tool_name)}</p>
+                    )}
+                  </div>
+                  <span className="text-xs text-slate-500 whitespace-nowrap">
+                    {new Date(activity.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-slate-400 text-center py-12">No recent activity</p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

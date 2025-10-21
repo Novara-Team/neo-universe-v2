@@ -193,3 +193,113 @@ export async function getRecentActivity(limit: number = 10): Promise<Array<{
 
   return data;
 }
+
+export interface PeakActivityTime {
+  hour: number;
+  count: number;
+  label: string;
+}
+
+export async function getPeakActivityTimes(): Promise<PeakActivityTime[]> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from('user_analytics_events')
+    .select('created_at')
+    .eq('user_id', user.id);
+
+  if (error) {
+    console.error('Error fetching peak activity times:', error);
+    return [];
+  }
+
+  const hourCounts = data.reduce((acc: Record<number, number>, event) => {
+    const hour = new Date(event.created_at).getHours();
+    acc[hour] = (acc[hour] || 0) + 1;
+    return acc;
+  }, {});
+
+  return Object.entries(hourCounts)
+    .map(([hour, count]) => ({
+      hour: parseInt(hour),
+      count,
+      label: `${parseInt(hour).toString().padStart(2, '0')}:00`
+    }))
+    .sort((a, b) => b.count - a.count);
+}
+
+export interface WeekdayActivity {
+  day: string;
+  count: number;
+  percentage: number;
+}
+
+export async function getWeekdayActivity(): Promise<WeekdayActivity[]> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from('user_analytics_events')
+    .select('created_at')
+    .eq('user_id', user.id);
+
+  if (error) {
+    console.error('Error fetching weekday activity:', error);
+    return [];
+  }
+
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const dayCounts = data.reduce((acc: Record<number, number>, event) => {
+    const day = new Date(event.created_at).getDay();
+    acc[day] = (acc[day] || 0) + 1;
+    return acc;
+  }, {});
+
+  const total = Object.values(dayCounts).reduce((sum, count) => sum + count, 0);
+
+  return days.map((day, index) => ({
+    day,
+    count: dayCounts[index] || 0,
+    percentage: total > 0 ? Math.round(((dayCounts[index] || 0) / total) * 100) : 0
+  }));
+}
+
+export interface MonthlyComparison {
+  current_month: number;
+  previous_month: number;
+  growth_percentage: number;
+}
+
+export async function getMonthlyComparison(): Promise<MonthlyComparison> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { current_month: 0, previous_month: 0, growth_percentage: 0 };
+
+  const now = new Date();
+  const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const previousMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const previousMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+
+  const { data: currentData } = await supabase
+    .from('user_analytics_events')
+    .select('id')
+    .eq('user_id', user.id)
+    .gte('created_at', currentMonthStart.toISOString());
+
+  const { data: previousData } = await supabase
+    .from('user_analytics_events')
+    .select('id')
+    .eq('user_id', user.id)
+    .gte('created_at', previousMonthStart.toISOString())
+    .lte('created_at', previousMonthEnd.toISOString());
+
+  const current = currentData?.length || 0;
+  const previous = previousData?.length || 0;
+  const growth = previous > 0 ? Math.round(((current - previous) / previous) * 100) : 0;
+
+  return {
+    current_month: current,
+    previous_month: previous,
+    growth_percentage: growth
+  };
+}

@@ -55,15 +55,19 @@ export default function Header() {
             <Link to="/compare" className="text-slate-300 hover:text-white transition-colors">
               Compare
             </Link>
-            <Link to="/news" className="text-slate-300 hover:text-white transition-colors">
-              News
-            </Link>
+            {(profile?.subscription_plan === 'plus' || profile?.subscription_plan === 'pro') && (
+              <Link to="/news" className="text-slate-300 hover:text-white transition-colors">
+                News
+              </Link>
+            )}
             <Link to="/submit" className="text-slate-300 hover:text-white transition-colors">
               Submit Tool
             </Link>
-            <Link to="/pricing" className="text-slate-300 hover:text-white transition-colors">
-              Pricing
-            </Link>
+            {!(profile?.subscription_plan === 'plus' || profile?.subscription_plan === 'pro') && (
+              <Link to="/pricing" className="text-slate-300 hover:text-white transition-colors">
+                Pricing
+              </Link>
+            )}
             <Link to="/about" className="text-slate-300 hover:text-white transition-colors">
               About
             </Link>
