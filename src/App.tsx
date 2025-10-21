@@ -13,6 +13,7 @@ import About from './pages/About';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Pricing from './pages/Pricing';
+import Checkout from './pages/Checkout';
 import FavoriteTools from './pages/FavoriteTools';
 import Collections from './pages/Collections';
 import CollectionDetail from './pages/CollectionDetail';
@@ -30,6 +31,7 @@ import PersonalAnalytics from './pages/PersonalAnalytics';
 import News from './pages/News';
 import NewsDetail from './pages/NewsDetail';
 import Support from './pages/Support';
+import Documentation from './pages/Documentation';
 import SupportChat from './components/SupportChat';
 import ProtectedRoute from './components/ProtectedRoute';
 import { Analytics } from '@vercel/analytics/react';
@@ -75,6 +77,7 @@ function App() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/pricing" element={<Pricing />} />
+                    <Route path="/checkout" element={<Checkout />} />
                     <Route path="/favorites" element={<FavoriteTools />} />
                     <Route path="/collections" element={<Collections />} />
                     <Route path="/collections/:slug" element={<CollectionDetail />} />
@@ -83,6 +86,7 @@ function App() {
                     <Route path="/news" element={<News />} />
                     <Route path="/news/:id" element={<NewsDetail />} />
                     <Route path="/support" element={<Support />} />
+                    <Route path="/docs" element={<Documentation />} />
                     <Route path="/settings" element={<Settings />} />
                   </Routes>
                 </main>

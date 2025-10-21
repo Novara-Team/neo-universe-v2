@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   MessageCircle,
   Mail,
@@ -17,6 +18,7 @@ import {
   Video,
   Globe
 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 interface FAQItem {
   question: string;
@@ -102,19 +104,29 @@ export default function Support() {
     e.preventDefault();
     setLoading(true);
 
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    try {
+      const { data, error } = await supabase.functions.invoke('send-contact-email', {
+        body: contactForm
+      });
 
-    setSubmitted(true);
-    setLoading(false);
-    setContactForm({
-      name: '',
-      email: '',
-      subject: '',
-      message: '',
-      priority: 'normal'
-    });
+      if (error) throw error;
 
-    setTimeout(() => setSubmitted(false), 5000);
+      setSubmitted(true);
+      setContactForm({
+        name: '',
+        email: '',
+        subject: '',
+        message: '',
+        priority: 'normal'
+      });
+
+      setTimeout(() => setSubmitted(false), 5000);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert('Failed to send message. Please try again or email us directly at novara.team.company@gmail.com');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -358,10 +370,10 @@ export default function Support() {
             <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700 rounded-2xl p-8">
               <h3 className="text-xl font-bold text-white mb-6">Additional Resources</h3>
               <div className="space-y-4">
-                <a href="#" className="flex items-center gap-3 p-4 bg-slate-700/30 rounded-lg hover:bg-slate-700/50 transition-colors group">
+                <Link to="/docs" className="flex items-center gap-3 p-4 bg-slate-700/30 rounded-lg hover:bg-slate-700/50 transition-colors group">
                   <FileText className="w-5 h-5 text-cyan-400" />
                   <span className="text-slate-300 group-hover:text-white">Documentation</span>
-                </a>
+                </Link>
                 <a href="#" className="flex items-center gap-3 p-4 bg-slate-700/30 rounded-lg hover:bg-slate-700/50 transition-colors group">
                   <Video className="w-5 h-5 text-green-400" />
                   <span className="text-slate-300 group-hover:text-white">Video Tutorials</span>

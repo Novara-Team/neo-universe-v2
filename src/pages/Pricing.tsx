@@ -66,24 +66,7 @@ export default function Pricing() {
       return;
     }
 
-    setCheckoutLoading(planSlug);
-
-    try {
-      const { data, error } = await supabase.functions.invoke('stripe-checkout', {
-        body: { planSlug },
-      });
-
-      if (error) throw error;
-
-      if (data?.url) {
-        window.location.href = data.url;
-      }
-    } catch (error: any) {
-      console.error('Error creating checkout:', error);
-      alert('Failed to start checkout. Please try again.');
-    } finally {
-      setCheckoutLoading(null);
-    }
+    navigate(`/checkout?plan=${planSlug}`);
   };
 
   const getPlanIcon = (slug: string) => {
