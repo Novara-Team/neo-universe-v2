@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Sparkles, ExternalLink, Plus, X, TrendingUp, Calendar, Eye, Star, DollarSign, Check, Minus, Crown } from 'lucide-react';
+import { Search, Sparkles, ExternalLink, Plus, X, TrendingUp, Calendar, Eye, Star, DollarSign, Check, Minus, Crown, Zap, Loader2, MessageSquare } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase, AITool } from '../lib/supabase';
 import { useAuth } from '../lib/useAuth';
@@ -11,14 +11,9 @@ export default function CompareAdvanced() {
   const [selectedTools, setSelectedTools] = useState<AITool[]>([]);
   const [search, setSearch] = useState('');
   const [showResults, setShowResults] = useState(false);
-  const [comparisonMetrics, setComparisonMetrics] = useState({
-    features: true,
-    pricing: true,
-    rating: true,
-    views: true,
-    tags: true,
-    launch_date: true,
-  });
+  const [analysisQuestion, setAnalysisQuestion] = useState('');
+  const [aiAnalysis, setAiAnalysis] = useState('');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   useEffect(() => {
     if (!user || (profile && profile.subscription_plan === 'free')) {
@@ -81,6 +76,42 @@ export default function CompareAdvanced() {
   const allTags = Array.from(
     new Set(selectedTools.flatMap((t) => t.tags))
   );
+
+  const getAiAnalysis = async () => {
+    if (selectedTools.length < 2) return;
+
+    setIsAnalyzing(true);
+    setAiAnalysis('');
+
+    try {
+      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-compare`;
+      const headers = {
+        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+      };
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          tools: selectedTools,
+          question: analysisQuestion || null,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get AI analysis');
+      }
+
+      const data = await response.json();
+      setAiAnalysis(data.analysis);
+    } catch (error) {
+      console.error('Error getting AI analysis:', error);
+      setAiAnalysis('Failed to generate analysis. Please try again later.');
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
 
   if (!user || (profile && profile.subscription_plan === 'free')) {
     return null;
@@ -191,6 +222,61 @@ export default function CompareAdvanced() {
 
         {selectedTools.length >= 2 ? (
           <div className="space-y-6">
+            <div className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/30 rounded-xl p-6">
+              <div className="flex items-center space-x-2 mb-4">
+                <Zap className="w-6 h-6 text-cyan-400" />
+                <h2 className="text-xl font-semibold text-white">
+                  AI-Powered Analysis
+                </h2>
+              </div>
+              <p className="text-slate-300 mb-4">
+                Get comprehensive AI-powered insights comparing all selected tools. Ask a specific question or get a general comparison.
+              </p>
+              <div className="space-y-4">
+                <div className="relative">
+                  <MessageSquare className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+                  <input
+                    type="text"
+                    value={analysisQuestion}
+                    onChange={(e) => setAnalysisQuestion(e.target.value)}
+                    placeholder="Ask a specific question (optional)..."
+                    className="w-full pl-12 pr-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                </div>
+                <button
+                  onClick={getAiAnalysis}
+                  disabled={isAnalyzing}
+                  className="w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg shadow-cyan-500/50 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                >
+                  {isAnalyzing ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Analyzing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-5 h-5" />
+                      <span>Generate AI Analysis</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {aiAnalysis && (
+                <div className="mt-6 p-6 bg-slate-900/50 border border-slate-700 rounded-lg">
+                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
+                    <Sparkles className="w-5 h-5 text-cyan-400" />
+                    <span>AI Analysis Results</span>
+                  </h3>
+                  <div className="prose prose-invert prose-slate max-w-none">
+                    <p className="text-slate-300 whitespace-pre-wrap leading-relaxed">
+                      {aiAnalysis}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">
               <h3 className="text-xl font-semibold text-white mb-4">Quick Stats Comparison</h3>
               <div className="overflow-x-auto">

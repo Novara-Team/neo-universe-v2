@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Search, Filter, Sparkles } from 'lucide-react';
+import { Search, Filter, Sparkles, Star, TrendingUp, Calendar, X } from 'lucide-react';
 import { supabase, AITool, Category } from '../lib/supabase';
 
 export default function Explore() {
@@ -10,20 +10,39 @@ export default function Explore() {
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
   const [selectedPricing, setSelectedPricing] = useState('');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [minRating, setMinRating] = useState(0);
+  const [minViews, setMinViews] = useState(0);
+  const [featuredOnly, setFeaturedOnly] = useState(false);
   const [sortBy, setSortBy] = useState('newest');
   const [loading, setLoading] = useState(true);
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
 
   useEffect(() => {
     loadCategories();
+    loadAvailableTags();
   }, []);
 
   useEffect(() => {
     loadTools();
-  }, [searchQuery, selectedCategory, selectedPricing, sortBy]);
+  }, [searchQuery, selectedCategory, selectedPricing, selectedTags, minRating, minViews, featuredOnly, sortBy]);
 
   const loadCategories = async () => {
     const { data } = await supabase.from('categories').select('*');
     if (data) setCategories(data);
+  };
+
+  const loadAvailableTags = async () => {
+    const { data } = await supabase
+      .from('ai_tools')
+      .select('tags')
+      .eq('status', 'Published');
+
+    if (data) {
+      const allTags = data.flatMap(tool => tool.tags || []);
+      const uniqueTags = Array.from(new Set(allTags)).sort();
+      setAvailableTags(uniqueTags);
+    }
   };
 
   const loadTools = async () => {
@@ -34,7 +53,7 @@ export default function Explore() {
       .eq('status', 'Published');
 
     if (searchQuery) {
-      query = query.or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+      query = query.or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,long_description.ilike.%${searchQuery}%`);
     }
 
     if (selectedCategory) {
@@ -48,12 +67,27 @@ export default function Explore() {
       query = query.eq('pricing_type', selectedPricing);
     }
 
+    if (minRating > 0) {
+      query = query.gte('rating', minRating);
+    }
+
+    if (minViews > 0) {
+      query = query.gte('views', minViews);
+    }
+
+    if (featuredOnly) {
+      query = query.eq('featured', true);
+    }
+
     switch (sortBy) {
       case 'popular':
         query = query.order('views', { ascending: false });
         break;
       case 'rating':
         query = query.order('rating', { ascending: false });
+        break;
+      case 'name':
+        query = query.order('name', { ascending: true });
         break;
       case 'newest':
       default:
@@ -62,8 +96,25 @@ export default function Explore() {
     }
 
     const { data } = await query;
-    if (data) setTools(data);
+
+    let filteredData = data || [];
+
+    if (selectedTags.length > 0) {
+      filteredData = filteredData.filter(tool =>
+        selectedTags.some(tag => tool.tags?.includes(tag))
+      );
+    }
+
+    setTools(filteredData);
     setLoading(false);
+  };
+
+  const toggleTag = (tag: string) => {
+    setSelectedTags(prev =>
+      prev.includes(tag)
+        ? prev.filter(t => t !== tag)
+        : [...prev, tag]
+    );
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -133,7 +184,100 @@ export default function Explore() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Sort By</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    <div className="flex items-center space-x-2">
+                      <Star className="w-4 h-4 text-yellow-400" />
+                      <span>Minimum Rating</span>
+                    </div>
+                  </label>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="range"
+                      min="0"
+                      max="5"
+                      step="0.5"
+                      value={minRating}
+                      onChange={(e) => setMinRating(parseFloat(e.target.value))}
+                      className="flex-1"
+                    />
+                    <span className="text-white w-12 text-right">{minRating > 0 ? `${minRating}+` : 'All'}</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    <div className="flex items-center space-x-2">
+                      <TrendingUp className="w-4 h-4 text-cyan-400" />
+                      <span>Minimum Views</span>
+                    </div>
+                  </label>
+                  <select
+                    value={minViews}
+                    onChange={(e) => setMinViews(parseInt(e.target.value))}
+                    className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  >
+                    <option value="0">All</option>
+                    <option value="100">100+</option>
+                    <option value="500">500+</option>
+                    <option value="1000">1,000+</option>
+                    <option value="5000">5,000+</option>
+                    <option value="10000">10,000+</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-3">Tags</label>
+                  <div className="max-h-48 overflow-y-auto space-y-2">
+                    {availableTags.slice(0, 20).map(tag => (
+                      <label key={tag} className="flex items-center space-x-2 cursor-pointer group">
+                        <input
+                          type="checkbox"
+                          checked={selectedTags.includes(tag)}
+                          onChange={() => toggleTag(tag)}
+                          className="w-4 h-4 text-cyan-500 bg-slate-700 border-slate-600 rounded focus:ring-cyan-500"
+                        />
+                        <span className="text-slate-300 text-sm group-hover:text-cyan-400 transition-colors">{tag}</span>
+                      </label>
+                    ))}
+                  </div>
+                  {selectedTags.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {selectedTags.map(tag => (
+                        <button
+                          key={tag}
+                          onClick={() => toggleTag(tag)}
+                          className="flex items-center space-x-1 px-2 py-1 bg-cyan-500/20 text-cyan-400 text-xs rounded-full hover:bg-cyan-500/30 transition-colors"
+                        >
+                          <span>{tag}</span>
+                          <X className="w-3 h-3" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={featuredOnly}
+                      onChange={(e) => setFeaturedOnly(e.target.checked)}
+                      className="w-4 h-4 text-cyan-500 bg-slate-700 border-slate-600 rounded focus:ring-cyan-500"
+                    />
+                    <span className="text-slate-300 text-sm flex items-center space-x-1">
+                      <Sparkles className="w-4 h-4 text-yellow-400" />
+                      <span>Featured Only</span>
+                    </span>
+                  </label>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    <div className="flex items-center space-x-2">
+                      <Calendar className="w-4 h-4 text-cyan-400" />
+                      <span>Sort By</span>
+                    </div>
+                  </label>
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
@@ -142,6 +286,7 @@ export default function Explore() {
                     <option value="newest">Newest</option>
                     <option value="popular">Most Popular</option>
                     <option value="rating">Highest Rated</option>
+                    <option value="name">Alphabetical</option>
                   </select>
                 </div>
 
@@ -150,11 +295,15 @@ export default function Explore() {
                     setSearchQuery('');
                     setSelectedCategory('');
                     setSelectedPricing('');
+                    setSelectedTags([]);
+                    setMinRating(0);
+                    setMinViews(0);
+                    setFeaturedOnly(false);
                     setSortBy('newest');
                   }}
                   className="w-full px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition-colors"
                 >
-                  Clear Filters
+                  Clear All Filters
                 </button>
               </div>
             </div>
