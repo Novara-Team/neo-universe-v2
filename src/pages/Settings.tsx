@@ -76,12 +76,48 @@ export default function Settings() {
     if (error) {
       console.error('Error loading profile:', error);
     } else if (data) {
-      setProfile(data);
+      setProfile({
+        full_name: data.full_name || '',
+        avatar_url: data.avatar_url || '',
+        bio: data.bio || '',
+        notification_preferences: data.notification_preferences || {
+          email: true,
+          push: false
+        }
+      });
+    } else {
+      setProfile({
+        full_name: '',
+        avatar_url: '',
+        bio: '',
+        notification_preferences: {
+          email: true,
+          push: false
+        }
+      });
     }
   };
 
   const loadSubscription = async () => {
     if (!user) return;
+
+    const { data: profileData } = await supabase
+      .from('user_profiles')
+      .select('subscription_plan, subscription_status, subscription_end_date')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    if (profileData && profileData.subscription_plan !== 'free') {
+      setSubscription({
+        id: user.id,
+        plan_name: profileData.subscription_plan.charAt(0).toUpperCase() + profileData.subscription_plan.slice(1),
+        plan_slug: profileData.subscription_plan,
+        status: profileData.subscription_status || 'active',
+        current_period_end: profileData.subscription_end_date || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        cancel_at_period_end: false
+      });
+      return;
+    }
 
     const { data, error } = await supabase
       .from('subscriptions')
@@ -117,7 +153,7 @@ export default function Settings() {
     const result = await saveAppearancePreferences(user.id, appearancePrefs);
 
     if (result.success) {
-      setSuccessMessage('Appearance settings saved successfully');
+      setSuccessMessage('Appearance settings saved and applied successfully');
       setTimeout(() => setSuccessMessage(''), 3000);
     } else {
       setErrorMessage(result.error || 'Failed to save appearance settings');
@@ -133,20 +169,50 @@ export default function Settings() {
     setErrorMessage('');
     setSuccessMessage('');
 
-    const { error } = await supabase
-      .from('user_profiles')
-      .upsert({
-        id: user.id,
-        ...profile,
-        updated_at: new Date().toISOString()
-      });
+    try {
+      const { data: existingProfile, error: fetchError } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
 
-    if (error) {
-      setErrorMessage('Failed to save profile');
-      console.error('Error saving profile:', error);
-    } else {
+      if (fetchError) throw fetchError;
+
+      const profileData = {
+        id: user.id,
+        email: user.email || '',
+        full_name: profile.full_name || null,
+        avatar_url: profile.avatar_url || null,
+        bio: profile.bio || null,
+        notification_preferences: profile.notification_preferences,
+        updated_at: new Date().toISOString()
+      };
+
+      if (existingProfile) {
+        const { error } = await supabase
+          .from('user_profiles')
+          .update(profileData)
+          .eq('id', user.id);
+
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('user_profiles')
+          .insert({
+            ...profileData,
+            subscription_plan: 'free',
+            subscription_status: 'active',
+            created_at: new Date().toISOString()
+          });
+
+        if (error) throw error;
+      }
+
       setSuccessMessage('Profile saved successfully');
       setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (error) {
+      setErrorMessage('Failed to save profile');
+      console.error('Error saving profile:', error);
     }
 
     setIsSaving(false);
@@ -532,7 +598,13 @@ export default function Settings() {
                         {(['light', 'dark', 'auto'] as const).map((theme) => (
                           <button
                             key={theme}
-                            onClick={() => setAppearancePrefs({ ...appearancePrefs, theme })}
+                            onClick={async () => {
+                              const newPrefs = { ...appearancePrefs, theme };
+                              setAppearancePrefs(newPrefs);
+                              if (user) {
+                                await saveAppearancePreferences(user.id, newPrefs);
+                              }
+                            }}
                             className={`p-4 rounded-xl border-2 transition-all ${
                               appearancePrefs.theme === theme
                                 ? 'border-cyan-500 bg-cyan-500/10 shadow-lg shadow-cyan-500/20'
@@ -558,13 +630,17 @@ export default function Settings() {
                         {THEME_COLORS.map((colorTheme) => (
                           <button
                             key={colorTheme.name}
-                            onClick={() =>
-                              setAppearancePrefs({
+                            onClick={async () => {
+                              const newPrefs = {
                                 ...appearancePrefs,
                                 primary_color: colorTheme.primary,
                                 accent_color: colorTheme.accent
-                              })
-                            }
+                              };
+                              setAppearancePrefs(newPrefs);
+                              if (user) {
+                                await saveAppearancePreferences(user.id, newPrefs);
+                              }
+                            }}
                             className={`p-4 rounded-xl border-2 transition-all ${
                               appearancePrefs.primary_color === colorTheme.primary
                                 ? 'border-cyan-500 bg-cyan-500/10 shadow-lg shadow-cyan-500/20'
@@ -598,7 +674,13 @@ export default function Settings() {
                         {(['small', 'medium', 'large'] as const).map((size) => (
                           <button
                             key={size}
-                            onClick={() => setAppearancePrefs({ ...appearancePrefs, font_size: size })}
+                            onClick={async () => {
+                              const newPrefs = { ...appearancePrefs, font_size: size };
+                              setAppearancePrefs(newPrefs);
+                              if (user) {
+                                await saveAppearancePreferences(user.id, newPrefs);
+                              }
+                            }}
                             className={`p-4 rounded-xl border-2 transition-all ${
                               appearancePrefs.font_size === size
                                 ? 'border-cyan-500 bg-cyan-500/10 shadow-lg shadow-cyan-500/20'
@@ -630,12 +712,16 @@ export default function Settings() {
                         <p className="text-sm text-slate-400">Minimize animations for better accessibility</p>
                       </div>
                       <button
-                        onClick={() =>
-                          setAppearancePrefs({
+                        onClick={async () => {
+                          const newPrefs = {
                             ...appearancePrefs,
                             reduced_motion: !appearancePrefs.reduced_motion
-                          })
-                        }
+                          };
+                          setAppearancePrefs(newPrefs);
+                          if (user) {
+                            await saveAppearancePreferences(user.id, newPrefs);
+                          }
+                        }}
                         className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
                           appearancePrefs.reduced_motion
                             ? 'bg-gradient-to-r from-cyan-500 to-blue-500 shadow-lg shadow-cyan-500/30'

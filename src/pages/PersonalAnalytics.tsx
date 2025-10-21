@@ -111,7 +111,7 @@ export default function PersonalAnalytics() {
 
   if (!user || profile?.subscription_plan !== 'pro') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex flex-col">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 flex flex-col">
         <Header />
         <div className="flex-1 flex items-center justify-center px-4">
           <div className="text-center max-w-md">
@@ -135,12 +135,37 @@ export default function PersonalAnalytics() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex flex-col">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 flex flex-col">
         <Header />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading your analytics...</p>
+        <div className="flex-1 flex items-center justify-center px-4">
+          <div className="text-center max-w-md">
+            <div className="relative mb-8">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-32 h-32 bg-gradient-to-br from-blue-200 to-cyan-200 rounded-full animate-pulse"></div>
+              </div>
+              <div className="relative flex items-center justify-center">
+                <div className="w-28 h-28 border-8 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h2 className="text-2xl font-bold text-slate-900 animate-pulse">Loading Your Analytics</h2>
+              <p className="text-slate-600">Gathering your activity data and insights...</p>
+
+              <div className="grid grid-cols-3 gap-3 mt-8">
+                <div className="h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl animate-pulse"></div>
+                <div className="h-16 bg-gradient-to-br from-green-100 to-green-200 rounded-xl animate-pulse delay-75"></div>
+                <div className="h-16 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-xl animate-pulse delay-150"></div>
+              </div>
+
+              <div className="mt-6 space-y-2">
+                <div className="flex items-center justify-center space-x-2 text-sm text-slate-500">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce delay-100"></div>
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce delay-200"></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <Footer />
@@ -152,33 +177,33 @@ export default function PersonalAnalytics() {
   const trend = calculateTrend();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 flex flex-col">
       <Header />
 
       <main className="flex-1 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Personal Analytics</h1>
-            <p className="text-gray-600">Track your AI tool discovery journey and engagement</p>
+          <div className="mb-8 text-center md:text-left">
+            <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2">Personal Analytics</h1>
+            <p className="text-slate-600 text-base md:text-lg">Track your AI tool discovery journey and engagement</p>
           </div>
 
-          <div className="mb-6 flex items-center justify-between">
+          <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center space-x-2">
-              <Award className={`h-6 w-6 ${engagement.color}`} />
-              <span className="text-lg font-semibold text-gray-900">
+              <Award className={`h-5 w-5 sm:h-6 sm:w-6 ${engagement.color}`} />
+              <span className="text-base sm:text-lg font-semibold text-slate-900">
                 Engagement Level: <span className={engagement.color}>{engagement.level}</span>
               </span>
             </div>
 
-            <div className="flex space-x-2">
+            <div className="flex space-x-2 w-full sm:w-auto">
               {[7, 30, 90].map((days) => (
                 <button
                   key={days}
                   onClick={() => setTimeRange(days as 7 | 30 | 90)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                     timeRange === days
-                      ? 'bg-blue-600 text-white shadow-md'
-                      : 'bg-white text-gray-700 hover:bg-gray-50'
+                      ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/30'
+                      : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
                   }`}
                 >
                   {days}D
@@ -187,7 +212,7 @@ export default function PersonalAnalytics() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
             <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-3 bg-blue-100 rounded-xl">

@@ -11,8 +11,7 @@ import {
   Users,
   CheckCircle2,
   Info,
-  Share2,
-  Bookmark
+  Share2
 } from 'lucide-react';
 import { supabase, AITool } from '../lib/supabase';
 import { useAuth } from '../lib/useAuth';
@@ -27,6 +26,7 @@ export default function ToolDetails() {
   const [loading, setLoading] = useState(true);
   const [isFavorited, setIsFavorited] = useState(false);
   const [favoriteLoading, setFavoriteLoading] = useState(false);
+  const [favoritesCount, setFavoritesCount] = useState(0);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -39,12 +39,24 @@ export default function ToolDetails() {
     if (user && tool) {
       checkFavoriteStatus();
     }
+    if (tool) {
+      loadFavoritesCount();
+    }
   }, [user, tool]);
 
   const checkFavoriteStatus = async () => {
     if (!user || !tool) return;
     const favorited = await isFavorite(user.id, tool.id);
     setIsFavorited(favorited);
+  };
+
+  const loadFavoritesCount = async () => {
+    if (!tool) return;
+    const { count } = await supabase
+      .from('user_favorites')
+      .select('*', { count: 'exact', head: true })
+      .eq('tool_id', tool.id);
+    setFavoritesCount(count || 0);
   };
 
   const handleFavoriteToggle = async () => {
@@ -59,6 +71,7 @@ export default function ToolDetails() {
         const result = await removeFavorite(user.id, tool.id);
         if (result.success) {
           setIsFavorited(false);
+          setFavoritesCount(prev => Math.max(0, prev - 1));
         } else {
           alert(result.error || 'Failed to remove favorite');
         }
@@ -66,6 +79,7 @@ export default function ToolDetails() {
         const result = await addFavorite(user.id, tool.id);
         if (result.success) {
           setIsFavorited(true);
+          setFavoritesCount(prev => prev + 1);
           trackToolInteraction(user.id, tool.id, 'favorite');
           trackEvent('tool_favorite', {
             tool_id: tool.id,
@@ -288,11 +302,11 @@ export default function ToolDetails() {
                   )}
 
                   <div className="bg-white rounded-xl p-6 text-center shadow-md border border-slate-200/50">
-                    <Bookmark className="w-8 h-8 text-green-600 mx-auto mb-2" />
+                    <Heart className="w-8 h-8 text-red-500 mx-auto mb-2 fill-current" />
                     <div className="text-3xl font-bold text-slate-900">
-                      {Math.floor(Math.random() * 500 + 100)}
+                      {favoritesCount.toLocaleString()}
                     </div>
-                    <div className="text-sm text-slate-600 font-medium">Saves</div>
+                    <div className="text-sm text-slate-600 font-medium">Favorites</div>
                   </div>
                 </div>
               </div>
