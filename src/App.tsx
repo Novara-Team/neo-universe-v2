@@ -23,6 +23,9 @@ import ManageTools from './pages/admin/ManageTools';
 import ManageNews from './pages/admin/ManageNews';
 import ManageReviews from './pages/admin/ManageReviews';
 import ManageSubmissions from './pages/admin/ManageSubmissions';
+import ManageSupport from './pages/admin/ManageSupport';
+import Settings from './pages/Settings';
+import SupportChat from './components/SupportChat';
 import ProtectedRoute from './components/ProtectedRoute';
 import { Analytics } from '@vercel/analytics/react'; // ✅ Import Analytics
 
@@ -46,6 +49,7 @@ function App() {
             <Route path="news" element={<ManageNews />} />
             <Route path="reviews" element={<ManageReviews />} />
             <Route path="submissions" element={<ManageSubmissions />} />
+            <Route path="support" element={<ManageSupport />} />
           </Route>
 
           <Route
@@ -69,9 +73,11 @@ function App() {
                     <Route path="/favorites" element={<FavoriteTools />} />
                     <Route path="/collections" element={<Collections />} />
                     <Route path="/collections/:slug" element={<CollectionDetail />} />
+                    <Route path="/settings" element={<Settings />} />
                   </Routes>
                 </main>
                 <Footer />
+                <SupportChat />
                 <Analytics /> {/* ✅ Add Analytics here at the root */}
               </div>
             }

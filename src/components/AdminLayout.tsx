@@ -1,5 +1,5 @@
 import { Link, useNavigate, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Wrench, Newspaper, MessageSquare, FileText, LogOut, Sparkles } from 'lucide-react';
+import { LayoutDashboard, Wrench, Newspaper, MessageSquare, FileText, LogOut, Sparkles, MessageCircle } from 'lucide-react';
 import { logoutAdmin } from '../lib/auth';
 
 export default function AdminLayout() {
@@ -16,6 +16,7 @@ export default function AdminLayout() {
     { path: '/adminpn/news', icon: Newspaper, label: 'AI News' },
     { path: '/adminpn/reviews', icon: MessageSquare, label: 'Reviews' },
     { path: '/adminpn/submissions', icon: FileText, label: 'Submissions' },
+    { path: '/adminpn/support', icon: MessageCircle, label: 'Support Chat' },
   ];
 
   return (
