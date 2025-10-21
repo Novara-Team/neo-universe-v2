@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Search, Sparkles, ExternalLink } from 'lucide-react';
+import { Search, Sparkles, ExternalLink, Crown, Zap } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { supabase, AITool } from '../lib/supabase';
+import { useAuth } from '../lib/useAuth';
 
 export default function Compare() {
+  const { profile } = useAuth();
   const [tools, setTools] = useState<AITool[]>([]);
   const [tool1, setTool1] = useState<AITool | null>(null);
   const [tool2, setTool2] = useState<AITool | null>(null);
@@ -39,9 +42,35 @@ export default function Compare() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-12 text-center">
           <h1 className="text-4xl font-bold text-white mb-4">Compare AI Tools</h1>
-          <p className="text-slate-400 text-lg">
+          <p className="text-slate-400 text-lg mb-6">
             Compare features, pricing, and ratings of two AI tools side by side
           </p>
+          {profile && profile.subscription_plan !== 'free' && (
+            <Link
+              to="/compare/advanced"
+              className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-lg hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg shadow-amber-500/50 font-medium"
+            >
+              <Crown className="w-5 h-5" />
+              <span>Try Advanced Compare</span>
+            </Link>
+          )}
+          {(!profile || profile.subscription_plan === 'free') && (
+            <div className="inline-block bg-gradient-to-r from-amber-500/10 to-blue-500/10 border border-amber-500/30 rounded-xl p-6 max-w-2xl">
+              <div className="flex items-center justify-center space-x-2 mb-3">
+                <Zap className="w-6 h-6 text-amber-400" />
+                <h3 className="text-xl font-bold text-white">Unlock Advanced Compare</h3>
+              </div>
+              <p className="text-slate-300 mb-4">
+                Compare up to 5 tools at once with advanced metrics, feature matrix, and detailed analysis
+              </p>
+              <Link
+                to="/pricing"
+                className="inline-flex items-center space-x-2 px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all font-medium"
+              >                <span>Upgrade to Plus or Pro</span>
+                <Crown className="w-4 h-4" />
+              </Link>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">

@@ -8,11 +8,14 @@ import ToolDetails from './pages/ToolDetails';
 import TopTools from './pages/TopTools';
 import SubmitTool from './pages/SubmitTool';
 import Compare from './pages/Compare';
+import CompareAdvanced from './pages/CompareAdvanced';
 import About from './pages/About';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Pricing from './pages/Pricing';
 import FavoriteTools from './pages/FavoriteTools';
+import Collections from './pages/Collections';
+import CollectionDetail from './pages/CollectionDetail';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminLayout from './components/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -58,11 +61,14 @@ function App() {
                     <Route path="/top-tools" element={<TopTools />} />
                     <Route path="/submit" element={<SubmitTool />} />
                     <Route path="/compare" element={<Compare />} />
+                    <Route path="/compare/advanced" element={<CompareAdvanced />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/pricing" element={<Pricing />} />
                     <Route path="/favorites" element={<FavoriteTools />} />
+                    <Route path="/collections" element={<Collections />} />
+                    <Route path="/collections/:slug" element={<CollectionDetail />} />
                   </Routes>
                 </main>
                 <Footer />
