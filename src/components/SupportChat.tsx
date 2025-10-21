@@ -133,20 +133,25 @@ export default function SupportChat() {
     if (!newMessage.trim() || !conversationId || !user) return;
 
     setIsLoading(true);
+    const messageText = newMessage.trim();
+    setNewMessage('');
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('support_messages')
       .insert({
         conversation_id: conversationId,
         sender_id: user.id,
         sender_type: 'user',
-        message: newMessage.trim()
-      });
+        message: messageText
+      })
+      .select()
+      .single();
 
     if (error) {
       console.error('Error sending message:', error);
-    } else {
-      setNewMessage('');
+      setNewMessage(messageText);
+    } else if (data) {
+      setMessages((prev) => [...prev, data as Message]);
     }
 
     setIsLoading(false);

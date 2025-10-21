@@ -5,7 +5,7 @@ import { useAuth } from '../lib/useAuth';
 import SubmitToolPro from './SubmitToolPro';
 
 export default function SubmitTool() {
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -33,7 +33,12 @@ export default function SubmitTool() {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await supabase.from('tool_submissions').insert([formData]);
+    const submissionData = {
+      ...formData,
+      user_id: user?.id || null
+    };
+
+    const { error } = await supabase.from('tool_submissions').insert([submissionData]);
 
     setLoading(false);
 

@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Sparkles, User, LogOut, Crown, Zap, Settings, Heart, Folder, Lightbulb, BarChart3 } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
 import { useState } from 'react';
+import NotificationBell from './NotificationBell';
 
 export default function Header() {
   const { user, profile, signOut } = useAuth();
@@ -73,19 +74,21 @@ export default function Header() {
             </Link>
           </nav>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
             {user ? (
-              <div className="relative">
-                <button
-                  onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center space-x-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
-                >
-                  <User className="w-5 h-5 text-cyan-400" />
-                  <span className="text-white text-sm flex items-center">
-                    {profile?.full_name || user.email?.split('@')[0]}
-                    {getPlanBadge()}
-                  </span>
-                </button>
+              <>
+                <NotificationBell />
+                <div className="relative">
+                  <button
+                    onClick={() => setShowUserMenu(!showUserMenu)}
+                    className="flex items-center space-x-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
+                  >
+                    <User className="w-5 h-5 text-cyan-400" />
+                    <span className="text-white text-sm flex items-center">
+                      {profile?.full_name || user.email?.split('@')[0]}
+                      {getPlanBadge()}
+                    </span>
+                  </button>
 
                 {showUserMenu && (
                   <>
@@ -181,7 +184,8 @@ export default function Header() {
                     </div>
                   </>
                 )}
-              </div>
+                </div>
+              </>
             ) : (
               <div className="flex items-center space-x-3">
                 <Link

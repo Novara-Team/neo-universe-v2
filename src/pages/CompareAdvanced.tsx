@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Sparkles, ExternalLink, Plus, X, TrendingUp, Calendar, Eye, Star, DollarSign, Check, Minus, Crown, Zap, Loader2, MessageSquare } from 'lucide-react';
+import { Search, Sparkles, ExternalLink, Plus, X, TrendingUp, Calendar, Eye, Star, DollarSign, Check, Minus, Crown, Zap, Loader2, MessageSquare, ThumbsUp, Activity, Users, Target } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase, AITool } from '../lib/supabase';
 import { useAuth } from '../lib/useAuth';
@@ -368,7 +368,7 @@ export default function CompareAdvanced() {
                       ))}
                     </tr>
 
-                    <tr>
+                    <tr className="border-b border-slate-700/50">
                       <td className="py-4 px-4 text-slate-300 flex items-center space-x-2">
                         <TrendingUp className="w-4 h-4 text-cyan-400" />
                         <span>Feature Count</span>
@@ -381,6 +381,127 @@ export default function CompareAdvanced() {
                           </div>
                         </td>
                       ))}
+                    </tr>
+
+                    <tr className="border-b border-slate-700/50">
+                      <td className="py-4 px-4 text-slate-300 flex items-center space-x-2">
+                        <Activity className="w-4 h-4 text-green-400" />
+                        <span>Performance Score</span>
+                      </td>
+                      {selectedTools.map((tool) => {
+                        const performanceScore = Math.min(100, Math.round((tool.views / 1000 + tool.rating * 10) / 2));
+                        const maxScore = Math.max(...selectedTools.map(t => Math.min(100, Math.round((t.views / 1000 + t.rating * 10) / 2))));
+                        return (
+                          <td key={tool.id} className={`py-4 px-4 text-center ${performanceScore === maxScore ? 'bg-green-500/10' : ''}`}>
+                            <div className="flex items-center justify-center">
+                              <div className="flex flex-col items-center">
+                                <span className="text-white font-semibold">{performanceScore}/100</span>
+                                <div className="w-20 h-2 bg-slate-700 rounded-full mt-1 overflow-hidden">
+                                  <div
+                                    className="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full"
+                                    style={{ width: `${performanceScore}%` }}
+                                  />
+                                </div>
+                              </div>
+                              {performanceScore === maxScore && <Crown className="w-4 h-4 text-yellow-400 ml-2" />}
+                            </div>
+                          </td>
+                        );
+                      })}
+                    </tr>
+
+                    <tr className="border-b border-slate-700/50">
+                      <td className="py-4 px-4 text-slate-300 flex items-center space-x-2">
+                        <ThumbsUp className="w-4 h-4 text-blue-400" />
+                        <span>User Satisfaction</span>
+                      </td>
+                      {selectedTools.map((tool) => {
+                        const satisfaction = Math.round((tool.rating / 5) * 100);
+                        const maxSatisfaction = Math.max(...selectedTools.map(t => Math.round((t.rating / 5) * 100)));
+                        return (
+                          <td key={tool.id} className={`py-4 px-4 text-center ${satisfaction === maxSatisfaction ? 'bg-green-500/10' : ''}`}>
+                            <div className="flex items-center justify-center">
+                              <div className="flex flex-col items-center">
+                                <span className="text-white font-semibold">{satisfaction}%</span>
+                                <span className={`text-xs mt-1 ${
+                                  satisfaction >= 90 ? 'text-green-400' :
+                                  satisfaction >= 70 ? 'text-blue-400' :
+                                  satisfaction >= 50 ? 'text-yellow-400' : 'text-red-400'
+                                }`}>
+                                  {satisfaction >= 90 ? 'Excellent' :
+                                   satisfaction >= 70 ? 'Very Good' :
+                                   satisfaction >= 50 ? 'Good' : 'Average'}
+                                </span>
+                              </div>
+                              {satisfaction === maxSatisfaction && <Crown className="w-4 h-4 text-yellow-400 ml-2" />}
+                            </div>
+                          </td>
+                        );
+                      })}
+                    </tr>
+
+                    <tr className="border-b border-slate-700/50">
+                      <td className="py-4 px-4 text-slate-300 flex items-center space-x-2">
+                        <Users className="w-4 h-4 text-purple-400" />
+                        <span>Popularity Index</span>
+                      </td>
+                      {selectedTools.map((tool) => {
+                        const popularityIndex = Math.min(100, Math.round(tool.views / 100));
+                        const maxPopularity = Math.max(...selectedTools.map(t => Math.min(100, Math.round(t.views / 100))));
+                        return (
+                          <td key={tool.id} className={`py-4 px-4 text-center ${popularityIndex === maxPopularity ? 'bg-green-500/10' : ''}`}>
+                            <div className="flex items-center justify-center">
+                              <div className="flex flex-col items-center">
+                                <span className="text-white font-semibold">{popularityIndex}/100</span>
+                                <div className="w-20 h-2 bg-slate-700 rounded-full mt-1 overflow-hidden">
+                                  <div
+                                    className="h-full bg-gradient-to-r from-purple-500 to-pink-400 rounded-full"
+                                    style={{ width: `${popularityIndex}%` }}
+                                  />
+                                </div>
+                              </div>
+                              {popularityIndex === maxPopularity && <Crown className="w-4 h-4 text-yellow-400 ml-2" />}
+                            </div>
+                          </td>
+                        );
+                      })}
+                    </tr>
+
+                    <tr>
+                      <td className="py-4 px-4 text-slate-300 flex items-center space-x-2">
+                        <Target className="w-4 h-4 text-orange-400" />
+                        <span>Overall Score</span>
+                      </td>
+                      {selectedTools.map((tool) => {
+                        const overallScore = Math.round(
+                          (tool.rating / 5 * 30) +
+                          (Math.min(tool.views / 100, 100) * 0.3) +
+                          (tool.features.length * 2) +
+                          (tool.pricing_type === 'Free' ? 10 : tool.pricing_type === 'Freemium' ? 5 : 0)
+                        );
+                        const maxOverall = Math.max(...selectedTools.map(t => Math.round(
+                          (t.rating / 5 * 30) +
+                          (Math.min(t.views / 100, 100) * 0.3) +
+                          (t.features.length * 2) +
+                          (t.pricing_type === 'Free' ? 10 : t.pricing_type === 'Freemium' ? 5 : 0)
+                        )));
+                        return (
+                          <td key={tool.id} className={`py-4 px-4 text-center ${overallScore === maxOverall ? 'bg-green-500/10' : ''}`}>
+                            <div className="flex items-center justify-center">
+                              <div className="flex flex-col items-center">
+                                <span className="text-white font-bold text-lg">{overallScore}</span>
+                                <div className="w-24 h-3 bg-slate-700 rounded-full mt-1 overflow-hidden">
+                                  <div
+                                    className="h-full bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-400 rounded-full"
+                                    style={{ width: `${Math.min(100, overallScore)}%` }}
+                                  />
+                                </div>
+                              </div>
+                              {overallScore === maxOverall && <Crown className="w-4 h-4 text-yellow-400 ml-2" />}
+                            </div>
+                          </td>
+                        );
+                      })}
                     </tr>
                   </tbody>
                 </table>

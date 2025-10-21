@@ -16,7 +16,7 @@ export default function Home() {
   }, []);
 
   const loadData = async () => {
-    const [toolsRes, categoriesRes, newsRes, allToolsRes, allCategoriesRes] = await Promise.all([
+    const [toolsRes, categoriesRes, newsRes, allToolsRes, allCategoriesRes, usersRes] = await Promise.all([
       supabase
         .from('ai_tools')
         .select('*, category:categories(*)')
@@ -27,6 +27,7 @@ export default function Home() {
       supabase.from('ai_news').select('*').eq('featured', true).limit(3).order('publication_date', { ascending: false }),
       supabase.from('ai_tools').select('id', { count: 'exact', head: true }).eq('status', 'Published'),
       supabase.from('categories').select('id', { count: 'exact', head: true }),
+      supabase.from('user_profiles').select('id', { count: 'exact', head: true }),
     ]);
 
     if (toolsRes.data) setFeaturedTools(toolsRes.data);
@@ -36,7 +37,7 @@ export default function Home() {
     setStats({
       tools: allToolsRes.count || 0,
       categories: allCategoriesRes.count || 0,
-      users: 1250
+      users: usersRes.count || 0
     });
   };
 

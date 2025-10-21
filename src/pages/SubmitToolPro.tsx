@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { CheckCircle, Upload, Sparkles, Zap, Target, Star } from 'lucide-react';
 import { supabase, Category } from '../lib/supabase';
+import { useAuth } from '../lib/useAuth';
 
 export default function SubmitToolPro() {
+  const { user } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -29,7 +31,12 @@ export default function SubmitToolPro() {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await supabase.from('tool_submissions').insert([formData]);
+    const submissionData = {
+      ...formData,
+      user_id: user?.id || null
+    };
+
+    const { error } = await supabase.from('tool_submissions').insert([submissionData]);
 
     setLoading(false);
 

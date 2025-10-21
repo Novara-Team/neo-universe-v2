@@ -44,14 +44,38 @@ export default function ManageSubmissions() {
       features: [],
     };
 
-    await supabase.from('ai_tools').insert([toolData]);
+    const { data: newTool } = await supabase.from('ai_tools').insert([toolData]).select().single();
     await supabase.from('tool_submissions').update({ status: 'Approved' }).eq('id', submission.id);
+
+    if (submission.user_id && newTool) {
+      await supabase.from('notifications').insert({
+        user_id: submission.user_id,
+        type: 'tool_update',
+        title: 'Tool Submission Approved!',
+        message: `Great news! Your tool "${submission.name}" has been approved and is now live on AI Universe.`,
+        link: `/tool/${slug}`,
+        metadata: { submission_id: submission.id, tool_id: newTool.id }
+      });
+    }
 
     loadSubmissions();
   };
 
   const handleReject = async (id: string) => {
+    const submission = submissions.find(s => s.id === id);
     await supabase.from('tool_submissions').update({ status: 'Rejected' }).eq('id', id);
+
+    if (submission?.user_id) {
+      await supabase.from('notifications').insert({
+        user_id: submission.user_id,
+        type: 'tool_update',
+        title: 'Tool Submission Update',
+        message: `Thank you for submitting "${submission.name}". Unfortunately, it doesn't meet our criteria at this time. Feel free to submit again with improvements.`,
+        link: null,
+        metadata: { submission_id: id }
+      });
+    }
+
     loadSubmissions();
   };
 
