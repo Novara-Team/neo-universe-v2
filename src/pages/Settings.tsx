@@ -79,7 +79,9 @@ export default function Settings() {
       .from('subscriptions')
       .select('*')
       .eq('user_id', user.id)
-      .eq('status', 'active')
+      .in('status', ['active', 'trialing'])
+      .order('created_at', { ascending: false })
+      .limit(1)
       .maybeSingle();
 
     if (error) {
@@ -465,43 +467,65 @@ export default function Settings() {
 
               {subscription ? (
                 <div className="space-y-6">
-                  <div className="border border-gray-200 rounded-lg p-6">
+                  <div className="border-2 border-blue-500 rounded-lg p-6 bg-gradient-to-br from-blue-50 to-white">
                     <div className="flex items-center justify-between mb-4">
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900">{subscription.plan_name} Plan</h3>
-                        <p className="text-sm text-gray-600">
-                          Status: <span className="font-medium text-green-600">{subscription.status}</span>
+                        <h3 className="text-xl font-bold text-gray-900">{subscription.plan_name} Plan</h3>
+                        <p className="text-sm text-gray-600 mt-1">
+                          Status: <span className={`font-semibold ${subscription.status === 'active' ? 'text-green-600' : subscription.status === 'trialing' ? 'text-blue-600' : 'text-orange-600'}`}>
+                            {subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1)}
+                          </span>
                         </p>
                       </div>
-                      <CreditCard className="w-8 h-8 text-gray-400" />
+                      <div className="bg-blue-600 p-3 rounded-full">
+                        <CreditCard className="w-7 h-7 text-white" />
+                      </div>
                     </div>
-                    <div className="space-y-2 text-sm">
-                      <p className="text-gray-600">
-                        Next billing date: <span className="font-medium text-gray-900">
-                          {new Date(subscription.current_period_end).toLocaleDateString()}
-                        </span>
-                      </p>
+                    <div className="space-y-3 mt-4">
+                      {subscription.current_period_end && (
+                        <div className="bg-white rounded-lg p-4 border border-gray-200">
+                          <p className="text-sm text-gray-600 mb-1">Next Billing Date</p>
+                          <p className="text-lg font-semibold text-gray-900">
+                            {new Date(subscription.current_period_end).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
+                          </p>
+                        </div>
+                      )}
                       {subscription.cancel_at_period_end && (
-                        <p className="text-orange-600 font-medium">
-                          Your subscription will be canceled at the end of the billing period.
-                        </p>
+                        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                          <p className="text-orange-800 font-medium text-sm">
+                            Your subscription will be canceled at the end of the billing period. You'll continue to have access until {new Date(subscription.current_period_end).toLocaleDateString()}.
+                          </p>
+                        </div>
+                      )}
+                      {subscription.plan_slug !== 'pro' && !subscription.cancel_at_period_end && (
+                        <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-lg p-4">
+                          <p className="text-amber-900 font-medium text-sm">
+                            Upgrade to Universe Master plan for advanced analytics, priority support, and exclusive features!
+                          </p>
+                        </div>
                       )}
                     </div>
                   </div>
 
-                  <div className="flex gap-4">
-                    <button
-                      onClick={() => navigate('/pricing')}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors flex items-center gap-2"
-                    >
-                      <CreditCard className="w-5 h-5" />
-                      Upgrade Plan
-                    </button>
+                  <div className="flex flex-wrap gap-3">
+                    {subscription.plan_slug !== 'pro' && (
+                      <button
+                        onClick={() => navigate('/pricing')}
+                        className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-lg transition-all shadow-md hover:shadow-lg flex items-center gap-2 font-semibold"
+                      >
+                        <CreditCard className="w-5 h-5" />
+                        Upgrade Plan
+                      </button>
+                    )}
                     {!subscription.cancel_at_period_end ? (
                       <button
                         onClick={cancelSubscription}
                         disabled={isSaving}
-                        className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+                        className="bg-white border-2 border-red-500 text-red-600 hover:bg-red-50 px-6 py-3 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2 font-semibold"
                       >
                         {isSaving ? <Loader className="w-5 h-5 animate-spin" /> : <X className="w-5 h-5" />}
                         Cancel Subscription
@@ -510,12 +534,18 @@ export default function Settings() {
                       <button
                         onClick={reactivateSubscription}
                         disabled={isSaving}
-                        className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+                        className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-6 py-3 rounded-lg transition-all shadow-md hover:shadow-lg disabled:opacity-50 flex items-center gap-2 font-semibold"
                       >
                         {isSaving ? <Loader className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" />}
                         Reactivate Subscription
                       </button>
                     )}
+                    <button
+                      onClick={() => navigate('/pricing')}
+                      className="bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 px-6 py-3 rounded-lg transition-colors flex items-center gap-2 font-semibold"
+                    >
+                      View All Plans
+                    </button>
                   </div>
                 </div>
               ) : (
