@@ -128,18 +128,25 @@ export function applyAppearancePreferences(preferences: Partial<AppearancePrefer
     const styleElement = document.getElementById('dynamic-theme-styles') || document.createElement('style');
     styleElement.id = 'dynamic-theme-styles';
     styleElement.textContent = `
-      .bg-gradient-to-r.from-cyan-500 { background-image: linear-gradient(to right, ${preferences.primary_color}, ${preferences.accent_color}) !important; }
-      .bg-gradient-to-r.from-cyan-600 { background-image: linear-gradient(to right, ${preferences.primary_color}, ${preferences.accent_color}) !important; }
+      .bg-gradient-to-r.from-cyan-500, .bg-gradient-to-r.from-cyan-500.to-blue-500 { background-image: linear-gradient(to right, ${preferences.primary_color}, ${preferences.accent_color}) !important; }
+      .bg-gradient-to-r.from-cyan-600, .bg-gradient-to-r.from-cyan-600.to-blue-600 { background-image: linear-gradient(to right, ${preferences.primary_color}, ${preferences.accent_color}) !important; }
+      .from-cyan-400, .bg-gradient-to-r.from-cyan-400 { --tw-gradient-from: ${preferences.primary_color} !important; }
+      .to-blue-500, .bg-gradient-to-r.to-blue-500 { --tw-gradient-to: ${preferences.accent_color} !important; }
       .text-cyan-400 { color: ${preferences.primary_color} !important; }
       .text-cyan-500 { color: ${preferences.primary_color} !important; }
       .border-cyan-500 { border-color: ${preferences.primary_color} !important; }
       .bg-cyan-500\\/10 { background-color: var(--color-primary-100) !important; }
       .bg-cyan-500\\/20 { background-color: var(--color-primary-200) !important; }
       .hover\\:text-cyan-300:hover { color: ${preferences.accent_color} !important; }
+      .hover\\:text-cyan-400:hover { color: ${preferences.primary_color} !important; }
       .hover\\:border-cyan-500:hover { border-color: ${preferences.primary_color} !important; }
       .hover\\:border-cyan-500\\/50:hover { border-color: var(--color-primary-200) !important; }
-      .shadow-cyan-500\\/30 { box-shadow: 0 20px 25px -5px var(--color-primary-50), 0 8px 10px -6px var(--color-primary-100) !important; }
+      .hover\\:from-cyan-600:hover { --tw-gradient-from: ${preferences.primary_color} !important; }
+      .hover\\:to-blue-600:hover { --tw-gradient-to: ${preferences.accent_color} !important; }
+      .shadow-cyan-500\\/30, .shadow-cyan-500\\/50 { box-shadow: 0 20px 25px -5px var(--color-primary-50), 0 8px 10px -6px var(--color-primary-100) !important; }
       .from-cyan-900\\/20 { --tw-gradient-from: var(--color-primary-100) !important; }
+      .border-t-cyan-400 { border-top-color: ${preferences.primary_color} !important; }
+      .bg-gradient-to-b.from-slate-950, .bg-gradient-to-br.from-slate-50 { background-color: ${preferences.theme === 'light' ? '#f8fafc' : '#020617'} !important; }
     `;
     if (!document.getElementById('dynamic-theme-styles')) {
       document.head.appendChild(styleElement);

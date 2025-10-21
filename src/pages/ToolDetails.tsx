@@ -142,10 +142,10 @@ export default function ToolDetails() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 pt-24 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pt-24 flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mb-4"></div>
-          <p className="text-slate-600 font-medium">Loading tool details...</p>
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-slate-700 border-t-cyan-400 mb-4"></div>
+          <p className="text-slate-300 font-medium">Loading tool details...</p>
         </div>
       </div>
     );
@@ -153,15 +153,15 @@ export default function ToolDetails() {
 
   if (!tool) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 pt-24">
+      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-12">
-          <div className="bg-white rounded-2xl shadow-xl p-12">
+          <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl shadow-xl p-12">
             <Info className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-            <h1 className="text-3xl font-bold text-slate-900 mb-4">Tool not found</h1>
-            <p className="text-slate-600 mb-6">The tool you're looking for doesn't exist or has been removed.</p>
+            <h1 className="text-3xl font-bold text-white mb-4">Tool not found</h1>
+            <p className="text-slate-400 mb-6">The tool you're looking for doesn't exist or has been removed.</p>
             <Link
               to="/explore"
-              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl"
+              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg hover:shadow-xl"
             >
               Back to Explore
             </Link>
@@ -172,18 +172,18 @@ export default function ToolDetails() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 pt-24 pb-12">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-6">
           <Link
             to="/explore"
-            className="inline-flex items-center text-slate-600 hover:text-blue-600 transition-colors text-sm font-medium"
+            className="inline-flex items-center text-slate-400 hover:text-cyan-400 transition-colors text-sm font-medium"
           >
             ← Back to Explore
           </Link>
         </div>
 
-        <div className="bg-gradient-to-br from-white to-blue-50/30 rounded-3xl shadow-2xl border border-slate-200/50 overflow-hidden mb-8">
+        <div className="bg-slate-800/50 backdrop-blur-sm rounded-3xl shadow-2xl border border-slate-700 overflow-hidden mb-8">
           <div className="relative bg-gradient-to-r from-blue-600 to-cyan-600 p-8 md:p-12">
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNnoiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjEpIiBzdHJva2Utd2lkdGg9IjIiLz48L2c+PC9zdmc+')] opacity-20"></div>
 
@@ -247,96 +247,96 @@ export default function ToolDetails() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 p-8 md:p-12">
             <div className="lg:col-span-2 space-y-8">
-              <div className="bg-white rounded-2xl shadow-lg p-8 border border-slate-200/50">
-                <h2 className="text-2xl font-bold text-slate-900 mb-4 flex items-center">
-                  <Info className="w-6 h-6 mr-2 text-blue-600" />
+              <div className="bg-slate-900/50 backdrop-blur-sm rounded-2xl shadow-lg p-8 border border-slate-700">
+                <h2 className="text-2xl font-bold text-white mb-4 flex items-center">
+                  <Info className="w-6 h-6 mr-2 text-cyan-400" />
                   About this Tool
                 </h2>
                 <div className="prose prose-slate max-w-none">
-                  <p className="text-slate-700 leading-relaxed text-lg whitespace-pre-line">
+                  <p className="text-slate-300 leading-relaxed text-lg whitespace-pre-line">
                     {tool.long_description || tool.description}
                   </p>
                 </div>
               </div>
 
               {tool.features.length > 0 && (
-                <div className="bg-white rounded-2xl shadow-lg p-8 border border-slate-200/50">
-                  <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center">
-                    <CheckCircle2 className="w-6 h-6 mr-2 text-green-600" />
+                <div className="bg-slate-900/50 backdrop-blur-sm rounded-2xl shadow-lg p-8 border border-slate-700">
+                  <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
+                    <CheckCircle2 className="w-6 h-6 mr-2 text-green-400" />
                     Key Features
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {tool.features.map((feature, idx) => (
                       <div
                         key={idx}
-                        className="flex items-start space-x-3 p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl border border-blue-100 hover:shadow-md transition-all"
+                        className="flex items-start space-x-3 p-4 bg-slate-800/50 rounded-xl border border-slate-700 hover:shadow-md transition-all"
                       >
-                        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center mt-0.5">
+                        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-cyan-500 flex items-center justify-center mt-0.5">
                           <CheckCircle2 className="w-4 h-4 text-white" />
                         </div>
-                        <span className="text-slate-700 font-medium leading-relaxed">{feature}</span>
+                        <span className="text-slate-200 font-medium leading-relaxed">{feature}</span>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
 
-              <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl shadow-lg p-8 border border-slate-200/50">
-                <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center">
-                  <TrendingUp className="w-6 h-6 mr-2 text-blue-600" />
+              <div className="bg-slate-900/50 backdrop-blur-sm rounded-2xl shadow-lg p-8 border border-slate-700">
+                <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
+                  <TrendingUp className="w-6 h-6 mr-2 text-cyan-400" />
                   Statistics & Engagement
                 </h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  <div className="bg-white rounded-xl p-6 text-center shadow-md border border-slate-200/50">
-                    <Users className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                    <div className="text-3xl font-bold text-slate-900">{tool.views?.toLocaleString() || 0}</div>
-                    <div className="text-sm text-slate-600 font-medium">Views</div>
+                  <div className="bg-slate-800/50 rounded-xl p-6 text-center shadow-md border border-slate-700">
+                    <Users className="w-8 h-8 text-cyan-400 mx-auto mb-2" />
+                    <div className="text-3xl font-bold text-white">{tool.views?.toLocaleString() || 0}</div>
+                    <div className="text-sm text-slate-400 font-medium">Views</div>
                   </div>
 
                   {tool.rating > 0 && (
-                    <div className="bg-white rounded-xl p-6 text-center shadow-md border border-slate-200/50">
+                    <div className="bg-slate-800/50 rounded-xl p-6 text-center shadow-md border border-slate-700">
                       <Star className="w-8 h-8 text-yellow-500 mx-auto mb-2 fill-current" />
-                      <div className="text-3xl font-bold text-slate-900">{tool.rating.toFixed(1)}</div>
-                      <div className="text-sm text-slate-600 font-medium">Rating</div>
+                      <div className="text-3xl font-bold text-white">{tool.rating.toFixed(1)}</div>
+                      <div className="text-sm text-slate-400 font-medium">Rating</div>
                     </div>
                   )}
 
-                  <div className="bg-white rounded-xl p-6 text-center shadow-md border border-slate-200/50">
+                  <div className="bg-slate-800/50 rounded-xl p-6 text-center shadow-md border border-slate-700">
                     <Heart className="w-8 h-8 text-red-500 mx-auto mb-2 fill-current" />
-                    <div className="text-3xl font-bold text-slate-900">
+                    <div className="text-3xl font-bold text-white">
                       {favoritesCount.toLocaleString()}
                     </div>
-                    <div className="text-sm text-slate-600 font-medium">Favorites</div>
+                    <div className="text-sm text-slate-400 font-medium">Favorites</div>
                   </div>
                 </div>
               </div>
             </div>
 
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-2xl shadow-xl p-8 border border-slate-200/50 sticky top-24 space-y-6">
-                <h3 className="text-xl font-bold text-slate-900 mb-6 pb-4 border-b border-slate-200">
+              <div className="bg-slate-900/50 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-slate-700 sticky top-24 space-y-6">
+                <h3 className="text-xl font-bold text-white mb-6 pb-4 border-b border-slate-700">
                   Tool Information
                 </h3>
 
                 <div className="space-y-5">
                   <div className="flex items-start space-x-4">
-                    <div className="p-3 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-xl">
-                      <DollarSign className="w-6 h-6 text-blue-600" />
+                    <div className="p-3 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl">
+                      <DollarSign className="w-6 h-6 text-cyan-400" />
                     </div>
                     <div className="flex-1">
-                      <div className="text-sm text-slate-500 font-medium mb-1">Pricing Model</div>
-                      <div className="text-slate-900 font-semibold text-lg">{tool.pricing_type}</div>
+                      <div className="text-sm text-slate-400 font-medium mb-1">Pricing Model</div>
+                      <div className="text-white font-semibold text-lg">{tool.pricing_type}</div>
                     </div>
                   </div>
 
                   {tool.rating > 0 && (
                     <div className="flex items-start space-x-4">
-                      <div className="p-3 bg-gradient-to-br from-yellow-100 to-orange-100 rounded-xl">
-                        <Star className="w-6 h-6 text-yellow-600" />
+                      <div className="p-3 bg-gradient-to-br from-yellow-500/20 to-orange-500/20 rounded-xl">
+                        <Star className="w-6 h-6 text-yellow-500" />
                       </div>
                       <div className="flex-1">
-                        <div className="text-sm text-slate-500 font-medium mb-1">User Rating</div>
-                        <div className="text-slate-900 font-semibold text-lg flex items-center">
+                        <div className="text-sm text-slate-400 font-medium mb-1">User Rating</div>
+                        <div className="text-white font-semibold text-lg flex items-center">
                           <span className="text-yellow-500 mr-1.5">★</span>
                           {tool.rating.toFixed(1)} / 5.0
                         </div>
@@ -345,12 +345,12 @@ export default function ToolDetails() {
                   )}
 
                   <div className="flex items-start space-x-4">
-                    <div className="p-3 bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl">
-                      <Calendar className="w-6 h-6 text-green-600" />
+                    <div className="p-3 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-xl">
+                      <Calendar className="w-6 h-6 text-green-400" />
                     </div>
                     <div className="flex-1">
-                      <div className="text-sm text-slate-500 font-medium mb-1">Launch Date</div>
-                      <div className="text-slate-900 font-semibold text-lg">
+                      <div className="text-sm text-slate-400 font-medium mb-1">Launch Date</div>
+                      <div className="text-white font-semibold text-lg">
                         {new Date(tool.launch_date).toLocaleDateString('en-US', {
                           month: 'long',
                           year: 'numeric'
@@ -392,8 +392,8 @@ export default function ToolDetails() {
         {relatedTools.length > 0 && (
           <div className="mt-12">
             <div className="mb-8">
-              <h2 className="text-3xl font-bold text-slate-900 mb-2">Similar Tools You Might Like</h2>
-              <p className="text-slate-600">Explore more tools in the same category</p>
+              <h2 className="text-3xl font-bold text-white mb-2">Similar Tools You Might Like</h2>
+              <p className="text-slate-400">Explore more tools in the same category</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -401,7 +401,7 @@ export default function ToolDetails() {
                 <Link
                   key={relatedTool.id}
                   to={`/tool/${relatedTool.slug}`}
-                  className="group bg-white rounded-2xl shadow-lg border border-slate-200 p-6 hover:border-blue-300 hover:shadow-xl transition-all hover:-translate-y-1"
+                  className="group bg-slate-800/50 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-700 p-6 hover:border-cyan-500/50 hover:shadow-xl transition-all hover:-translate-y-1"
                 >
                   <div className="flex items-center space-x-4 mb-4">
                     {relatedTool.logo_url ? (
@@ -416,17 +416,17 @@ export default function ToolDetails() {
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-slate-900 font-bold group-hover:text-blue-600 transition-colors truncate">
+                      <h3 className="text-white font-bold group-hover:text-cyan-400 transition-colors truncate">
                         {relatedTool.name}
                       </h3>
-                      <div className="flex items-center text-xs text-slate-500 mt-1">
-                        <span className="px-2 py-0.5 bg-slate-100 rounded-full">
+                      <div className="flex items-center text-xs text-slate-400 mt-1">
+                        <span className="px-2 py-0.5 bg-slate-700/50 rounded-full">
                           {relatedTool.pricing_type}
                         </span>
                       </div>
                     </div>
                   </div>
-                  <p className="text-slate-600 text-sm line-clamp-3 leading-relaxed">
+                  <p className="text-slate-300 text-sm line-clamp-3 leading-relaxed">
                     {relatedTool.description}
                   </p>
                 </Link>

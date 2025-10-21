@@ -18,7 +18,6 @@ import {
   ArrowDown
 } from 'lucide-react';
 import Header from '../components/Header';
-import Footer from '../components/Footer';
 import { useAuth } from '../lib/useAuth';
 import {
   getAnalyticsSummary,
@@ -111,64 +110,56 @@ export default function PersonalAnalytics() {
 
   if (!user || profile?.subscription_plan !== 'pro') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 flex flex-col">
-        <Header />
-        <div className="flex-1 flex items-center justify-center px-4">
-          <div className="text-center max-w-md">
-            <Award className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Personal Analytics</h1>
-            <p className="text-gray-600 mb-6">
-              Unlock detailed insights and analytics about your activity with the Pro plan.
-            </p>
-            <Link
-              to="/pricing"
-              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Upgrade to Pro
-            </Link>
-          </div>
+      <div className="flex items-center justify-center px-4 py-20">
+        <div className="text-center max-w-md">
+          <Award className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Personal Analytics</h1>
+          <p className="text-gray-600 mb-6">
+            Unlock detailed insights and analytics about your activity with the Pro plan.
+          </p>
+          <Link
+            to="/pricing"
+            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Upgrade to Pro
+          </Link>
         </div>
-        <Footer />
       </div>
     );
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 flex flex-col">
-        <Header />
-        <div className="flex-1 flex items-center justify-center px-4">
-          <div className="text-center max-w-md">
-            <div className="relative mb-8">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-32 h-32 bg-gradient-to-br from-blue-200 to-cyan-200 rounded-full animate-pulse"></div>
-              </div>
-              <div className="relative flex items-center justify-center">
-                <div className="w-28 h-28 border-8 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-              </div>
+      <div className="flex items-center justify-center px-4 py-20">
+        <div className="text-center max-w-md">
+          <div className="relative mb-8">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-32 h-32 bg-gradient-to-br from-blue-200 to-cyan-200 rounded-full animate-pulse"></div>
+            </div>
+            <div className="relative flex items-center justify-center">
+              <div className="w-28 h-28 border-8 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold text-slate-900 animate-pulse">Loading Your Analytics</h2>
+            <p className="text-slate-600">Gathering your activity data and insights...</p>
+
+            <div className="grid grid-cols-3 gap-3 mt-8">
+              <div className="h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl animate-pulse"></div>
+              <div className="h-16 bg-gradient-to-br from-green-100 to-green-200 rounded-xl animate-pulse delay-75"></div>
+              <div className="h-16 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-xl animate-pulse delay-150"></div>
             </div>
 
-            <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-slate-900 animate-pulse">Loading Your Analytics</h2>
-              <p className="text-slate-600">Gathering your activity data and insights...</p>
-
-              <div className="grid grid-cols-3 gap-3 mt-8">
-                <div className="h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl animate-pulse"></div>
-                <div className="h-16 bg-gradient-to-br from-green-100 to-green-200 rounded-xl animate-pulse delay-75"></div>
-                <div className="h-16 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-xl animate-pulse delay-150"></div>
-              </div>
-
-              <div className="mt-6 space-y-2">
-                <div className="flex items-center justify-center space-x-2 text-sm text-slate-500">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce delay-100"></div>
-                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce delay-200"></div>
-                </div>
+            <div className="mt-6 space-y-2">
+              <div className="flex items-center justify-center space-x-2 text-sm text-slate-500">
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce delay-100"></div>
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce delay-200"></div>
               </div>
             </div>
           </div>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -177,10 +168,7 @@ export default function PersonalAnalytics() {
   const trend = calculateTrend();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 flex flex-col">
-      <Header />
-
-      <main className="flex-1 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="mb-8 text-center md:text-left">
             <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2">Personal Analytics</h1>
@@ -449,9 +437,6 @@ export default function PersonalAnalytics() {
             )}
           </div>
         </div>
-      </main>
-
-      <Footer />
     </div>
   );
 }
