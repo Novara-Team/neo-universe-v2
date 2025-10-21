@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Send, CheckCircle } from 'lucide-react';
 import { supabase, Category } from '../lib/supabase';
+import { useAuth } from '../lib/useAuth';
+import SubmitToolPro from './SubmitToolPro';
 
 export default function SubmitTool() {
+  const { profile } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -46,6 +49,10 @@ export default function SubmitTool() {
       });
     }
   };
+
+  if (profile && (profile.subscription_plan === 'plus' || profile.subscription_plan === 'pro')) {
+    return <SubmitToolPro />;
+  }
 
   if (submitted) {
     return (

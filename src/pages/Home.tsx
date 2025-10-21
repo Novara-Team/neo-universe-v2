@@ -9,7 +9,6 @@ export default function Home() {
   const [featuredTools, setFeaturedTools] = useState<AITool[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [news, setNews] = useState<AINews[]>([]);
-  const [email, setEmail] = useState('');
 
   useEffect(() => {
     loadData();
@@ -37,12 +36,6 @@ export default function Home() {
     if (searchQuery.trim()) {
       navigate(`/explore?search=${encodeURIComponent(searchQuery)}`);
     }
-  };
-
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert('Thank you for subscribing! (Newsletter feature coming soon)');
-    setEmail('');
   };
 
   const categoryIcons: Record<string, any> = {
@@ -198,30 +191,7 @@ export default function Home() {
             </div>
           </div>
         )}
-        <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-2xl p-12 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">Stay Updated</h2>
-          <p className="text-slate-300 mb-8 max-w-2xl mx-auto">
-            Join 10,000+ AI enthusiasts who discover new tools daily. Get weekly updates on the latest AI innovations.
-          </p>
-          <form onSubmit={handleSubscribe} className="max-w-md mx-auto flex gap-3">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              required
-              className="flex-1 px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-            />
-            <button
-              type="submit"
-              className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg shadow-cyan-500/50 font-medium"
-            >
-              Subscribe
-            </button>
-          </form>
-        </div>
       </div>
     </div>
-
   );
 }

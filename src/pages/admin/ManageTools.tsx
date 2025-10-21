@@ -250,6 +250,7 @@ export default function ManageTools() {
                 <option value="Published">Published</option>
                 <option value="Draft">Draft</option>
                 <option value="Pending">Pending</option>
+                <option value="Demo">Demo (Pro Users Only)</option>
               </select>
             </div>
 

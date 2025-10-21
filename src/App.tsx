@@ -25,9 +25,10 @@ import ManageReviews from './pages/admin/ManageReviews';
 import ManageSubmissions from './pages/admin/ManageSubmissions';
 import ManageSupport from './pages/admin/ManageSupport';
 import Settings from './pages/Settings';
+import Recommendations from './pages/Recommendations';
 import SupportChat from './components/SupportChat';
 import ProtectedRoute from './components/ProtectedRoute';
-import { Analytics } from '@vercel/analytics/react'; // ✅ Import Analytics
+import { Analytics } from '@vercel/analytics/react';
 
 function App() {
   return (
@@ -73,6 +74,7 @@ function App() {
                     <Route path="/favorites" element={<FavoriteTools />} />
                     <Route path="/collections" element={<Collections />} />
                     <Route path="/collections/:slug" element={<CollectionDetail />} />
+                    <Route path="/recommendations" element={<Recommendations />} />
                     <Route path="/settings" element={<Settings />} />
                   </Routes>
                 </main>

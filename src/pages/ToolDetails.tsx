@@ -4,6 +4,7 @@ import { ExternalLink, Calendar, DollarSign, Star, Sparkles, Heart } from 'lucid
 import { supabase, AITool } from '../lib/supabase';
 import { useAuth } from '../lib/useAuth';
 import { addFavorite, removeFavorite, isFavorite } from '../lib/favorites';
+import { trackToolInteraction } from '../lib/recommendations';
 
 export default function ToolDetails() {
   const { slug } = useParams<{ slug: string }>();
@@ -51,6 +52,7 @@ export default function ToolDetails() {
         const result = await addFavorite(user.id, tool.id);
         if (result.success) {
           setIsFavorited(true);
+          trackToolInteraction(user.id, tool.id, 'favorite');
         } else {
           alert(result.error || 'Failed to add favorite');
         }
@@ -80,6 +82,10 @@ export default function ToolDetails() {
         .from('ai_tools')
         .update({ views: (data.views || 0) + 1 })
         .eq('id', data.id);
+
+      if (user) {
+        trackToolInteraction(user.id, data.id, 'view');
+      }
 
       if (data.category_id) {
         const { data: related } = await supabase
