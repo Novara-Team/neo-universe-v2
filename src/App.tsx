@@ -32,6 +32,8 @@ import News from './pages/News';
 import NewsDetail from './pages/NewsDetail';
 import Support from './pages/Support';
 import Documentation from './pages/Documentation';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfUse from './pages/TermsOfUse';
 import SupportChat from './components/SupportChat';
 import ProtectedRoute from './components/ProtectedRoute';
 import { Analytics } from '@vercel/analytics/react';
@@ -87,6 +89,8 @@ function App() {
                     <Route path="/news/:id" element={<NewsDetail />} />
                     <Route path="/support" element={<Support />} />
                     <Route path="/docs" element={<Documentation />} />
+                    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                    <Route path="/terms-of-use" element={<TermsOfUse />} />
                     <Route path="/settings" element={<Settings />} />
                   </Routes>
                 </main>

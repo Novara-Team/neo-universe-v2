@@ -57,19 +57,19 @@ export default function Footer() {
             <h4 className="text-white font-semibold mb-4">Legal</h4>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-slate-400 hover:text-cyan-400 transition-colors">
+                <Link to="/privacy-policy" className="text-slate-400 hover:text-cyan-400 transition-colors">
                   Privacy Policy
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-slate-400 hover:text-cyan-400 transition-colors">
+                <Link to="/terms-of-use" className="text-slate-400 hover:text-cyan-400 transition-colors">
                   Terms of Use
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-slate-400 hover:text-cyan-400 transition-colors">
+                <Link to="/support" className="text-slate-400 hover:text-cyan-400 transition-colors">
                   Contact Us
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

@@ -42,7 +42,12 @@ export default function SupportChat() {
   useEffect(() => {
     if (conversationId) {
       loadMessages();
-      subscribeToMessages();
+      const unsubscribe = subscribeToMessages();
+      return () => {
+        if (unsubscribe) {
+          unsubscribe();
+        }
+      };
     }
   }, [conversationId]);
 
