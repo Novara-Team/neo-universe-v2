@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Search, Sparkles, ExternalLink, Plus, X, TrendingUp, Calendar, Eye, Star, DollarSign, Check, Minus, Crown, Zap, Loader2, MessageSquare, ThumbsUp, Activity, Users, Target, BarChart3, PieChart, LineChart } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Search, Sparkles, ExternalLink, Plus, X, TrendingUp, Calendar, Eye, Star, DollarSign, Check, Minus, Crown, Zap, Loader2, MessageSquare, ThumbsUp, Activity, Users, Target, BarChart3, PieChart, LineChart, BarChart2, TrendingDown, Award } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase, AITool } from '../lib/supabase';
 import { useAuth } from '../lib/useAuth';
@@ -543,6 +543,185 @@ export default function CompareAdvanced() {
                 </div>
               </div>
             )}
+
+            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6 mb-6">
+              <h3 className="text-xl font-semibold text-white mb-6 flex items-center space-x-2">
+                <BarChart2 className="w-6 h-6 text-cyan-400" />
+                <span>Interactive Comparison Graphs</span>
+              </h3>
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-6">
+                  <h4 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
+                    <Star className="w-5 h-5 text-yellow-400" />
+                    <span>Rating Distribution</span>
+                  </h4>
+                  <div className="space-y-3">
+                    {selectedTools.map((tool) => {
+                      const ratingPercentage = (tool.rating / 5) * 100;
+                      const isTop = tool.rating === Math.max(...selectedTools.map(t => t.rating));
+                      return (
+                        <div key={tool.id} className="space-y-1">
+                          <div className="flex items-center justify-between text-sm">
+                            <div className="flex items-center space-x-2">
+                              {tool.logo_url ? (
+                                <img src={tool.logo_url} alt={tool.name} className="w-5 h-5 rounded object-cover" />
+                              ) : (
+                                <Sparkles className="w-5 h-5 text-cyan-400" />
+                              )}
+                              <span className="text-slate-300 font-medium">{tool.name}</span>
+                              {isTop && <Award className="w-4 h-4 text-yellow-400" />}
+                            </div>
+                            <span className="text-white font-bold">{tool.rating.toFixed(1)}</span>
+                          </div>
+                          <div className="relative h-6 bg-slate-800 rounded-lg overflow-hidden">
+                            <div
+                              className={`h-full transition-all duration-700 ${isTop ? 'bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500' : 'bg-gradient-to-r from-cyan-500 to-blue-500'}`}
+                              style={{ width: `${ratingPercentage}%` }}
+                            >
+                              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
+                            </div>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <span className="text-white text-xs font-bold drop-shadow-lg">{ratingPercentage.toFixed(0)}%</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-6">
+                  <h4 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
+                    <Eye className="w-5 h-5 text-purple-400" />
+                    <span>Popularity Metrics</span>
+                  </h4>
+                  <div className="space-y-3">
+                    {selectedTools
+                      .sort((a, b) => b.views - a.views)
+                      .map((tool) => {
+                        const maxViews = Math.max(...selectedTools.map(t => t.views));
+                        const viewsPercentage = (tool.views / maxViews) * 100;
+                        const isTop = tool.views === maxViews;
+                        return (
+                          <div key={tool.id} className="space-y-1">
+                            <div className="flex items-center justify-between text-sm">
+                              <div className="flex items-center space-x-2">
+                                {tool.logo_url ? (
+                                  <img src={tool.logo_url} alt={tool.name} className="w-5 h-5 rounded object-cover" />
+                                ) : (
+                                  <Sparkles className="w-5 h-5 text-cyan-400" />
+                                )}
+                                <span className="text-slate-300 font-medium">{tool.name}</span>
+                                {isTop && <TrendingUp className="w-4 h-4 text-green-400" />}
+                              </div>
+                              <span className="text-white font-bold">{(tool.views / 1000).toFixed(1)}k</span>
+                            </div>
+                            <div className="relative h-6 bg-slate-800 rounded-lg overflow-hidden">
+                              <div
+                                className={`h-full transition-all duration-700 ${isTop ? 'bg-gradient-to-r from-green-400 via-emerald-500 to-teal-500' : 'bg-gradient-to-r from-purple-500 to-pink-500'}`}
+                                style={{ width: `${viewsPercentage}%` }}
+                              >
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
+                              </div>
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <span className="text-white text-xs font-bold drop-shadow-lg">{viewsPercentage.toFixed(0)}%</span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+
+                <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-6">
+                  <h4 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
+                    <Activity className="w-5 h-5 text-green-400" />
+                    <span>Performance Radar</span>
+                  </h4>
+                  <div className="flex items-center justify-center h-64">
+                    <svg viewBox="0 0 200 200" className="w-full h-full">
+                      <defs>
+                        {selectedTools.map((tool, idx) => (
+                          <linearGradient key={`gradient-${idx}`} id={`tool-gradient-${idx}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor={idx === 0 ? '#06b6d4' : idx === 1 ? '#8b5cf6' : idx === 2 ? '#f59e0b' : idx === 3 ? '#10b981' : '#ec4899'} />
+                            <stop offset="100%" stopColor={idx === 0 ? '#3b82f6' : idx === 1 ? '#6366f1' : idx === 2 ? '#f97316' : idx === 3 ? '#059669' : '#db2777'} />
+                          </linearGradient>
+                        ))}
+                      </defs>
+                      <g transform="translate(100, 100)">
+                        <circle cx="0" cy="0" r="80" fill="none" stroke="#1e293b" strokeWidth="1" />
+                        <circle cx="0" cy="0" r="60" fill="none" stroke="#1e293b" strokeWidth="1" />
+                        <circle cx="0" cy="0" r="40" fill="none" stroke="#1e293b" strokeWidth="1" />
+                        <circle cx="0" cy="0" r="20" fill="none" stroke="#1e293b" strokeWidth="1" />
+                        {selectedTools.map((tool, idx) => {
+                          const angle = (idx / selectedTools.length) * 2 * Math.PI - Math.PI / 2;
+                          const performanceScore = Math.min(100, (tool.rating / 5 * 30) + (tool.views / 1000) + (tool.features.length * 2));
+                          const radius = (performanceScore / 100) * 80;
+                          const x = radius * Math.cos(angle);
+                          const y = radius * Math.sin(angle);
+                          return (
+                            <g key={tool.id}>
+                              <line x1="0" y1="0" x2={x} y2={y} stroke={`url(#tool-gradient-${idx})`} strokeWidth="2" opacity="0.7" />
+                              <circle cx={x} cy={y} r="4" fill={`url(#tool-gradient-${idx})`} />
+                            </g>
+                          );
+                        })}
+                      </g>
+                    </svg>
+                  </div>
+                  <div className="flex flex-wrap gap-2 justify-center mt-4">
+                    {selectedTools.map((tool, idx) => (
+                      <div key={tool.id} className="flex items-center space-x-1 text-xs">
+                        <div
+                          className="w-3 h-3 rounded-full"
+                          style={{
+                            background: idx === 0 ? 'linear-gradient(135deg, #06b6d4, #3b82f6)' : idx === 1 ? 'linear-gradient(135deg, #8b5cf6, #6366f1)' : idx === 2 ? 'linear-gradient(135deg, #f59e0b, #f97316)' : idx === 3 ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #ec4899, #db2777)'
+                          }}
+                        />
+                        <span className="text-slate-300">{tool.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-6">
+                  <h4 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
+                    <Target className="w-5 h-5 text-orange-400" />
+                    <span>Feature Coverage</span>
+                  </h4>
+                  <div className="space-y-4">
+                    {selectedTools.map((tool, idx) => {
+                      const featureCount = tool.features.length;
+                      const maxFeatures = Math.max(...selectedTools.map(t => t.features.length));
+                      const percentage = maxFeatures > 0 ? (featureCount / maxFeatures) * 100 : 0;
+                      return (
+                        <div key={tool.id} className="space-y-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <div className="flex items-center space-x-2">
+                              {tool.logo_url ? (
+                                <img src={tool.logo_url} alt={tool.name} className="w-5 h-5 rounded object-cover" />
+                              ) : (
+                                <Sparkles className="w-5 h-5 text-cyan-400" />
+                              )}
+                              <span className="text-slate-300 font-medium">{tool.name}</span>
+                            </div>
+                            <span className="text-white font-bold">{featureCount} features</span>
+                          </div>
+                          <div className="relative h-3 bg-slate-800 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-gradient-to-r from-orange-400 via-amber-500 to-yellow-500 transition-all duration-700"
+                              style={{ width: `${percentage}%` }}
+                            >
+                              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
               <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">

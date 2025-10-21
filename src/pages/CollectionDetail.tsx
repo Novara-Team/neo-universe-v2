@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Folder, Globe, Lock, Plus, X, Search, Sparkles, ExternalLink, ArrowLeft, Share2, Eye, FileText, Download, Star, TrendingUp } from 'lucide-react';
+import { Folder, Globe, Lock, Plus, X, Search, Sparkles, ExternalLink, ArrowLeft, Share2, Eye, FileText, Download, Star, TrendingUp, Copy, GitFork } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
 import { getCollectionBySlug, addToolToCollection, removeToolFromCollection } from '../lib/collections';
 import { supabase, AITool } from '../lib/supabase';
@@ -43,6 +43,10 @@ export default function CollectionDetail() {
   const [tools, setTools] = useState<AITool[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [analytics, setAnalytics] = useState<{ totalViews: number; totalShares: number; recentViews: any[]; recentShares: any[] }>({ totalViews: 0, totalShares: 0, recentViews: [], recentShares: [] });
+  const [showRemixModal, setShowRemixModal] = useState(false);
+  const [remixName, setRemixName] = useState('');
+  const [remixDescription, setRemixDescription] = useState('');
+  const [isRemixing, setIsRemixing] = useState(false);
 
   useEffect(() => {
     if (slug) {
@@ -130,6 +134,38 @@ export default function CollectionDetail() {
   );
 
   const isOwner = user && collection && user.id === collection.user_id;
+
+  const handleRemixCollection = async () => {
+    if (!collection || !user || !remixName.trim()) return;
+
+    setIsRemixing(true);
+    try {
+      const { data, error } = await supabase.rpc('remix_collection', {
+        original_collection_id: collection.id,
+        new_user_id: user.id,
+        new_name: remixName.trim(),
+        new_description: remixDescription.trim() || null
+      });
+
+      if (error) throw error;
+
+      const { data: newCollection } = await supabase
+        .from('tool_collections')
+        .select('slug')
+        .eq('id', data)
+        .single();
+
+      if (newCollection) {
+        navigate(`/collections/${newCollection.slug}`);
+      }
+    } catch (error) {
+      console.error('Error remixing collection:', error);
+      alert('Failed to remix collection. Please try again.');
+    } finally {
+      setIsRemixing(false);
+      setShowRemixModal(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -224,6 +260,19 @@ export default function CollectionDetail() {
                       </button>
                     </div>
                   </>
+                )}
+                {collection.is_public && !isOwner && user && (
+                  <button
+                    onClick={() => {
+                      setRemixName(`${collection.name} (Remix)`);
+                      setRemixDescription(collection.description || '');
+                      setShowRemixModal(true);
+                    }}
+                    className="flex items-center space-x-2 px-5 py-3 bg-white text-blue-600 rounded-xl hover:bg-blue-50 transition-all shadow-lg font-medium group"
+                  >
+                    <GitFork className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    <span>Remix</span>
+                  </button>
                 )}
                 {collection.is_public && (
                   <button
@@ -430,6 +479,98 @@ export default function CollectionDetail() {
                 )}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {showRemixModal && collection && user && !isOwner && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+          <div className="bg-slate-800 border border-slate-700 rounded-3xl shadow-2xl p-8 max-w-2xl w-full">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-3">
+                <GitFork className="w-8 h-8 text-cyan-400" />
+                <h2 className="text-3xl font-bold text-white">Remix Collection</h2>
+              </div>
+              <button
+                onClick={() => setShowRemixModal(false)}
+                className="text-slate-400 hover:text-slate-200 hover:bg-slate-700 p-2 rounded-xl transition-all"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <p className="text-slate-300 mb-6">
+              Create your own version of <span className="text-cyan-400 font-semibold">{collection.name}</span>. All {collection.collection_tools.length} tools will be copied to your new collection.
+            </p>
+
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Collection Name
+                </label>
+                <input
+                  type="text"
+                  value={remixName}
+                  onChange={(e) => setRemixName(e.target.value)}
+                  placeholder="My Remixed Collection"
+                  className="w-full px-4 py-3 bg-slate-900 border-2 border-slate-700 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Description (Optional)
+                </label>
+                <textarea
+                  value={remixDescription}
+                  onChange={(e) => setRemixDescription(e.target.value)}
+                  placeholder="Describe your collection..."
+                  rows={4}
+                  className="w-full px-4 py-3 bg-slate-900 border-2 border-slate-700 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all resize-none"
+                />
+              </div>
+            </div>
+
+            <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-4 mb-6">
+              <div className="flex items-start space-x-3">
+                <Copy className="w-5 h-5 text-cyan-400 mt-0.5 flex-shrink-0" />
+                <div className="text-sm text-slate-300">
+                  <p className="font-semibold text-white mb-1">What happens when you remix?</p>
+                  <ul className="space-y-1 list-disc list-inside">
+                    <li>A new private collection will be created in your account</li>
+                    <li>All tools from the original collection will be copied</li>
+                    <li>You can add, remove, or modify tools as you like</li>
+                    <li>The original collection remains unchanged</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex space-x-3">
+              <button
+                onClick={() => setShowRemixModal(false)}
+                className="flex-1 px-6 py-3 bg-slate-700 text-white rounded-xl hover:bg-slate-600 transition-all font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRemixCollection}
+                disabled={isRemixing || !remixName.trim()}
+                className="flex-1 flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-all shadow-xl shadow-cyan-500/30 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isRemixing ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Creating...</span>
+                  </>
+                ) : (
+                  <>
+                    <GitFork className="w-5 h-5" />
+                    <span>Create Remix</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}
