@@ -84,7 +84,7 @@ function App() {
                 </main>
                 <Footer />
                 <SupportChat />
-                <Analytics /> {/* ✅ Add Analytics here at the root */}
+                <Analytics /> 
               </div>
             }
           />
