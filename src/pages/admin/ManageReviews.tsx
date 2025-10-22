@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CheckCircle, XCircle, Trash2 } from 'lucide-react';
+import { CheckCircle, XCircle, Trash2, Edit2, X } from 'lucide-react';
 import { supabase, ToolReview } from '../../lib/supabase';
 
 type ReviewWithTool = ToolReview & {
@@ -10,6 +10,8 @@ export default function ManageReviews() {
   const [reviews, setReviews] = useState<ReviewWithTool[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'approved' | 'pending'>('all');
+  const [editingReview, setEditingReview] = useState<ReviewWithTool | null>(null);
+  const [editText, setEditText] = useState('');
 
   useEffect(() => {
     loadReviews();
@@ -40,6 +42,32 @@ export default function ManageReviews() {
       await supabase.from('tool_reviews').delete().eq('id', id);
       loadReviews();
     }
+  };
+
+  const startEdit = (review: ReviewWithTool) => {
+    setEditingReview(review);
+    setEditText(review.comment || review.review_text || '');
+  };
+
+  const cancelEdit = () => {
+    setEditingReview(null);
+    setEditText('');
+  };
+
+  const saveEdit = async () => {
+    if (!editingReview) return;
+
+    await supabase
+      .from('tool_reviews')
+      .update({
+        comment: editText,
+        review_text: editText,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', editingReview.id);
+
+    cancelEdit();
+    loadReviews();
   };
 
   const filteredReviews = reviews.filter((review) => {
@@ -128,11 +156,42 @@ export default function ManageReviews() {
                     )}
                   </div>
                   <p className="text-slate-400 text-sm mb-2">{review.user_email}</p>
-                  <p className="text-slate-300 mb-2">{review.comment}</p>
+                  {editingReview?.id === review.id ? (
+                    <div className="space-y-3">
+                      <textarea
+                        value={editText}
+                        onChange={(e) => setEditText(e.target.value)}
+                        className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-cyan-500"
+                        rows={4}
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          onClick={saveEdit}
+                          className="px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg transition-colors"
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={cancelEdit}
+                          className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-slate-300 mb-2">{review.comment || review.review_text}</p>
+                  )}
                   <div className="flex items-center space-x-4 text-sm text-slate-500">
                     <span>Tool: {review.tool?.name}</span>
                     <span>•</span>
                     <span>{new Date(review.created_at).toLocaleDateString()}</span>
+                    {review.helpful_count > 0 && (
+                      <>
+                        <span>•</span>
+                        <span>{review.helpful_count} helpful</span>
+                      </>
+                    )}
                   </div>
                 </div>
                 <div className="flex space-x-2 ml-4">
@@ -154,6 +213,13 @@ export default function ManageReviews() {
                       <XCircle className="w-5 h-5" />
                     </button>
                   )}
+                  <button
+                    onClick={() => startEdit(review)}
+                    className="p-2 text-blue-400 hover:bg-blue-500/10 rounded transition-colors"
+                    title="Edit"
+                  >
+                    <Edit2 className="w-5 h-5" />
+                  </button>
                   <button
                     onClick={() => handleDelete(review.id)}
                     className="p-2 text-red-400 hover:bg-red-500/10 rounded transition-colors"

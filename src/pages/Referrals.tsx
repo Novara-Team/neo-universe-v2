@@ -14,7 +14,7 @@ import {
   type ReferralMilestone,
   type ReferredUser
 } from '../lib/referrals';
-import { Gift, Share2, Copy, Users, Trophy, Target, Star, Check, Sparkles, TrendingUp, Award, Crown } from 'lucide-react';
+import { Gift, Share2, Copy, Users, Trophy, Target, Check, Sparkles, TrendingUp, Award, Crown, Zap, Star, Heart } from 'lucide-react';
 
 export default function Referrals() {
   const { user } = useAuth();
@@ -85,6 +85,9 @@ export default function Referrals() {
     ? getProgressPercentage(referralData.total_referrals, nextMilestone.referrals_count)
     : 0;
 
+  const instantRewards = rewards.filter(r => r.referrals_required === 0);
+  const milestoneRewards = rewards.filter(r => r.referrals_required > 0);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
@@ -112,181 +115,228 @@ export default function Referrals() {
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-3xl mb-6 shadow-2xl shadow-cyan-500/50">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-emerald-500 via-cyan-500 to-blue-500 rounded-3xl mb-6 shadow-2xl shadow-cyan-500/50 animate-pulse">
             <Gift className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent mb-4">
-            Referral Program
+          <h1 className="text-6xl font-bold bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent mb-4">
+            Earn Rewards Together
           </h1>
-          <p className="text-xl text-slate-400 max-w-2xl mx-auto">
-            Share AI Universe with friends and earn amazing rewards for every successful referral
+          <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
+            Share AI Universe and both you and your friends earn instant rewards. More referrals unlock even bigger bonuses!
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8 mb-12">
-          <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-3xl p-8 border border-slate-700/50 shadow-2xl">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-14 h-14 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Users className="w-7 h-7 text-white" />
+        <div className="mb-12 bg-gradient-to-r from-emerald-500/10 via-cyan-500/10 to-blue-500/10 backdrop-blur-xl rounded-3xl p-8 border border-emerald-500/30 shadow-2xl">
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-4">
+                <Zap className="w-8 h-8 text-emerald-400" />
+                <h3 className="text-3xl font-bold text-white">Instant Rewards</h3>
               </div>
-              <div>
-                <p className="text-sm text-slate-400 font-medium">Total Referrals</p>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                    <Gift className="w-5 h-5 text-emerald-400" />
+                  </div>
+                  <div>
+                    <p className="text-white font-semibold">You Get 50 Points</p>
+                    <p className="text-sm text-slate-400">When someone uses your referral link</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-cyan-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                    <Heart className="w-5 h-5 text-cyan-400" />
+                  </div>
+                  <div>
+                    <p className="text-white font-semibold">Your Friend Gets 25 Points</p>
+                    <p className="text-sm text-slate-400">Welcome bonus for joining through your link</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-br from-emerald-400 to-cyan-400 rounded-full mb-3 shadow-2xl shadow-emerald-500/50">
+                <span className="text-5xl font-bold text-white">{instantRewards.length}</span>
+              </div>
+              <p className="text-slate-300 font-semibold">Instant Rewards Earned</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-6 mb-12">
+          <div className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50 shadow-xl hover:shadow-2xl hover:border-emerald-500/50 transition-all">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
+                <Users className="w-6 h-6 text-white" />
+              </div>
+              <div className="text-right">
                 <p className="text-4xl font-bold text-white">{referralData.total_referrals}</p>
+                <p className="text-xs text-slate-400 font-medium">Total Referrals</p>
               </div>
             </div>
-            <p className="text-sm text-slate-500">People who joined using your link</p>
+            <p className="text-sm text-slate-400">People who joined using your link</p>
           </div>
 
-          <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-3xl p-8 border border-slate-700/50 shadow-2xl">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Trophy className="w-7 h-7 text-white" />
+          <div className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50 shadow-xl hover:shadow-2xl hover:border-cyan-500/50 transition-all">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-xl flex items-center justify-center shadow-lg">
+                <Trophy className="w-6 h-6 text-white" />
               </div>
-              <div>
-                <p className="text-sm text-slate-400 font-medium">Rewards Earned</p>
-                <p className="text-4xl font-bold text-white">{rewards.length}</p>
+              <div className="text-right">
+                <p className="text-4xl font-bold text-white">{milestoneRewards.length}</p>
+                <p className="text-xs text-slate-400 font-medium">Milestones</p>
               </div>
             </div>
-            <p className="text-sm text-slate-500">Milestones you've achieved</p>
+            <p className="text-sm text-slate-400">Achievement rewards unlocked</p>
           </div>
 
-          <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-3xl p-8 border border-slate-700/50 shadow-2xl">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-14 h-14 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Target className="w-7 h-7 text-white" />
+          <div className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50 shadow-xl hover:shadow-2xl hover:border-blue-500/50 transition-all">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
+                <Target className="w-6 h-6 text-white" />
               </div>
-              <div>
-                <p className="text-sm text-slate-400 font-medium">Next Milestone</p>
+              <div className="text-right">
                 <p className="text-4xl font-bold text-white">
-                  {nextMilestone ? nextMilestone.referrals_count : '100+'}
+                  {nextMilestone ? nextMilestone.referrals_count : '200+'}
                 </p>
+                <p className="text-xs text-slate-400 font-medium">Next Goal</p>
               </div>
             </div>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-400">
               {nextMilestone
                 ? `${nextMilestone.referrals_count - referralData.total_referrals} more to go`
-                : 'All milestones completed!'}
+                : 'All achieved!'}
             </p>
           </div>
         </div>
 
         {nextMilestone && (
           <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-3xl p-8 border border-slate-700/50 shadow-2xl mb-12">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="text-3xl">{getRewardIcon(nextMilestone.reward_type)}</div>
-                <div>
-                  <h3 className="text-xl font-bold text-white">{nextMilestone.reward_name}</h3>
-                  <p className="text-sm text-slate-400">{nextMilestone.reward_description}</p>
-                </div>
+            <div className="flex items-center gap-4 mb-6">
+              <div className="text-5xl animate-bounce">{getRewardIcon(nextMilestone.reward_type)}</div>
+              <div className="flex-1">
+                <h3 className="text-2xl font-bold text-white mb-1">{nextMilestone.reward_name}</h3>
+                <p className="text-slate-300">{nextMilestone.reward_description}</p>
               </div>
               <div className="text-right">
-                <p className="text-3xl font-bold text-cyan-400">{Math.round(progress)}%</p>
-                <p className="text-xs text-slate-500">Progress</p>
+                <p className="text-4xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                  {Math.round(progress)}%
+                </p>
+                <p className="text-xs text-slate-500 uppercase font-semibold">Progress</p>
               </div>
             </div>
-            <div className="w-full bg-slate-800 rounded-full h-3 overflow-hidden">
+            <div className="relative w-full bg-slate-800/50 rounded-full h-4 overflow-hidden border border-slate-700/50">
               <div
-                className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all duration-500 shadow-lg shadow-cyan-500/50"
+                className="absolute top-0 left-0 h-full bg-gradient-to-r from-emerald-500 via-cyan-500 to-blue-500 rounded-full transition-all duration-700 shadow-lg shadow-emerald-500/50"
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <p className="text-sm text-slate-400 mt-3">
-              {referralData.total_referrals} / {nextMilestone.referrals_count} referrals
+            <p className="text-sm text-slate-400 mt-4 text-center">
+              {referralData.total_referrals} / {nextMilestone.referrals_count} referrals completed
             </p>
           </div>
         )}
 
-        <div className="bg-gradient-to-br from-cyan-500/10 to-blue-500/10 backdrop-blur-xl rounded-3xl p-8 border border-cyan-500/30 shadow-2xl mb-12">
+        <div className="bg-gradient-to-br from-emerald-500/5 via-cyan-500/5 to-blue-500/5 backdrop-blur-xl rounded-3xl p-8 border border-emerald-500/20 shadow-2xl mb-12">
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-14 h-14 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+            <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg">
               <Share2 className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h3 className="text-2xl font-bold text-white">Share Your Link</h3>
-              <p className="text-sm text-slate-400">Invite friends and earn rewards together</p>
+              <h3 className="text-2xl font-bold text-white">Your Referral Link</h3>
+              <p className="text-sm text-slate-400">Share this link to start earning rewards</p>
             </div>
           </div>
 
-          <div className="bg-slate-900/50 rounded-2xl p-4 mb-4 border border-slate-700/50">
-            <div className="flex items-center gap-3">
+          <div className="bg-slate-900/70 rounded-2xl p-5 mb-6 border border-slate-700/50 backdrop-blur-sm">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <input
                 type="text"
                 value={referralLink}
                 readOnly
-                className="flex-1 bg-transparent text-cyan-300 font-mono text-sm outline-none"
+                className="flex-1 bg-slate-800/50 text-emerald-300 font-mono text-sm px-4 py-3 rounded-xl outline-none border border-slate-700/50 focus:border-emerald-500/50 transition-all"
               />
               <button
                 onClick={handleCopyLink}
-                className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-6 py-2.5 rounded-xl font-semibold transition-all shadow-lg shadow-cyan-500/50 flex items-center gap-2"
+                className="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white px-8 py-3 rounded-xl font-semibold transition-all shadow-lg shadow-emerald-500/50 flex items-center justify-center gap-2"
               >
                 {copied ? (
                   <>
-                    <Check className="w-4 h-4" />
+                    <Check className="w-5 h-5" />
                     Copied!
                   </>
                 ) : (
                   <>
-                    <Copy className="w-4 h-4" />
-                    Copy
+                    <Copy className="w-5 h-5" />
+                    Copy Link
                   </>
                 )}
               </button>
             </div>
           </div>
 
-          <div className="flex gap-3">
-            <button
-              onClick={handleShare}
-              className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white py-3 rounded-xl font-semibold transition-all shadow-lg flex items-center justify-center gap-2"
-            >
-              <Share2 className="w-5 h-5" />
-              Share Link
-            </button>
-          </div>
+          <button
+            onClick={handleShare}
+            className="w-full bg-gradient-to-r from-blue-500 to-emerald-500 hover:from-blue-600 hover:to-emerald-600 text-white py-4 rounded-xl font-semibold transition-all shadow-lg flex items-center justify-center gap-3 text-lg"
+          >
+            <Share2 className="w-6 h-6" />
+            Share with Friends
+          </button>
 
-          <div className="mt-6 p-4 bg-cyan-500/10 rounded-xl border border-cyan-500/30">
-            <p className="text-sm text-cyan-300 text-center font-medium">
-              Your Referral Code: <span className="font-bold text-white text-lg">{referralData.referral_code}</span>
+          <div className="mt-6 p-5 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 rounded-2xl border border-emerald-500/30">
+            <p className="text-center">
+              <span className="text-slate-300">Your Referral Code:</span>
+              <span className="ml-3 font-bold text-white text-2xl tracking-wider">{referralData.referral_code}</span>
             </p>
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="grid lg:grid-cols-2 gap-8 mb-12">
           <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-3xl p-8 border border-slate-700/50 shadow-2xl">
             <div className="flex items-center gap-3 mb-6">
-              <Award className="w-7 h-7 text-cyan-400" />
+              <Award className="w-8 h-8 text-emerald-400" />
               <h3 className="text-2xl font-bold text-white">Your Rewards</h3>
             </div>
 
             {rewards.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="w-20 h-20 bg-slate-800 rounded-3xl flex items-center justify-center mx-auto mb-4">
-                  <Trophy className="w-10 h-10 text-slate-600" />
+              <div className="text-center py-16">
+                <div className="w-24 h-24 bg-slate-800/50 rounded-3xl flex items-center justify-center mx-auto mb-4">
+                  <Trophy className="w-12 h-12 text-slate-600" />
                 </div>
-                <p className="text-slate-400">No rewards yet. Start referring to earn!</p>
+                <p className="text-slate-400 text-lg">No rewards yet</p>
+                <p className="text-slate-500 text-sm mt-2">Start sharing to earn your first reward!</p>
               </div>
             ) : (
-              <div className="space-y-4 max-h-96 overflow-y-auto">
+              <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
                 {rewards.map((reward) => (
                   <div
                     key={reward.id}
-                    className="bg-slate-800/50 rounded-2xl p-5 border border-slate-700/50 hover:border-cyan-500/50 transition-all"
+                    className="bg-slate-800/50 rounded-2xl p-5 border border-slate-700/50 hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-500/10 transition-all"
                   >
                     <div className="flex items-start gap-4">
-                      <div className="text-4xl">{getRewardIcon(reward.reward_type)}</div>
+                      <div className="text-5xl">{getRewardIcon(reward.reward_type)}</div>
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-bold text-white">{reward.reward_name}</h4>
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <h4 className="font-bold text-white text-lg">{reward.reward_name}</h4>
                           {reward.claimed && (
-                            <span className="px-2 py-0.5 bg-green-500/20 text-green-400 text-xs font-semibold rounded-full">
+                            <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs font-semibold rounded-full whitespace-nowrap">
                               Claimed
                             </span>
                           )}
                         </div>
-                        <p className="text-sm text-slate-400 mb-2">{reward.reward_description}</p>
-                        <p className="text-xs text-slate-500">
-                          Earned at {reward.referrals_required} referrals
+                        <p className="text-sm text-slate-300 mb-3">{reward.reward_description}</p>
+                        <p className="text-xs text-slate-500 flex items-center gap-1">
+                          {reward.referrals_required === 0 ? (
+                            <>
+                              <Zap className="w-3 h-3" />
+                              Instant reward
+                            </>
+                          ) : (
+                            <>
+                              <Star className="w-3 h-3" />
+                              Earned at {reward.referrals_required} referrals
+                            </>
+                          )}
                         </p>
                       </div>
                     </div>
@@ -298,11 +348,11 @@ export default function Referrals() {
 
           <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-3xl p-8 border border-slate-700/50 shadow-2xl">
             <div className="flex items-center gap-3 mb-6">
-              <Crown className="w-7 h-7 text-cyan-400" />
+              <Crown className="w-8 h-8 text-cyan-400" />
               <h3 className="text-2xl font-bold text-white">All Milestones</h3>
             </div>
 
-            <div className="space-y-4 max-h-96 overflow-y-auto">
+            <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
               {milestones.map((milestone) => {
                 const isCompleted = referralData.total_referrals >= milestone.referrals_count;
                 const isCurrent = nextMilestone?.id === milestone.id;
@@ -312,28 +362,33 @@ export default function Referrals() {
                     key={milestone.id}
                     className={`bg-slate-800/50 rounded-2xl p-5 border transition-all ${
                       isCompleted
-                        ? 'border-green-500/50 bg-green-500/5'
+                        ? 'border-emerald-500/50 bg-emerald-500/5 shadow-lg shadow-emerald-500/10'
                         : isCurrent
-                        ? 'border-cyan-500/50 bg-cyan-500/5'
-                        : 'border-slate-700/50'
+                        ? 'border-cyan-500/50 bg-cyan-500/5 shadow-lg shadow-cyan-500/10'
+                        : 'border-slate-700/50 hover:border-slate-600/50'
                     }`}
                   >
                     <div className="flex items-start gap-4">
-                      <div className="text-3xl">{getRewardIcon(milestone.reward_type)}</div>
+                      <div className="text-4xl">{getRewardIcon(milestone.reward_type)}</div>
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex items-center gap-2 mb-2">
                           <h4 className="font-bold text-white">{milestone.reward_name}</h4>
                           {isCompleted && (
-                            <Check className="w-5 h-5 text-green-400" />
+                            <Check className="w-5 h-5 text-emerald-400" />
                           )}
                           {isCurrent && (
-                            <TrendingUp className="w-5 h-5 text-cyan-400" />
+                            <TrendingUp className="w-5 h-5 text-cyan-400 animate-pulse" />
                           )}
                         </div>
-                        <p className="text-sm text-slate-400 mb-2">{milestone.reward_description}</p>
-                        <p className="text-xs text-slate-500">
-                          Requires {milestone.referrals_count} referrals
-                        </p>
+                        <p className="text-sm text-slate-300 mb-2">{milestone.reward_description}</p>
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs text-slate-500">
+                            Requires {milestone.referrals_count} referrals
+                          </p>
+                          {isCompleted && (
+                            <span className="text-xs text-emerald-400 font-semibold">Completed</span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -344,21 +399,21 @@ export default function Referrals() {
         </div>
 
         {referredUsers.length > 0 && (
-          <div className="mt-8 bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-3xl p-8 border border-slate-700/50 shadow-2xl">
+          <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-3xl p-8 border border-slate-700/50 shadow-2xl mb-12">
             <div className="flex items-center gap-3 mb-6">
-              <Users className="w-7 h-7 text-cyan-400" />
-              <h3 className="text-2xl font-bold text-white">Your Referrals</h3>
+              <Users className="w-8 h-8 text-cyan-400" />
+              <h3 className="text-2xl font-bold text-white">Your Referrals ({referredUsers.length})</h3>
             </div>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {referredUsers.map((referredUser) => (
                 <div
                   key={referredUser.id}
-                  className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50"
+                  className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50 hover:border-emerald-500/50 transition-all"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold text-sm">
+                    <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg">
+                      <span className="text-white font-bold text-lg">
                         {referredUser.email.charAt(0).toUpperCase()}
                       </span>
                     </div>
@@ -375,36 +430,36 @@ export default function Referrals() {
           </div>
         )}
 
-        <div className="mt-8 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 backdrop-blur-xl rounded-3xl p-8 border border-cyan-500/30 shadow-2xl">
+        <div className="bg-gradient-to-r from-emerald-500/10 via-cyan-500/10 to-blue-500/10 backdrop-blur-xl rounded-3xl p-10 border border-emerald-500/30 shadow-2xl">
           <div className="text-center">
-            <Sparkles className="w-12 h-12 text-cyan-400 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold text-white mb-3">How It Works</h3>
-            <div className="grid md:grid-cols-3 gap-6 mt-8">
+            <Sparkles className="w-16 h-16 text-emerald-400 mx-auto mb-6" />
+            <h3 className="text-3xl font-bold text-white mb-4">How It Works</h3>
+            <div className="grid md:grid-cols-3 gap-8 mt-10">
               <div className="text-center">
-                <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl mx-auto mb-3 shadow-lg">
+                <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-2xl flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 shadow-xl">
                   1
                 </div>
-                <h4 className="font-bold text-white mb-2">Share Your Link</h4>
-                <p className="text-sm text-slate-400">
-                  Copy your unique referral link and share it with friends
+                <h4 className="font-bold text-white mb-3 text-lg">Share Your Link</h4>
+                <p className="text-slate-300 leading-relaxed">
+                  Copy your unique referral link and share it with friends on social media or messaging apps
                 </p>
               </div>
               <div className="text-center">
-                <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl mx-auto mb-3 shadow-lg">
+                <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-2xl flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 shadow-xl">
                   2
                 </div>
-                <h4 className="font-bold text-white mb-2">Friends Sign Up</h4>
-                <p className="text-sm text-slate-400">
-                  When they register using your link, you both benefit
+                <h4 className="font-bold text-white mb-3 text-lg">Instant Rewards</h4>
+                <p className="text-slate-300 leading-relaxed">
+                  When they sign up, you both get instant points. You get 50 points, they get 25 points!
                 </p>
               </div>
               <div className="text-center">
-                <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl mx-auto mb-3 shadow-lg">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-emerald-500 rounded-2xl flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 shadow-xl">
                   3
                 </div>
-                <h4 className="font-bold text-white mb-2">Earn Rewards</h4>
-                <p className="text-sm text-slate-400">
-                  Get badges, features, and subscription upgrades automatically
+                <h4 className="font-bold text-white mb-3 text-lg">Unlock Milestones</h4>
+                <p className="text-slate-300 leading-relaxed">
+                  Reach referral milestones to earn badges, feature unlocks, and subscription upgrades
                 </p>
               </div>
             </div>
