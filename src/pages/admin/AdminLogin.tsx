@@ -1,21 +1,29 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, Sparkles } from 'lucide-react';
+import { Lock, Sparkles, Mail } from 'lucide-react';
 import { authenticateAdmin } from '../../lib/auth';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (authenticateAdmin(password)) {
+    setLoading(true);
+    setError('');
+
+    const success = await authenticateAdmin(email, password);
+
+    if (success) {
       navigate('/adminpn/dashboard');
     } else {
-      setError('Invalid password');
+      setError('Invalid email or password');
       setPassword('');
     }
+    setLoading(false);
   };
 
   return (
@@ -33,6 +41,25 @@ export default function AdminLogin() {
         </div>
 
         <form onSubmit={handleSubmit} className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-8">
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-slate-300 mb-2">Email</label>
+            <div className="relative">
+              <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setError('');
+                }}
+                className="w-full pl-12 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                placeholder="Enter admin email"
+                required
+                autoFocus
+              />
+            </div>
+          </div>
+
           <div className="mb-6">
             <label className="block text-sm font-medium text-slate-300 mb-2">Password</label>
             <div className="relative">
@@ -46,7 +73,7 @@ export default function AdminLogin() {
                 }}
                 className="w-full pl-12 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 placeholder="Enter admin password"
-                autoFocus
+                required
               />
             </div>
             {error && <p className="mt-2 text-red-400 text-sm">{error}</p>}
@@ -54,9 +81,10 @@ export default function AdminLogin() {
 
           <button
             type="submit"
-            className="w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg shadow-cyan-500/50 font-medium"
+            disabled={loading}
+            className="w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg shadow-cyan-500/50 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Sign In
+            {loading ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
       </div>

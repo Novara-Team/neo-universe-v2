@@ -74,24 +74,24 @@ export default function Recommendations() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-12">
-          <div className="flex items-center justify-between mb-6">
+        <div className="mb-8 sm:mb-12">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
             <div>
               <div className="flex items-center space-x-3 mb-3">
-                <Sparkles className="w-8 h-8 text-cyan-400" />
-                <h1 className="text-4xl font-bold text-white">AI Recommendations</h1>
+                <Sparkles className="w-6 sm:w-8 h-6 sm:h-8 text-cyan-400" />
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">AI Recommendations</h1>
               </div>
-              <p className="text-slate-400 text-lg">
+              <p className="text-slate-400 text-sm sm:text-base md:text-lg">
                 Personalized tool suggestions based on your interests and activity
               </p>
             </div>
             <button
               onClick={handleGenerateRecommendations}
               disabled={generating}
-              className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg shadow-cyan-500/50 font-medium disabled:opacity-50"
+              className="w-full sm:w-auto flex items-center justify-center space-x-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg shadow-cyan-500/50 font-medium disabled:opacity-50 text-sm sm:text-base"
             >
-              <RefreshCw className={`w-5 h-5 ${generating ? 'animate-spin' : ''}`} />
-              <span>{generating ? 'Generating...' : 'Refresh Recommendations'}</span>
+              <RefreshCw className={`w-4 sm:w-5 h-4 sm:h-5 ${generating ? 'animate-spin' : ''}`} />
+              <span className="whitespace-nowrap">{generating ? 'Generating...' : 'Refresh'}</span>
             </button>
           </div>
         </div>

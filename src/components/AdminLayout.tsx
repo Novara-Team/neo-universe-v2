@@ -23,8 +23,8 @@ export default function AdminLayout() {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const handleLogout = () => {
-    logoutAdmin();
+  const handleLogout = async () => {
+    await logoutAdmin();
     navigate('/adminpn');
   };
 
@@ -36,6 +36,7 @@ export default function AdminLayout() {
     { path: '/adminpn/reviews', icon: MessageSquare, label: 'Reviews' },
     { path: '/adminpn/news', icon: Newspaper, label: 'AI News' },
     { path: '/adminpn/analytics', icon: TrendingUp, label: 'Analytics' },
+    { path: '/adminpn/settings', icon: Settings, label: 'Settings' },
   ];
 
   return (

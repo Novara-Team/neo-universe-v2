@@ -100,26 +100,26 @@ export default function Collections() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
             <div>
-              <div className="flex items-center space-x-3 mb-2">
-                <h1 className="text-4xl font-bold text-white">My Collections</h1>
-                <span className="px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs font-bold rounded-full flex items-center gap-1">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">My Collections</h1>
+                <span className="px-2 sm:px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs font-bold rounded-full flex items-center gap-1">
                   <Crown className="w-3 h-3" />
                   {profile.subscription_plan.toUpperCase()}
                 </span>
               </div>
-              <p className="text-slate-400 text-lg">
+              <p className="text-slate-400 text-sm sm:text-base md:text-lg">
                 Create and share curated collections of your favorite AI tools
               </p>
             </div>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg shadow-cyan-500/50 font-medium"
+              className="w-full sm:w-auto flex items-center justify-center space-x-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg shadow-cyan-500/50 font-medium text-sm sm:text-base"
             >
-              <Plus className="w-5 h-5" />
-              <span>New Collection</span>
+              <Plus className="w-4 sm:w-5 h-4 sm:h-5" />
+              <span className="whitespace-nowrap">New Collection</span>
             </button>
           </div>
         </div>

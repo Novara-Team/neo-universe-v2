@@ -25,6 +25,7 @@ import ManageNews from './pages/admin/ManageNews';
 import ManageReviews from './pages/admin/ManageReviews';
 import ManageSubmissions from './pages/admin/ManageSubmissions';
 import ManageSupport from './pages/admin/ManageSupport';
+import ManageSettings from './pages/admin/ManageSettings';
 import Settings from './pages/Settings';
 import Recommendations from './pages/Recommendations';
 import PersonalAnalytics from './pages/PersonalAnalytics';
@@ -59,6 +60,7 @@ function App() {
             <Route path="reviews" element={<ManageReviews />} />
             <Route path="submissions" element={<ManageSubmissions />} />
             <Route path="support" element={<ManageSupport />} />
+            <Route path="settings" element={<ManageSettings />} />
           </Route>
 
           <Route
