@@ -103,7 +103,7 @@ export default function AdminDashboard() {
     try {
       const { data } = await supabase
         .from('tool_submissions')
-        .select('id, tool_name, created_at, status')
+        .select('id, name, created_at, status')
         .order('created_at', { ascending: false })
         .limit(5);
 
@@ -311,7 +311,7 @@ export default function AdminDashboard() {
                   <div key={activity.id} className="flex items-start gap-3 pb-4 border-b border-slate-700/50 last:border-0 last:pb-0">
                     <div className="w-2 h-2 rounded-full bg-cyan-400 mt-2" />
                     <div className="flex-1">
-                      <p className="text-white font-medium text-sm">{activity.tool_name}</p>
+                      <p className="text-white font-medium text-sm">{activity.name}</p>
                       <p className="text-slate-400 text-xs mt-1">
                         Submitted {new Date(activity.created_at).toLocaleDateString()}
                       </p>
