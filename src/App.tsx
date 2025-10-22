@@ -29,6 +29,7 @@ import ManageSettings from './pages/admin/ManageSettings';
 import Settings from './pages/Settings';
 import Recommendations from './pages/Recommendations';
 import PersonalAnalytics from './pages/PersonalAnalytics';
+import Benchmarks from './pages/Benchmarks';
 import News from './pages/News';
 import NewsDetail from './pages/NewsDetail';
 import Support from './pages/Support';
@@ -87,6 +88,7 @@ function App() {
                     <Route path="/collections/:slug" element={<CollectionDetail />} />
                     <Route path="/recommendations" element={<Recommendations />} />
                     <Route path="/analytics" element={<PersonalAnalytics />} />
+                    <Route path="/benchmarks" element={<Benchmarks />} />
                     <Route path="/news" element={<News />} />
                     <Route path="/news/:id" element={<NewsDetail />} />
                     <Route path="/support" element={<Support />} />

@@ -225,7 +225,7 @@ export default function Header() {
         </div>
 
         {showMobileMenu && (
-          <div className="md:hidden absolute top-16 left-0 right-0 bg-slate-900/98 backdrop-blur-lg border-b border-slate-800 shadow-2xl max-h-[calc(100vh-4rem)] overflow-y-auto">
+          <div className="md:hidden absolute top-16 left-0 right-0 bg-slate-900 border-b border-slate-800 shadow-2xl max-h-[calc(100vh-4rem)] overflow-y-auto">
             <nav className="flex flex-col py-4 px-4 space-y-2">
               <Link
                 to="/"

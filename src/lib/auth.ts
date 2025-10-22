@@ -1,23 +1,14 @@
-import { supabase } from './supabase';
-
 const ADMIN_SESSION_KEY = 'ai_universe_admin_session';
-const ADMIN_EMAIL = 'mohamed1abou2020@gmail.com';
+const ADMIN_USERNAME = 'NeoUniverseAdmin';
+const ADMIN_PASSWORD = 'Bomoxhmtk2010';
 
-export const authenticateAdmin = async (email: string, password: string): Promise<boolean> => {
-  if (email !== ADMIN_EMAIL) {
+export const authenticateAdmin = async (username: string, password: string): Promise<boolean> => {
+  if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
     return false;
   }
 
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
-
-  if (!error && data.user) {
-    sessionStorage.setItem(ADMIN_SESSION_KEY, 'true');
-    return true;
-  }
-  return false;
+  sessionStorage.setItem(ADMIN_SESSION_KEY, 'true');
+  return true;
 };
 
 export const isAdminAuthenticated = (): boolean => {
@@ -26,5 +17,4 @@ export const isAdminAuthenticated = (): boolean => {
 
 export const logoutAdmin = async (): Promise<void> => {
   sessionStorage.removeItem(ADMIN_SESSION_KEY);
-  await supabase.auth.signOut();
 };

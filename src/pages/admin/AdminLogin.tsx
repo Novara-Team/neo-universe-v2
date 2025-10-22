@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, Sparkles, Mail } from 'lucide-react';
+import { Lock, Sparkles, User } from 'lucide-react';
 import { authenticateAdmin } from '../../lib/auth';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -15,12 +15,12 @@ export default function AdminLogin() {
     setLoading(true);
     setError('');
 
-    const success = await authenticateAdmin(email, password);
+    const success = await authenticateAdmin(username, password);
 
     if (success) {
       navigate('/adminpn/dashboard');
     } else {
-      setError('Invalid email or password');
+      setError('Invalid username or password');
       setPassword('');
     }
     setLoading(false);
@@ -42,18 +42,18 @@ export default function AdminLogin() {
 
         <form onSubmit={handleSubmit} className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-8">
           <div className="mb-4">
-            <label className="block text-sm font-medium text-slate-300 mb-2">Email</label>
+            <label className="block text-sm font-medium text-slate-300 mb-2">Username</label>
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+              <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
               <input
-                type="email"
-                value={email}
+                type="text"
+                value={username}
                 onChange={(e) => {
-                  setEmail(e.target.value);
+                  setUsername(e.target.value);
                   setError('');
                 }}
                 className="w-full pl-12 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                placeholder="Enter admin email"
+                placeholder="Enter admin username"
                 required
                 autoFocus
               />

@@ -301,6 +301,12 @@ export default function Pricing() {
                     <td className="px-6 py-5 text-center bg-cyan-500/10"><span className="text-red-500 text-xl">✗</span></td>
                     <td className="px-6 py-5 text-center bg-orange-500/10"><Check className="w-6 h-6 text-green-400 mx-auto" /></td>
                   </tr>
+                  <tr className="hover:bg-slate-700/30 transition-colors">
+                    <td className="px-8 py-5 text-white font-medium">AI Tool Benchmarks</td>
+                    <td className="px-6 py-5 text-center"><span className="text-red-500 text-xl">✗</span></td>
+                    <td className="px-6 py-5 text-center bg-cyan-500/10"><Check className="w-6 h-6 text-green-400 mx-auto" /></td>
+                    <td className="px-6 py-5 text-center bg-orange-500/10"><Check className="w-6 h-6 text-green-400 mx-auto" /></td>
+                  </tr>
               </tbody>
             </table>
           </div>
