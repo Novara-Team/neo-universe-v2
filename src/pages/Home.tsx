@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, Sparkles, ArrowRight, Pen, Image, Video, Brain, Code, Mic, TrendingUp, Users, Zap, Globe } from 'lucide-react';
 import { supabase, AITool, AINews, Category } from '../lib/supabase';
+import { trackReferral } from '../lib/referrals';
+import { useAuth } from '../lib/useAuth';
 
 export default function Home() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [featuredTools, setFeaturedTools] = useState<AITool[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -14,6 +18,19 @@ export default function Home() {
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    const handleReferral = async () => {
+      const ref = searchParams.get('ref');
+      if (ref && user) {
+        await trackReferral(ref, user.id);
+        searchParams.delete('ref');
+        setSearchParams(searchParams, { replace: true });
+      }
+    };
+
+    handleReferral();
+  }, [user, searchParams, setSearchParams]);
 
   const loadData = async () => {
     const [toolsRes, categoriesRes, newsRes, allToolsRes, allCategoriesRes, usersRes] = await Promise.all([

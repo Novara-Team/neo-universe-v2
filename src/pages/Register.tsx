@@ -63,10 +63,14 @@ export default function Register() {
     setError('');
 
     try {
+      const redirectUrl = referralCode
+        ? `${window.location.origin}/?ref=${referralCode}`
+        : `${window.location.origin}/`;
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/`,
+          redirectTo: redirectUrl,
         },
       });
 
