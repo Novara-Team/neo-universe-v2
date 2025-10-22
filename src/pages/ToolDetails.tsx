@@ -18,6 +18,7 @@ import { useAuth } from '../lib/useAuth';
 import { addFavorite, removeFavorite, isFavorite } from '../lib/favorites';
 import { trackToolInteraction } from '../lib/recommendations';
 import { trackEvent } from '../lib/analytics';
+import { trackToolView, trackToolClick, trackToolFavorite } from '../lib/ranking-jobs';
 
 export default function ToolDetails() {
   const { slug } = useParams<{ slug: string }>();
@@ -80,6 +81,7 @@ export default function ToolDetails() {
         if (result.success) {
           setIsFavorited(true);
           setFavoritesCount(prev => prev + 1);
+          trackToolFavorite(tool.id);
           trackToolInteraction(user.id, tool.id, 'favorite');
           trackEvent('tool_favorite', {
             tool_id: tool.id,
@@ -114,6 +116,8 @@ export default function ToolDetails() {
         .from('ai_tools')
         .update({ views: (data.views || 0) + 1 })
         .eq('id', data.id);
+
+      trackToolView(data.id);
 
       if (user) {
         trackToolInteraction(user.id, data.id, 'view');

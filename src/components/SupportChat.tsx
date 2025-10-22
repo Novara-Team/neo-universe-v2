@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { MessageCircle, X, Send, Paperclip, Image as ImageIcon, FileText, Download, Minimize2, Maximize2, User, Headphones } from 'lucide-react';
+import { MessageCircle, X, Send, Paperclip, Image as ImageIcon, FileText, Download, Minimize2, Maximize2, User, Headphones, Bot, Users as UsersIcon } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/useAuth';
 
@@ -29,6 +29,9 @@ export default function SupportChat() {
   const [unreadCount, setUnreadCount] = useState(0);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [supportStatus, setSupportStatus] = useState({ isOnline: true, message: "Online - We'll respond soon" });
+  const [assistantMode, setAssistantMode] = useState<'ai' | 'human'>('human');
+  const [showModeSelector, setShowModeSelector] = useState(false);
+  const [isAiTyping, setIsAiTyping] = useState(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -220,6 +223,55 @@ export default function SupportChat() {
     }
   };
 
+  const sendAiMessage = async (userMessage: string) => {
+    setIsAiTyping(true);
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-website-assistant`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            question: userMessage,
+            context: null
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to get AI response');
+      }
+
+      const data = await response.json();
+      const aiResponse = data.answer;
+
+      if (conversationId) {
+        await supabase.from('support_messages').insert({
+          conversation_id: conversationId,
+          sender_id: user?.id,
+          sender_type: 'admin',
+          message: aiResponse
+        });
+      }
+    } catch (error) {
+      console.error('Error getting AI response:', error);
+      if (conversationId) {
+        await supabase.from('support_messages').insert({
+          conversation_id: conversationId,
+          sender_id: user?.id,
+          sender_type: 'admin',
+          message: 'Sorry, I encountered an error. Please try switching to human support or try again later.'
+        });
+      }
+    } finally {
+      setIsAiTyping(false);
+    }
+  };
+
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if ((!newMessage.trim() && !selectedFile) || !conversationId || !user) return;
@@ -241,6 +293,7 @@ export default function SupportChat() {
       setSelectedFile(null);
     }
 
+    const userMessageText = messageText;
     setNewMessage('');
 
     const { data, error } = await supabase
@@ -267,6 +320,10 @@ export default function SupportChat() {
         }
         return [...prev, data as Message];
       });
+
+      if (assistantMode === 'ai' && !attachmentUrl) {
+        await sendAiMessage(userMessageText);
+      }
     }
 
     setIsLoading(false);
@@ -315,13 +372,15 @@ export default function SupportChat() {
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
             <div className="flex items-center gap-4 min-w-0 relative z-10">
               <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0 border border-white/30">
-                <Headphones className="w-6 h-6" />
+                {assistantMode === 'ai' ? <Bot className="w-6 h-6" /> : <Headphones className="w-6 h-6" />}
               </div>
               <div className="min-w-0">
                 <h3 className="font-bold text-lg truncate">Support Chat</h3>
                 <div className="flex items-center gap-2 mt-1">
-                  <div className={`w-2.5 h-2.5 ${supportStatus.isOnline ? 'bg-green-400 animate-pulse shadow-lg shadow-green-400/50' : 'bg-slate-400'} rounded-full`} />
-                  <p className="text-xs text-white/90 truncate font-medium">{supportStatus.message}</p>
+                  <div className={`w-2.5 h-2.5 ${assistantMode === 'ai' ? 'bg-cyan-300 animate-pulse shadow-lg shadow-cyan-300/50' : supportStatus.isOnline ? 'bg-green-400 animate-pulse shadow-lg shadow-green-400/50' : 'bg-slate-400'} rounded-full`} />
+                  <p className="text-xs text-white/90 truncate font-medium">
+                    {assistantMode === 'ai' ? 'AI Assistant' : supportStatus.message}
+                  </p>
                 </div>
               </div>
             </div>
@@ -345,16 +404,86 @@ export default function SupportChat() {
 
           {!isMinimized && (
             <>
+              <div className="border-b border-slate-200 bg-white px-5 py-4">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-sm font-semibold text-slate-700">Chat with:</p>
+                  <button
+                    onClick={() => setShowModeSelector(!showModeSelector)}
+                    className="text-xs text-cyan-600 hover:text-cyan-700 font-medium"
+                  >
+                    Switch Mode
+                  </button>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setAssistantMode('ai');
+                      setShowModeSelector(false);
+                    }}
+                    className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all ${
+                      assistantMode === 'ai'
+                        ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/30'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }`}
+                  >
+                    <Bot className="w-4 h-4" />
+                    <span className="text-sm">AI Assistant</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setAssistantMode('human');
+                      setShowModeSelector(false);
+                    }}
+                    className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all ${
+                      assistantMode === 'human'
+                        ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/30'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }`}
+                  >
+                    <UsersIcon className="w-4 h-4" />
+                    <span className="text-sm">Human Support</span>
+                  </button>
+                </div>
+                <p className="text-xs text-slate-500 mt-3 text-center">
+                  {assistantMode === 'ai'
+                    ? 'Get instant answers from our AI assistant'
+                    : 'Connect with our support team'}
+                </p>
+              </div>
               <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-gradient-to-b from-slate-50 via-white to-slate-50">
                 {messages.length === 0 && (
                   <div className="text-center py-16">
                     <div className="w-20 h-20 bg-gradient-to-br from-cyan-100 to-blue-100 rounded-3xl flex items-center justify-center mx-auto mb-5 shadow-lg">
-                      <MessageCircle className="w-10 h-10 text-cyan-600" />
+                      {assistantMode === 'ai' ? (
+                        <Bot className="w-10 h-10 text-cyan-600" />
+                      ) : (
+                        <MessageCircle className="w-10 h-10 text-cyan-600" />
+                      )}
                     </div>
-                    <p className="text-slate-900 font-bold text-lg mb-2">Welcome to Support!</p>
-                    <p className="text-slate-500 text-sm px-8 leading-relaxed">
-                      Our team is here to help you with any questions or issues. Start the conversation!
+                    <p className="text-slate-900 font-bold text-lg mb-2">
+                      {assistantMode === 'ai' ? 'AI Assistant Ready!' : 'Welcome to Support!'}
                     </p>
+                    <p className="text-slate-500 text-sm px-8 leading-relaxed">
+                      {assistantMode === 'ai'
+                        ? 'Ask me anything about AI Universe! I can help with features, tools, subscriptions, and more.'
+                        : 'Our team is here to help you with any questions or issues. Start the conversation!'}
+                    </p>
+                  </div>
+                )}
+                {isAiTyping && (
+                  <div className="flex justify-start gap-3 animate-in fade-in slide-in-from-bottom-3 duration-300">
+                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center flex-shrink-0 shadow-lg border border-cyan-400">
+                      <Bot className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex flex-col items-start max-w-[75%] sm:max-w-[80%]">
+                      <div className="rounded-2xl px-5 py-3.5 shadow-lg bg-white text-slate-900 border border-slate-200 rounded-tl-md">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                          <div className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                          <div className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
                 {messages.map((msg, index) => {
@@ -367,8 +496,16 @@ export default function SupportChat() {
                       className={`flex ${isUser ? 'justify-end' : 'justify-start'} gap-3 animate-in fade-in slide-in-from-bottom-3 duration-300`}
                     >
                       {!isUser && showAvatar && (
-                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center flex-shrink-0 shadow-lg border border-slate-600">
-                          <Headphones className="w-5 h-5 text-white" />
+                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg ${
+                          assistantMode === 'ai'
+                            ? 'bg-gradient-to-br from-cyan-500 to-blue-600 border border-cyan-400'
+                            : 'bg-gradient-to-br from-slate-700 to-slate-900 border border-slate-600'
+                        }`}>
+                          {assistantMode === 'ai' ? (
+                            <Bot className="w-5 h-5 text-white" />
+                          ) : (
+                            <Headphones className="w-5 h-5 text-white" />
+                          )}
                         </div>
                       )}
                       {!isUser && !showAvatar && <div className="w-10" />}

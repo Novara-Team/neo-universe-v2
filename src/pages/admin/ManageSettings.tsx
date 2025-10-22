@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Settings, Save, MessageCircle, Power } from 'lucide-react';
+import { Settings, Save, MessageCircle, Power, TrendingUp, RefreshCw } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { updateAllRankings } from '../../lib/ranking-jobs';
 
 interface SupportSettings {
   id: string;
@@ -16,6 +17,7 @@ export default function ManageSettings() {
   const [customMessage, setCustomMessage] = useState('Online - We\'ll respond soon');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [updatingRankings, setUpdatingRankings] = useState(false);
 
   useEffect(() => {
     loadSettings();
@@ -90,6 +92,19 @@ export default function ManageSettings() {
       alert('An error occurred');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleUpdateRankings = async () => {
+    setUpdatingRankings(true);
+    try {
+      await updateAllRankings();
+      alert('All rankings updated successfully! Changes will be visible on the Top Tools page.');
+    } catch (error) {
+      console.error('Error updating rankings:', error);
+      alert('Failed to update rankings. Please try again.');
+    } finally {
+      setUpdatingRankings(false);
     }
   };
 
@@ -178,6 +193,36 @@ export default function ManageSettings() {
                 <span>{saving ? 'Saving...' : 'Save Settings'}</span>
               </button>
             </div>
+          </div>
+        </div>
+
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+            <TrendingUp className="w-6 h-6 text-cyan-400" />
+            Rankings Management
+          </h2>
+
+          <div className="bg-slate-900/50 rounded-xl border border-slate-700 p-6">
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-white mb-2">Update Tool Rankings</h3>
+              <p className="text-slate-400 text-sm mb-4">
+                Manually trigger a complete update of all ranking algorithms including: All-Time Popular, Tool of the Week, Tool of the Month, Trending Now, and Rising Stars.
+              </p>
+              <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-4 mb-4">
+                <p className="text-cyan-400 text-sm">
+                  <strong>Note:</strong> Rankings are calculated based on views, favorites, clicks, ratings, and engagement metrics. This process may take a few moments.
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={handleUpdateRankings}
+              disabled={updatingRankings}
+              className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg shadow-cyan-500/30 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <RefreshCw className={`w-5 h-5 ${updatingRankings ? 'animate-spin' : ''}`} />
+              <span>{updatingRankings ? 'Updating Rankings...' : 'Update All Rankings'}</span>
+            </button>
           </div>
         </div>
       </div>
