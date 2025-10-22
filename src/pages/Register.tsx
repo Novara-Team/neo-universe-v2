@@ -258,11 +258,11 @@ export default function Register() {
 
           <p className="mt-6 text-center text-sm text-slate-500">
             By creating an account, you agree to our{' '}
-            <Link to="/terms" className="text-slate-400 hover:text-slate-300 underline">
+            <Link to="/terms-of-use" className="text-slate-400 hover:text-slate-300 underline">
               Terms of Service
             </Link>{' '}
             and{' '}
-            <Link to="/privacy" className="text-slate-400 hover:text-slate-300 underline">
+            <Link to="/privacy-policy" className="text-slate-400 hover:text-slate-300 underline">
               Privacy Policy
             </Link>
           </p>
