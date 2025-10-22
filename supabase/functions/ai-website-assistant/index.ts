@@ -92,7 +92,7 @@ ${context ? `\n**Current Context:**\n${JSON.stringify(context, null, 2)}` : ''}
 
 Provide helpful, accurate, and friendly responses about the platform. If asked about specific tools, use the context provided. If you don't have specific information, acknowledge that and provide general guidance.`;
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${OPENAI_API_KEY}`,
