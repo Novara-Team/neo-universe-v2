@@ -61,15 +61,15 @@ export default function AdminDashboard() {
         supportRes,
         usersRes
       ] = await Promise.all([
-        supabase.from('ai_tools').select('id, name, views, created_at', { count: 'exact' }).order('views', { ascending: false }),
+        supabase.from('ai_tools').select('id, name, created_at', { count: 'exact' }),
         supabase.from('tool_reviews').select('id, rating', { count: 'exact' }),
-        supabase.from('site_analytics').select('total_visits'),
+        supabase.from('user_analytics').select('*').order('total_time_spent', { ascending: false }).limit(1),
         supabase.from('tool_submissions').select('id', { count: 'exact' }).eq('status', 'pending'),
         supabase.from('support_conversations').select('id', { count: 'exact' }).in('status', ['open', 'in_progress']),
         supabase.from('user_profiles').select('id', { count: 'exact' })
       ]);
 
-      const totalVisits = analyticsRes.data?.reduce((sum, record) => sum + (record.total_visits || 0), 0) || 0;
+      const totalVisits = analyticsRes.data?.[0]?.page_visits || 0;
 
       const avgRating = reviewsRes.data?.length
         ? reviewsRes.data.reduce((sum, r) => sum + r.rating, 0) / reviewsRes.data.length
@@ -80,12 +80,19 @@ export default function AdminDashboard() {
       const toolsLastMonth = toolsRes.data?.filter(t => new Date(t.created_at) > lastMonth).length || 0;
       const toolsGrowth = toolsRes.count ? (toolsLastMonth / toolsRes.count) * 100 : 0;
 
+      const mostPopularToolRes = await supabase
+        .from('user_analytics')
+        .select('*, ai_tools(name)')
+        .order('total_time_spent', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
       setStats({
         totalTools: toolsRes.count || 0,
         totalUsers: usersRes.count || 0,
         totalReviews: reviewsRes.count || 0,
         totalVisits,
-        mostPopularTool: toolsRes.data?.[0]?.name || 'N/A',
+        mostPopularTool: (mostPopularToolRes.data as any)?.ai_tools?.name || 'N/A',
         pendingSubmissions: submissionsRes.count || 0,
         openSupportTickets: supportRes.count || 0,
         avgRating: Math.round(avgRating * 10) / 10,

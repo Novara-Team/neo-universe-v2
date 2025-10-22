@@ -28,6 +28,7 @@ export default function SupportChat() {
   const [uploadingFile, setUploadingFile] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [supportStatus, setSupportStatus] = useState({ isOnline: true, message: "Online - We'll respond soon" });
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -38,10 +39,38 @@ export default function SupportChat() {
   }, [messages]);
 
   useEffect(() => {
+    loadSupportSettings();
+  }, []);
+
+  useEffect(() => {
     if (user && isOpen) {
       loadOrCreateConversation();
     }
   }, [user, isOpen]);
+
+  const loadSupportSettings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('support_settings')
+        .select('*')
+        .limit(1)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error loading support settings:', error);
+        return;
+      }
+
+      if (data) {
+        setSupportStatus({
+          isOnline: data.is_online,
+          message: data.custom_message
+        });
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
 
   useEffect(() => {
     if (conversationId) {
@@ -291,8 +320,8 @@ export default function SupportChat() {
               <div className="min-w-0">
                 <h3 className="font-bold text-lg truncate">Support Chat</h3>
                 <div className="flex items-center gap-2 mt-1">
-                  <div className="w-2.5 h-2.5 bg-green-400 rounded-full animate-pulse shadow-lg shadow-green-400/50" />
-                  <p className="text-xs text-white/90 truncate font-medium">Online - We'll respond soon</p>
+                  <div className={`w-2.5 h-2.5 ${supportStatus.isOnline ? 'bg-green-400 animate-pulse shadow-lg shadow-green-400/50' : 'bg-slate-400'} rounded-full`} />
+                  <p className="text-xs text-white/90 truncate font-medium">{supportStatus.message}</p>
                 </div>
               </div>
             </div>

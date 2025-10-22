@@ -224,13 +224,15 @@ export default function Header() {
           </div>
         </div>
 
-        {showMobileMenu && (
-          <>
-            <div
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
-              onClick={() => setShowMobileMenu(false)}
-            />
-            <div className="md:hidden fixed top-16 left-0 right-0 bottom-0 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-t border-slate-800 shadow-2xl overflow-y-auto z-50 animate-slide-up">
+      </div>
+
+      {showMobileMenu && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
+            onClick={() => setShowMobileMenu(false)}
+          />
+          <div className="md:hidden fixed top-16 left-0 right-0 bottom-0 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-t border-slate-800 shadow-2xl overflow-y-auto z-50 animate-slide-up">
               <nav className="flex flex-col py-6 px-6 space-y-1">
                 <div className="mb-6">
                   <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 px-4">Navigation</p>
@@ -413,11 +415,10 @@ export default function Header() {
                   </div>
                 </div>
               )}
-            </nav>
-          </div>
-        </>
-        )}
-      </div>
+          </nav>
+        </div>
+      </>
+      )}
     </header>
   );
 }

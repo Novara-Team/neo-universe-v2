@@ -29,32 +29,48 @@ export default function ManageAnalytics() {
   const loadAnalytics = async () => {
     setLoading(true);
     try {
-      const [toolsRes, usersRes, analyticsRes, collectionsRes] = await Promise.all([
-        supabase.from('ai_tools').select('id, name, views, category, created_at').order('views', { ascending: false }).limit(10),
-        supabase.from('user_profiles').select('id, created_at', { count: 'exact' }),
-        supabase.from('site_analytics').select('*'),
-        supabase.from('tool_collections').select('id', { count: 'exact' })
-      ]);
-
       const now = new Date();
       const daysAgo = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : timeRange === '90d' ? 90 : 365;
       const startDate = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000);
+
+      const [toolsRes, usersRes, userAnalyticsRes, collectionsRes, subscriptionsRes] = await Promise.all([
+        supabase.from('ai_tools').select('id, name, created_at').order('created_at', { ascending: false }),
+        supabase.from('user_profiles').select('id, created_at', { count: 'exact' }),
+        supabase.from('user_analytics').select('*, ai_tools(name)').gte('last_activity', startDate.toISOString()).order('total_time_spent', { ascending: false }),
+        supabase.from('tool_collections').select('id', { count: 'exact' }),
+        supabase.from('user_profiles').select('id, subscription_plan', { count: 'exact' }).in('subscription_plan', ['plus', 'pro'])
+      ]);
 
       const recentUsers = usersRes.data?.filter(u => new Date(u.created_at) > startDate).length || 0;
       const totalUsers = usersRes.count || 0;
       const userGrowthRate = totalUsers > 0 ? (recentUsers / totalUsers) * 100 : 0;
 
-      const totalVisits = analyticsRes.data?.reduce((sum, record) => sum + (record.total_visits || 0), 0) || 0;
+      const totalVisits = userAnalyticsRes.data?.reduce((sum, record) => sum + (record.page_visits || 0), 0) || 0;
+      const totalTimeSpent = userAnalyticsRes.data?.reduce((sum, record) => sum + (record.total_time_spent || 0), 0) || 0;
+      const avgTimeOnSite = userAnalyticsRes.data?.length ? Math.round(totalTimeSpent / userAnalyticsRes.data.length) : 0;
 
-      const topTools = toolsRes.data?.map((tool, index) => ({
-        name: tool.name,
-        views: tool.views || 0,
-        growth: Math.floor(Math.random() * 30) - 10
-      })) || [];
+      const toolVisits: Record<string, { views: number; time: number; prevViews: number }> = {};
+      userAnalyticsRes.data?.forEach(record => {
+        const toolName = (record.ai_tools as any)?.name || 'Unknown';
+        if (!toolVisits[toolName]) {
+          toolVisits[toolName] = { views: 0, time: 0, prevViews: 0 };
+        }
+        toolVisits[toolName].views += record.page_visits || 0;
+        toolVisits[toolName].time += record.total_time_spent || 0;
+      });
+
+      const topTools = Object.entries(toolVisits)
+        .map(([name, data]) => ({
+          name,
+          views: data.views,
+          growth: data.prevViews > 0 ? Math.round(((data.views - data.prevViews) / data.prevViews) * 100) : 0
+        }))
+        .sort((a, b) => b.views - a.views)
+        .slice(0, 10);
 
       const categoryCount: Record<string, number> = {};
       toolsRes.data?.forEach(tool => {
-        const cat = tool.category || 'Other';
+        const cat = 'AI Tools';
         categoryCount[cat] = (categoryCount[cat] || 0) + 1;
       });
 
@@ -73,11 +89,14 @@ export default function ManageAnalytics() {
         });
       }
 
+      const bounceUsers = userAnalyticsRes.data?.filter(a => a.page_visits === 1).length || 0;
+      const bounceRate = userAnalyticsRes.data?.length ? (bounceUsers / userAnalyticsRes.data.length) * 100 : 0;
+
       setAnalytics({
         totalVisits,
         uniqueUsers: totalUsers,
-        avgTimeOnSite: 245,
-        bounceRate: 42.3,
+        avgTimeOnSite,
+        bounceRate: Math.round(bounceRate * 10) / 10,
         topTools,
         userGrowth,
         trafficSources: [
@@ -92,9 +111,9 @@ export default function ManageAnalytics() {
           { device: 'Tablet', percentage: 7 }
         ],
         revenueData: {
-          total: 12450,
-          growth: 18.5,
-          subscriptions: collectionsRes.count || 0
+          total: subscriptionsRes.count || 0,
+          growth: userGrowthRate,
+          subscriptions: subscriptionsRes.count || 0
         },
         popularCategories,
         timeRangeData: {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { BarChart3, TrendingUp, Zap, Target, DollarSign, Clock, Award, FileText, Upload, Crown, Filter, Search, Download, ExternalLink, ChevronDown, Star } from 'lucide-react';
+import { BarChart3, TrendingUp, Zap, Target, DollarSign, Clock, Award, FileText, Upload, Crown, Filter, Search, Download, ExternalLink, ChevronDown, Star, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/useAuth';
 
@@ -26,6 +26,16 @@ export default function Benchmarks() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [showFilters, setShowFilters] = useState(false);
   const [stats, setStats] = useState({ total: 0, avgScore: 0, categories: {} as Record<string, number> });
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [tools, setTools] = useState<any[]>([]);
+  const [submitForm, setSubmitForm] = useState({
+    tool_id: '',
+    benchmark_name: '',
+    score: '',
+    category: 'speed',
+    test_description: ''
+  });
+  const [submitting, setSubmitting] = useState(false);
 
   const categories = [
     { id: 'all', name: 'All Tests', icon: BarChart3 },
@@ -39,8 +49,24 @@ export default function Benchmarks() {
   useEffect(() => {
     if (user) {
       loadBenchmarks();
+      loadTools();
     }
   }, [user, selectedCategory]);
+
+  const loadTools = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('ai_tools')
+        .select('id, name')
+        .eq('is_approved', true)
+        .order('name');
+
+      if (error) throw error;
+      setTools(data || []);
+    } catch (error) {
+      console.error('Error loading tools:', error);
+    }
+  };
 
   const loadBenchmarks = async () => {
     try {
@@ -149,6 +175,45 @@ export default function Benchmarks() {
     a.download = `benchmarks-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handleSubmitBenchmark = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !profile) return;
+
+    setSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from('user_submitted_benchmarks')
+        .insert({
+          user_id: profile.id,
+          tool_id: submitForm.tool_id,
+          benchmark_name: submitForm.benchmark_name,
+          score: parseFloat(submitForm.score),
+          test_description: submitForm.test_description,
+          test_results: {
+            category: submitForm.category,
+            submitted_at: new Date().toISOString()
+          }
+        });
+
+      if (error) throw error;
+
+      alert('Benchmark submitted successfully! It will be reviewed by our team.');
+      setShowSubmitModal(false);
+      setSubmitForm({
+        tool_id: '',
+        benchmark_name: '',
+        score: '',
+        category: 'speed',
+        test_description: ''
+      });
+    } catch (error) {
+      console.error('Error submitting benchmark:', error);
+      alert('Failed to submit benchmark. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const filteredBenchmarks = getFilteredAndSortedBenchmarks();
@@ -283,7 +348,7 @@ export default function Benchmarks() {
               )}
 
               <button
-                onClick={() => alert('Benchmark submission feature coming soon!')}
+                onClick={() => setShowSubmitModal(true)}
                 className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg"
               >
                 <Upload className="w-4 h-4" />
@@ -460,6 +525,127 @@ export default function Benchmarks() {
           </div>
         )}
       </div>
+
+      {showSubmitModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white">Submit Benchmark</h2>
+              <button
+                onClick={() => setShowSubmitModal(false)}
+                className="text-slate-400 hover:text-white transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmitBenchmark} className="space-y-6">
+              <div>
+                <label className="block text-sm font-semibold text-slate-300 mb-2">
+                  AI Tool
+                </label>
+                <select
+                  required
+                  value={submitForm.tool_id}
+                  onChange={(e) => setSubmitForm({ ...submitForm, tool_id: e.target.value })}
+                  className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                >
+                  <option value="">Select a tool...</option>
+                  {tools.map((tool) => (
+                    <option key={tool.id} value={tool.id}>{tool.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-300 mb-2">
+                  Benchmark Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={submitForm.benchmark_name}
+                  onChange={(e) => setSubmitForm({ ...submitForm, benchmark_name: e.target.value })}
+                  placeholder="e.g., GPT-4 Response Time Test"
+                  className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-300 mb-2">
+                  Category
+                </label>
+                <select
+                  required
+                  value={submitForm.category}
+                  onChange={(e) => setSubmitForm({ ...submitForm, category: e.target.value })}
+                  className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                >
+                  <option value="speed">Speed</option>
+                  <option value="accuracy">Accuracy</option>
+                  <option value="cost">Cost Efficiency</option>
+                  <option value="quality">Quality</option>
+                  <option value="reliability">Reliability</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-300 mb-2">
+                  Score (0-100)
+                </label>
+                <input
+                  type="number"
+                  required
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  value={submitForm.score}
+                  onChange={(e) => setSubmitForm({ ...submitForm, score: e.target.value })}
+                  placeholder="85.5"
+                  className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-300 mb-2">
+                  Test Description
+                </label>
+                <textarea
+                  required
+                  value={submitForm.test_description}
+                  onChange={(e) => setSubmitForm({ ...submitForm, test_description: e.target.value })}
+                  placeholder="Describe the test methodology, conditions, and results..."
+                  rows={4}
+                  className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-none"
+                />
+              </div>
+
+              <div className="flex gap-4">
+                <button
+                  type="button"
+                  onClick={() => setShowSubmitModal(false)}
+                  className="flex-1 px-6 py-3 bg-slate-800 border border-slate-700 text-white rounded-xl hover:bg-slate-700 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {submitting ? 'Submitting...' : 'Submit Benchmark'}
+                </button>
+              </div>
+            </form>
+
+            <div className="mt-6 p-4 bg-cyan-500/10 border border-cyan-500/20 rounded-xl">
+              <p className="text-sm text-cyan-400">
+                Your benchmark submission will be reviewed by our team before being published. This helps ensure quality and accuracy of all benchmark data.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

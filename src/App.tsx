@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import { AuthProvider } from './lib/useAuth';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -37,14 +38,38 @@ import Support from './pages/Support';
 import Documentation from './pages/Documentation';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfUse from './pages/TermsOfUse';
+import NotFound from './pages/NotFound';
+import Offline from './pages/Offline';
 import SupportChat from './components/SupportChat';
 import ProtectedRoute from './components/ProtectedRoute';
 import { Analytics } from '@vercel/analytics/react';
+
+function OfflineDetector() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const handleOffline = () => {
+      if (location.pathname !== '/offline') {
+        navigate('/offline');
+      }
+    };
+
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [navigate, location]);
+
+  return null;
+}
 
 function App() {
   return (
     <Router>
       <AuthProvider>
+        <OfflineDetector />
         <Routes>
           <Route path="/adminpn" element={<AdminLogin />} />
 
@@ -98,11 +123,13 @@ function App() {
                     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                     <Route path="/terms-of-use" element={<TermsOfUse />} />
                     <Route path="/settings" element={<Settings />} />
+                    <Route path="/offline" element={<Offline />} />
+                    <Route path="*" element={<NotFound />} />
                   </Routes>
                 </main>
                 <Footer />
                 <SupportChat />
-                <Analytics /> 
+                <Analytics />
               </div>
             }
           />
