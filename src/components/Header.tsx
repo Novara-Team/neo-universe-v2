@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Sparkles, User, LogOut, Crown, Zap, Settings, Heart, Folder, Lightbulb, BarChart3, Menu, X, MessageSquare } from 'lucide-react';
+import { Sparkles, User, LogOut, Crown, Zap, Settings, Heart, Folder, Lightbulb, BarChart3, Menu, X, MessageSquare, Gift } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
 import { useState } from 'react';
 import NotificationBell from './NotificationBell';
@@ -86,6 +86,14 @@ export default function Header() {
           <div className="flex items-center space-x-2 sm:space-x-3">
             {user ? (
               <>
+                <Link
+                  to="/referrals"
+                  className="p-2 text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-lg transition-colors relative group"
+                  title="Referrals"
+                >
+                  <Gift className="w-5 h-5" />
+                  <span className="absolute -top-1 -right-1 w-2 h-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full animate-pulse" />
+                </Link>
                 <NotificationBell />
                 <div className="relative hidden sm:block">
                   <button
@@ -169,6 +177,20 @@ export default function Header() {
                             </span>
                           </Link>
                         )}
+
+                        <Link
+                          to="/referrals"
+                          onClick={() => setShowUserMenu(false)}
+                          className="flex items-center gap-3 px-4 py-2 text-slate-300 hover:bg-slate-700 rounded-lg transition-colors"
+                        >
+                          <Gift className="w-4 h-4 text-cyan-400" />
+                          <span className="flex items-center gap-2">
+                            Referral Program
+                            <span className="px-1.5 py-0.5 bg-cyan-500/20 text-cyan-400 text-xs font-bold rounded">
+                              NEW
+                            </span>
+                          </span>
+                        </Link>
 
                         <Link
                           to="/settings"

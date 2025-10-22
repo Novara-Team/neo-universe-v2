@@ -1,16 +1,26 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { UserPlus, Mail, Lock, User, Chrome, Sparkles, Shield, Zap, Eye, EyeOff, Check } from 'lucide-react';
+import { trackReferral } from '../lib/referrals';
+import { UserPlus, Mail, Lock, User, Chrome, Sparkles, Shield, Zap, Eye, EyeOff, Check, Gift } from 'lucide-react';
 
 export default function Register() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [referralCode, setReferralCode] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    const ref = searchParams.get('ref');
+    if (ref) {
+      setReferralCode(ref);
+    }
+  }, [searchParams]);
 
   const handleEmailRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +34,7 @@ export default function Register() {
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -35,6 +45,10 @@ export default function Register() {
       });
 
       if (error) throw error;
+
+      if (data.user && referralCode) {
+        await trackReferral(referralCode, data.user.id);
+      }
 
       navigate('/');
     } catch (err: any) {
@@ -142,6 +156,17 @@ export default function Register() {
               <h2 className="text-3xl font-bold text-white mb-2">Create Account</h2>
               <p className="text-slate-400">Get started with AI Universe today</p>
             </div>
+
+            {referralCode && (
+              <div className="mb-6 p-4 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-xl backdrop-blur-sm">
+                <div className="flex items-center gap-3">
+                  <Gift className="w-5 h-5 text-cyan-400" />
+                  <p className="text-sm text-cyan-300 font-medium">
+                    You have been referred! Get special rewards when you join.
+                  </p>
+                </div>
+              </div>
+            )}
 
             {error && (
               <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl backdrop-blur-sm">

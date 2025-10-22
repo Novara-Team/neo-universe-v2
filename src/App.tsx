@@ -38,6 +38,7 @@ import Support from './pages/Support';
 import Documentation from './pages/Documentation';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfUse from './pages/TermsOfUse';
+import Referrals from './pages/Referrals';
 import NotFound from './pages/NotFound';
 import Offline from './pages/Offline';
 import SupportChat from './components/SupportChat';
@@ -122,6 +123,7 @@ function App() {
                     <Route path="/docs" element={<Documentation />} />
                     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                     <Route path="/terms-of-use" element={<TermsOfUse />} />
+                    <Route path="/referrals" element={<Referrals />} />
                     <Route path="/settings" element={<Settings />} />
                     <Route path="/offline" element={<Offline />} />
                     <Route path="*" element={<NotFound />} />

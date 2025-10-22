@@ -37,6 +37,17 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    if (!OPENROUTER_API_KEY) {
+      console.error('OPENROUTER_API_KEY is not configured');
+      return new Response(
+        JSON.stringify({ error: 'OpenRouter API key not configured' }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
     const systemPrompt = `You are an AI assistant for AI Universe, a comprehensive platform for discovering and exploring AI tools.
 
 Website Knowledge Base:
@@ -110,7 +121,9 @@ Provide helpful, accurate, and friendly responses about the platform. If asked a
     });
 
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.statusText}`);
+      const errorText = await response.text();
+      console.error('OpenRouter API error:', response.statusText, errorText);
+      throw new Error(`OpenRouter API error: ${response.statusText}`);
     }
 
     const data = await response.json();

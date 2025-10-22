@@ -4,7 +4,57 @@
 
 ### Major Features
 
-#### 1. Enhanced Top Tools Ranking System
+#### 1. Professional Referral System
+A comprehensive referral program that rewards users for inviting friends:
+
+**Reward Milestones**
+- 1 Referral: First Referral Badge
+- 3 Referrals: Automatic Plus Plan upgrade
+- 5 Referrals: Community Champion Badge
+- 10 Referrals: Priority Support unlock
+- 15 Referrals: 500 Bonus Points
+- 25 Referrals: Super Referrer Badge
+- 50 Referrals: Pro Features unlock
+- 75 Referrals: Referral Master Badge
+- 100 Referrals: Lifetime Pro upgrade
+
+**Features**
+- Unique referral code for each user
+- Easy share functionality with copy and native share API
+- Real-time progress tracking toward milestones
+- Automatic reward processing and subscription upgrades
+- Visual dashboard showing stats, rewards, and referred users
+- Integration with registration flow
+- Gift icon in header with notification indicator
+
+**Technical Implementation**
+- Four database tables: user_referrals, referral_tracking, referral_rewards, referral_milestones
+- Automatic triggers for referral creation and reward processing
+- Secure RLS policies protecting user data
+- Type-safe TypeScript implementation
+
+#### 2. AI Website Assistant Switch to OpenRouter
+Improved AI support with better performance and cost efficiency:
+
+**Enhancements**
+- Migrated from OpenAI to OpenRouter API
+- Uses DeepSeek Chat v3.1 free model
+- Enhanced error handling and logging
+- API key validation before requests
+- Improved CORS configuration
+- Better response handling
+
+#### 3. Support Chat AI Mode Fix
+Fixed critical 500 error when using AI assistant:
+
+**Improvements**
+- Resolved Internal Server Error
+- Enhanced edge function error handling
+- Better integration between frontend and backend
+- Improved AI typing states and feedback
+- More reliable message delivery
+
+#### 4. Enhanced Top Tools Ranking System
 We've completely revamped the Top Tools algorithms to provide more accurate and dynamic rankings:
 
 **All-Time Popular**
@@ -37,11 +87,11 @@ We've completely revamped the Top Tools algorithms to provide more accurate and 
 - Daily analytics aggregation for performance insights
 - Admin can manually trigger ranking updates
 
-#### 2. AI/Human Support Chat Toggle
+#### 5. AI/Human Support Chat Toggle
 Revolutionary dual-mode support system for better user experience:
 
 **AI Assistant Mode**
-- Instant responses powered by OpenAI GPT-4
+- Instant responses powered by OpenRouter DeepSeek
 - Comprehensive knowledge of AI Universe features
 - Can answer questions about tools, subscriptions, features, and more
 - Available 24/7 for immediate assistance
@@ -67,7 +117,24 @@ Revolutionary dual-mode support system for better user experience:
 
 ### Technical Improvements
 
-#### Database Functions
+#### Referral System Database
+**New Tables**
+- `user_referrals`: User referral codes and statistics
+- `referral_tracking`: Tracks all successful referrals
+- `referral_rewards`: Earned rewards per user
+- `referral_milestones`: Reward tier definitions
+
+**Database Functions**
+- `generate_referral_code()`: Creates unique 8-character codes
+- `create_user_referral_entry()`: Auto-creates referral data on signup
+- `process_referral_rewards()`: Automatic reward processing at milestones
+
+**Triggers**
+- `create_referral_on_signup`: Trigger for new user referral creation
+- `process_rewards_on_referral`: Trigger for reward processing
+
+#### Ranking System Database
+**Functions**
 - `calculate_tool_engagement_score`: Weighted engagement calculation with recency
 - `update_popular_rankings`: All-time popularity algorithm
 - `update_weekly_rankings`: Weekly performance tracker
@@ -78,7 +145,7 @@ Revolutionary dual-mode support system for better user experience:
 - `track_tool_click`: Click tracking for engagement
 - `track_tool_favorite`: Favorite action tracking
 
-#### New Tables
+**Tables**
 - `tool_analytics`: Daily engagement metrics per tool
 - `tool_rankings`: Computed rankings with scores and periods
 
@@ -89,6 +156,27 @@ Revolutionary dual-mode support system for better user experience:
 - Performance monitoring capabilities
 
 ### UI/UX Enhancements
+
+**Referral Dashboard**
+- Modern gradient-based design with glass morphism effects
+- Three stat cards: Total Referrals, Rewards Earned, Next Milestone
+- Progress bar showing percentage toward next milestone
+- Share functionality with copy button and native share API
+- Visual reward cards with icons and descriptions
+- Complete milestone roadmap with locked/unlocked states
+- List of referred users with avatars and join dates
+- "How It Works" section with step-by-step guide
+- Fully responsive across all devices
+
+**Header Navigation**
+- Gift icon button with animated notification dot
+- Referral Program item in user dropdown with "NEW" badge
+- Smooth hover effects and transitions
+
+**Registration Flow**
+- Referral banner when user arrives via referral link
+- Automatic tracking on successful signup
+- Works with both email and OAuth registration
 
 **Support Chat Widget**
 - Mode selector at the top of chat window
@@ -105,18 +193,53 @@ Revolutionary dual-mode support system for better user experience:
 - Loading states with smooth animations
 
 ### Performance Optimizations
+- Indexed referral codes for O(1) lookup speed
+- Indexed referral tracking for efficient queries
+- Optimized reward checking with single-pass algorithm
 - Indexed database queries for faster ranking calculations
 - Efficient recency weighting in algorithms
 - Optimized real-time chat updates
 - Reduced API calls with smart caching
 
+### Security Enhancements
+- Row Level Security on all referral tables
+- Users can only view their own referral data
+- Secure referral code generation
+- Protected reward processing
+- Validated referral tracking to prevent abuse
+
 ### Developer Notes
+- Referral system is fully TypeScript typed
 - Ranking functions can be called via Supabase RPC
-- AI assistant uses existing edge function infrastructure
+- AI assistant uses OpenRouter edge function
 - Fully typed TypeScript implementation
 - Follows existing code conventions and patterns
+- Reusable referral utility functions in `/src/lib/referrals.ts`
+
+### Environment Variables
+- `OPENROUTER_API_KEY`: Required for AI assistant (auto-configured)
+
+### Files Modified/Added
+**New Files**
+- `/src/pages/Referrals.tsx`
+- `/src/lib/referrals.ts`
+- `supabase/migrations/create_referral_system.sql`
+
+**Modified Files**
+- `/src/pages/Register.tsx`
+- `/src/App.tsx`
+- `/src/components/Header.tsx`
+- `.env`
+- `supabase/functions/ai-website-assistant/index.ts`
 
 ### Future Enhancements
+- Referral leaderboard showing top referrers
+- Custom referral codes (vanity codes)
+- Time-limited referral campaigns
+- Email notifications for milestone achievements
+- Referral analytics dashboard for admins
+- Social media sharing integrations
+- Additional reward types (credits, discounts)
 - Scheduled automatic ranking updates (daily/hourly)
 - More advanced AI context awareness
 - Analytics dashboard for ranking trends
