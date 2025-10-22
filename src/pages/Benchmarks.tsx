@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { BarChart3, TrendingUp, Zap, Target, DollarSign, Clock, Award, FileText, Upload, Crown } from 'lucide-react';
+import { BarChart3, TrendingUp, Zap, Target, DollarSign, Clock, Award, FileText, Upload, Crown, Filter, Search, Download, ExternalLink, ChevronDown, Star } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/useAuth';
 
@@ -21,6 +21,11 @@ export default function Benchmarks() {
   const [benchmarks, setBenchmarks] = useState<Benchmark[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<'score' | 'date'>('score');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [showFilters, setShowFilters] = useState(false);
+  const [stats, setStats] = useState({ total: 0, avgScore: 0, categories: {} as Record<string, number> });
 
   const categories = [
     { id: 'all', name: 'All Tests', icon: BarChart3 },
@@ -61,6 +66,7 @@ export default function Benchmarks() {
       })) || [];
 
       setBenchmarks(formattedData);
+      calculateStats(formattedData);
     } catch (error) {
       console.error('Error loading benchmarks:', error);
     } finally {
@@ -95,6 +101,57 @@ export default function Benchmarks() {
     if (score >= 60) return 'text-yellow-400';
     return 'text-red-400';
   };
+
+  const calculateStats = (data: Benchmark[]) => {
+    const total = data.length;
+    const avgScore = total > 0 ? data.reduce((sum, b) => sum + b.score, 0) / total : 0;
+    const categories = data.reduce((acc, b) => {
+      acc[b.benchmark_category] = (acc[b.benchmark_category] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    setStats({ total, avgScore, categories });
+  };
+
+  const getFilteredAndSortedBenchmarks = () => {
+    let filtered = benchmarks;
+
+    if (searchQuery) {
+      filtered = filtered.filter(
+        b => b.tool_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+             b.benchmark_name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    return filtered.sort((a, b) => {
+      const compareValue = sortBy === 'score'
+        ? a.score - b.score
+        : new Date(a.test_date).getTime() - new Date(b.test_date).getTime();
+      return sortOrder === 'asc' ? compareValue : -compareValue;
+    });
+  };
+
+  const handleExport = () => {
+    const csv = [
+      ['Tool Name', 'Benchmark', 'Category', 'Score', 'Date'],
+      ...filteredBenchmarks.map(b => [
+        b.tool_name,
+        b.benchmark_name,
+        b.benchmark_category,
+        b.score.toString(),
+        new Date(b.test_date).toLocaleDateString()
+      ])
+    ].map(row => row.join(',')).join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `benchmarks-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const filteredBenchmarks = getFilteredAndSortedBenchmarks();
 
   if (!user || !profile || (profile.subscription_plan !== 'plus' && profile.subscription_plan !== 'pro')) {
     return (
@@ -143,6 +200,35 @@ export default function Benchmarks() {
           </p>
         </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div className="bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-slate-300 font-semibold">Total Benchmarks</h3>
+              <BarChart3 className="w-5 h-5 text-cyan-400" />
+            </div>
+            <p className="text-4xl font-bold text-white mb-1">{stats.total}</p>
+            <p className="text-sm text-slate-400">Across all categories</p>
+          </div>
+
+          <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-slate-300 font-semibold">Average Score</h3>
+              <Star className="w-5 h-5 text-green-400" />
+            </div>
+            <p className="text-4xl font-bold text-white mb-1">{stats.avgScore.toFixed(1)}</p>
+            <p className="text-sm text-slate-400">Out of 100 points</p>
+          </div>
+
+          <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-slate-300 font-semibold">Categories</h3>
+              <Target className="w-5 h-5 text-amber-400" />
+            </div>
+            <p className="text-4xl font-bold text-white mb-1">{Object.keys(stats.categories).length}</p>
+            <p className="text-sm text-slate-400">Different test types</p>
+          </div>
+        </div>
+
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
           {categories.map((category) => {
             const Icon = category.icon;
@@ -163,27 +249,117 @@ export default function Benchmarks() {
           })}
         </div>
 
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-bold text-white">
-            {selectedCategory === 'all' ? 'All Benchmarks' : categories.find(c => c.id === selectedCategory)?.name}
-          </h2>
-          <button
-            onClick={() => alert('Benchmark submission feature coming soon!')}
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg"
-          >
-            <Upload className="w-4 h-4" />
-            Submit Benchmark
-          </button>
+        <div className="mb-8">
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="flex-1 relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search benchmarks by tool or test name..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center gap-2 px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-slate-300 hover:border-slate-600 transition-all"
+              >
+                <Filter className="w-4 h-4" />
+                Filters
+                <ChevronDown className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+              </button>
+
+              {profile?.subscription_plan === 'pro' && (
+                <button
+                  onClick={handleExport}
+                  className="flex items-center gap-2 px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-slate-300 hover:border-slate-600 transition-all"
+                >
+                  <Download className="w-4 h-4" />
+                  Export
+                </button>
+              )}
+
+              <button
+                onClick={() => alert('Benchmark submission feature coming soon!')}
+                className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg"
+              >
+                <Upload className="w-4 h-4" />
+                Submit
+              </button>
+            </div>
+          </div>
+
+          {showFilters && (
+            <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-6 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-300 mb-3">Sort By</label>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setSortBy('score')}
+                      className={`flex-1 px-4 py-2 rounded-lg transition-all ${sortBy === 'score' ? 'bg-cyan-500/20 border border-cyan-500 text-cyan-400' : 'bg-slate-700/50 border border-slate-600 text-slate-300'}`}
+                    >
+                      Score
+                    </button>
+                    <button
+                      onClick={() => setSortBy('date')}
+                      className={`flex-1 px-4 py-2 rounded-lg transition-all ${sortBy === 'date' ? 'bg-cyan-500/20 border border-cyan-500 text-cyan-400' : 'bg-slate-700/50 border border-slate-600 text-slate-300'}`}
+                    >
+                      Date
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-slate-300 mb-3">Order</label>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setSortOrder('desc')}
+                      className={`flex-1 px-4 py-2 rounded-lg transition-all ${sortOrder === 'desc' ? 'bg-cyan-500/20 border border-cyan-500 text-cyan-400' : 'bg-slate-700/50 border border-slate-600 text-slate-300'}`}
+                    >
+                      Descending
+                    </button>
+                    <button
+                      onClick={() => setSortOrder('asc')}
+                      className={`flex-1 px-4 py-2 rounded-lg transition-all ${sortOrder === 'asc' ? 'bg-cyan-500/20 border border-cyan-500 text-cyan-400' : 'bg-slate-700/50 border border-slate-600 text-slate-300'}`}
+                    >
+                      Ascending
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-white">
+              {selectedCategory === 'all' ? 'All Benchmarks' : categories.find(c => c.id === selectedCategory)?.name}
+              <span className="ml-3 text-lg text-slate-400 font-normal">({filteredBenchmarks.length})</span>
+            </h2>
+          </div>
         </div>
 
-        {benchmarks.length === 0 ? (
+        {filteredBenchmarks.length === 0 ? (
           <div className="text-center py-20">
             <BarChart3 className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-            <p className="text-slate-400 text-lg">No benchmarks available yet.</p>
+            <p className="text-slate-400 text-lg">
+              {searchQuery ? 'No benchmarks match your search.' : 'No benchmarks available yet.'}
+            </p>
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="mt-4 text-cyan-400 hover:text-cyan-300 transition-colors"
+              >
+                Clear search
+              </button>
+            )}
           </div>
         ) : (
           <div className="grid gap-6">
-            {benchmarks.map((benchmark) => {
+            {filteredBenchmarks.map((benchmark) => {
               const Icon = getCategoryIcon(benchmark.benchmark_category);
               return (
                 <div
@@ -191,35 +367,75 @@ export default function Benchmarks() {
                   className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6 hover:border-slate-600 transition-all"
                 >
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 flex-1">
                       <div className={`p-3 rounded-lg ${getCategoryColor(benchmark.benchmark_category)}`}>
                         <Icon className="w-6 h-6" />
                       </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-white">{benchmark.tool_name}</h3>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                          {benchmark.tool_name}
+                          {benchmark.score >= 80 && (
+                            <span className="px-2 py-0.5 bg-green-500/20 border border-green-500/30 text-green-400 text-xs font-bold rounded-full">TOP PERFORMER</span>
+                          )}
+                        </h3>
                         <p className="text-slate-400">{benchmark.benchmark_name}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-6">
                       <div className="text-right">
                         <p className="text-sm text-slate-400">Score</p>
                         <p className={`text-3xl font-bold ${getScoreColor(benchmark.score)}`}>
                           {benchmark.score}/100
                         </p>
                       </div>
+                      <div className="w-20 h-20">
+                        <svg className="transform -rotate-90" viewBox="0 0 36 36">
+                          <circle cx="18" cy="18" r="16" fill="none" stroke="currentColor" strokeWidth="3" className="text-slate-700" />
+                          <circle
+                            cx="18"
+                            cy="18"
+                            r="16"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                            strokeDasharray={`${benchmark.score}, 100`}
+                            className={getScoreColor(benchmark.score)}
+                          />
+                        </svg>
+                      </div>
                     </div>
                   </div>
 
                   <p className="text-slate-300 mb-4">{benchmark.test_description}</p>
 
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-slate-400">
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
-                      {new Date(benchmark.test_date).toLocaleDateString()}
+                  {benchmark.metrics && Object.keys(benchmark.metrics).length > 0 && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4 p-4 bg-slate-900/50 rounded-lg border border-slate-700/50">
+                      {Object.entries(benchmark.metrics).slice(0, 4).map(([key, value]) => (
+                        <div key={key} className="text-center">
+                          <p className="text-xs text-slate-500 uppercase mb-1">{key}</p>
+                          <p className="text-sm font-bold text-white">{String(value)}</p>
+                        </div>
+                      ))}
                     </div>
-                    <div className={`px-3 py-1 rounded-full ${getCategoryColor(benchmark.benchmark_category)}`}>
-                      {benchmark.benchmark_category}
+                  )}
+
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div className="flex flex-wrap items-center gap-4 text-sm text-slate-400">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        {new Date(benchmark.test_date).toLocaleDateString()}
+                      </div>
+                      <div className={`px-3 py-1 rounded-full ${getCategoryColor(benchmark.benchmark_category)}`}>
+                        {benchmark.benchmark_category}
+                      </div>
                     </div>
+                    <Link
+                      to={`/tool/${benchmark.tool_id}`}
+                      className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 text-sm font-semibold transition-colors"
+                    >
+                      View Tool
+                      <ExternalLink className="w-4 h-4" />
+                    </Link>
                   </div>
                 </div>
               );

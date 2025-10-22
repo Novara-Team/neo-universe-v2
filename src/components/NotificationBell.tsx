@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Bell, X, Check, RefreshCw, MessageSquare, AlertCircle, CheckCircle, Info, Sparkles, Trash2 } from 'lucide-react';
+import { Bell, Check, RefreshCw, MessageSquare, AlertCircle, CheckCircle, Trash2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/useAuth';
 import { Link } from 'react-router-dom';
@@ -164,7 +164,7 @@ export default function NotificationBell() {
             className="fixed inset-0 z-20"
             onClick={() => setShowNotifications(false)}
           />
-          <div className="absolute right-0 mt-3 w-96 max-w-[calc(100vw-2rem)] bg-slate-800/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden z-30">
+          <div className="absolute right-0 mt-3 w-96 max-w-[calc(100vw-2rem)] sm:max-w-md max-h-[calc(100vh-6rem)] sm:max-h-[600px] bg-slate-800/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden z-30 flex flex-col">
             <div className="p-5 border-b border-slate-700 bg-gradient-to-r from-slate-800/80 to-slate-900/80">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-3">
@@ -192,7 +192,7 @@ export default function NotificationBell() {
               </div>
             </div>
 
-            <div className="max-h-[500px] overflow-y-auto">
+            <div className="flex-1 overflow-y-auto overscroll-contain" style={{ maxHeight: 'calc(100vh - 14rem)' }}>
               {notifications.length === 0 ? (
                 <div className="p-12 text-center">
                   <div className="w-20 h-20 bg-slate-700/50 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -212,7 +212,7 @@ export default function NotificationBell() {
                     return (
                       <div
                         key={notification.id}
-                        className={`p-4 transition-all hover:bg-slate-700/40 ${
+                        className={`p-4 transition-all hover:bg-slate-700/40 group ${
                           !notification.read ? 'bg-slate-700/20' : ''
                         }`}
                       >
@@ -223,31 +223,31 @@ export default function NotificationBell() {
 
                           <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between gap-2 mb-1">
-                              <h4 className="text-white font-semibold flex items-center gap-2 flex-1">
-                                <span className="line-clamp-1">{notification.title}</span>
+                              <h4 className="text-white font-semibold flex items-center gap-2 flex-1 min-w-0">
+                                <span className="line-clamp-1 break-all">{notification.title}</span>
                                 {!notification.read && (
                                   <span className="w-2 h-2 bg-cyan-500 rounded-full flex-shrink-0 animate-pulse shadow-lg shadow-cyan-500/50"></span>
                                 )}
                               </h4>
                               <button
                                 onClick={() => deleteNotification(notification.id)}
-                                className="text-slate-500 hover:text-red-400 transition-colors flex-shrink-0 p-1 hover:bg-red-500/10 rounded-lg"
+                                className="text-slate-500 hover:text-red-400 transition-colors flex-shrink-0 p-1 hover:bg-red-500/10 rounded-lg opacity-0 group-hover:opacity-100"
                                 aria-label="Delete notification"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
                             </div>
 
-                            <p className="text-slate-300 text-sm mb-3 leading-relaxed line-clamp-2">
+                            <p className="text-slate-300 text-sm mb-3 leading-relaxed line-clamp-3 break-words">
                               {notification.message}
                             </p>
 
-                            <div className="flex items-center justify-between gap-3">
-                              <p className="text-slate-500 text-xs font-medium">
+                            <div className="flex items-center justify-between gap-2 flex-wrap">
+                              <p className="text-slate-500 text-xs font-medium flex-shrink-0">
                                 {getTimeAgo(notification.created_at)}
                               </p>
 
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 flex-shrink-0">
                                 {notification.link && (
                                   <Link
                                     to={notification.link}
