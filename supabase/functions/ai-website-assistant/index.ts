@@ -99,7 +99,7 @@ Provide helpful, accurate, and friendly responses about the platform. If asked a
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'deepseek/deepseek-chat-v3.1:free',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: question }
