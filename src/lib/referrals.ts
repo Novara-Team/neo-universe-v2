@@ -58,7 +58,41 @@ export async function getUserReferralData(userId: string): Promise<ReferralData 
     return null;
   }
 
+  if (!data) {
+    return await createReferralData(userId);
+  }
+
   return data;
+}
+
+async function createReferralData(userId: string): Promise<ReferralData | null> {
+  const referralCode = generateReferralCode();
+
+  const { data, error } = await supabase
+    .from('user_referrals')
+    .insert({
+      user_id: userId,
+      referral_code: referralCode,
+      total_referrals: 0
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating referral data:', error);
+    return null;
+  }
+
+  return data;
+}
+
+function generateReferralCode(): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = '';
+  for (let i = 0; i < 8; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
 }
 
 export async function getReferralByCode(code: string): Promise<ReferralData | null> {
