@@ -86,48 +86,48 @@ export default function ManageSubmissions() {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Submitted Tools</h1>
-        <p className="text-slate-400">Review and approve user submissions</p>
+      <div className="mb-6 md:mb-8">
+        <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-2">Submitted Tools</h1>
+        <p className="text-slate-400 text-sm md:text-base">Review and approve user submissions</p>
       </div>
 
-      <div className="flex space-x-4 mb-6">
+      <div className="flex flex-wrap gap-2 md:gap-4 mb-6">
         <button
           onClick={() => setFilter('pending')}
-          className={`px-4 py-2 rounded-lg transition-colors ${
+          className={`px-3 md:px-4 py-2 rounded-xl transition-all font-medium text-sm ${
             filter === 'pending'
-              ? 'bg-cyan-500 text-white'
-              : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+              ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30'
+              : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700 border border-slate-600'
           }`}
         >
           Pending
         </button>
         <button
           onClick={() => setFilter('approved')}
-          className={`px-4 py-2 rounded-lg transition-colors ${
+          className={`px-3 md:px-4 py-2 rounded-xl transition-all font-medium text-sm ${
             filter === 'approved'
-              ? 'bg-cyan-500 text-white'
-              : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+              ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30'
+              : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700 border border-slate-600'
           }`}
         >
           Approved
         </button>
         <button
           onClick={() => setFilter('rejected')}
-          className={`px-4 py-2 rounded-lg transition-colors ${
+          className={`px-3 md:px-4 py-2 rounded-xl transition-all font-medium text-sm ${
             filter === 'rejected'
-              ? 'bg-cyan-500 text-white'
-              : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+              ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30'
+              : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700 border border-slate-600'
           }`}
         >
           Rejected
         </button>
         <button
           onClick={() => setFilter('all')}
-          className={`px-4 py-2 rounded-lg transition-colors ${
+          className={`px-3 md:px-4 py-2 rounded-xl transition-all font-medium text-sm ${
             filter === 'all'
-              ? 'bg-cyan-500 text-white'
-              : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+              ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30'
+              : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700 border border-slate-600'
           }`}
         >
           All
@@ -143,54 +143,54 @@ export default function ManageSubmissions() {
           <p className="text-slate-400">No submissions found</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3 md:space-y-4">
           {filteredSubmissions.map((submission) => (
             <div
               key={submission.id}
-              className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6"
+              className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-4 md:p-6 hover:border-slate-600 transition-all"
             >
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-3 mb-2">
-                    <h3 className="text-xl font-semibold text-white">{submission.name}</h3>
+              <div className="flex flex-col lg:flex-row justify-between items-start gap-4">
+                <div className="flex-1 w-full lg:w-auto">
+                  <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-3">
+                    <h3 className="text-lg md:text-xl font-semibold text-white">{submission.name}</h3>
                     <span
-                      className={`px-2 py-1 text-xs rounded-full ${
+                      className={`px-3 py-1 text-xs rounded-full font-medium border ${
                         submission.status === 'Pending'
-                          ? 'bg-yellow-500/10 text-yellow-400'
+                          ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
                           : submission.status === 'Approved'
-                          ? 'bg-green-500/10 text-green-400'
-                          : 'bg-red-500/10 text-red-400'
+                          ? 'bg-green-500/10 text-green-400 border-green-500/20'
+                          : 'bg-red-500/10 text-red-400 border-red-500/20'
                       }`}
                     >
                       {submission.status}
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    <div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 mb-4">
+                    <div className="flex items-center gap-2">
                       <span className="text-slate-400 text-sm">Category:</span>
-                      <span className="text-white ml-2">{submission.category}</span>
+                      <span className="text-white font-medium">{submission.category}</span>
                     </div>
-                    <div>
+                    <div className="flex items-center gap-2">
                       <span className="text-slate-400 text-sm">Pricing:</span>
-                      <span className="text-white ml-2">{submission.pricing_type}</span>
+                      <span className="text-white font-medium">{submission.pricing_type}</span>
                     </div>
                   </div>
 
-                  <p className="text-slate-300 mb-3">{submission.description}</p>
+                  <p className="text-slate-300 mb-4 text-sm md:text-base">{submission.description}</p>
 
-                  <div className="flex items-center space-x-4 text-sm mb-3">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 text-sm mb-3">
                     <a
                       href={submission.website_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-cyan-400 hover:text-cyan-300 flex items-center space-x-1"
+                      className="text-cyan-400 hover:text-cyan-300 flex items-center space-x-2 transition-colors"
                     >
                       <Eye className="w-4 h-4" />
                       <span>Visit Website</span>
                     </a>
                     {submission.submitter_email && (
-                      <span className="text-slate-500">
+                      <span className="text-slate-500 text-xs md:text-sm">
                         Submitted by: {submission.submitter_email}
                       </span>
                     )}
@@ -202,17 +202,17 @@ export default function ManageSubmissions() {
                 </div>
 
                 {submission.status === 'Pending' && (
-                  <div className="flex space-x-2 ml-4">
+                  <div className="flex flex-row lg:flex-col gap-2 w-full lg:w-auto">
                     <button
                       onClick={() => handleApprove(submission)}
-                      className="flex items-center space-x-2 px-4 py-2 bg-green-500/10 text-green-400 hover:bg-green-500/20 rounded-lg transition-colors"
+                      className="flex-1 lg:flex-none flex items-center justify-center space-x-2 px-4 py-2.5 bg-green-500/10 text-green-400 hover:bg-green-500/20 rounded-xl transition-all border border-green-500/20 font-medium"
                     >
                       <CheckCircle className="w-4 h-4" />
                       <span>Approve</span>
                     </button>
                     <button
                       onClick={() => handleReject(submission.id)}
-                      className="flex items-center space-x-2 px-4 py-2 bg-red-500/10 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors"
+                      className="flex-1 lg:flex-none flex items-center justify-center space-x-2 px-4 py-2.5 bg-red-500/10 text-red-400 hover:bg-red-500/20 rounded-xl transition-all border border-red-500/20 font-medium"
                     >
                       <XCircle className="w-4 h-4" />
                       <span>Reject</span>

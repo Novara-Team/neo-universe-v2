@@ -202,7 +202,7 @@ export default function SupportChat() {
 
     setNewMessage('');
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('support_messages')
       .insert({
         conversation_id: conversationId,
@@ -212,11 +212,20 @@ export default function SupportChat() {
         attachment_url: attachmentUrl,
         attachment_type: attachmentType,
         attachment_name: attachmentName
-      });
+      })
+      .select()
+      .single();
 
     if (error) {
       console.error('Error sending message:', error);
       setNewMessage(messageText);
+    } else if (data) {
+      setMessages((prev) => {
+        if (prev.find(m => m.id === data.id)) {
+          return prev;
+        }
+        return [...prev, data as Message];
+      });
     }
 
     setIsLoading(false);
@@ -244,59 +253,59 @@ export default function SupportChat() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-110 z-50 group"
+          className="fixed bottom-4 right-4 md:bottom-6 md:right-6 w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-110 z-50 group"
           aria-label="Open support chat"
         >
-          <MessageCircle className="w-7 h-7 group-hover:rotate-12 transition-transform" />
-          <div className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold animate-pulse">
+          <MessageCircle className="w-6 h-6 md:w-7 md:h-7 group-hover:rotate-12 transition-transform" />
+          <div className="absolute -top-1 -right-1 w-5 h-5 md:w-6 md:h-6 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold animate-pulse">
             1
           </div>
         </button>
       )}
 
       {isOpen && (
-        <div className={`fixed ${isMinimized ? 'bottom-6 right-6' : 'bottom-6 right-6'} ${isMinimized ? 'w-80' : 'w-[420px]'} ${isMinimized ? 'h-16' : 'h-[600px]'} bg-white rounded-2xl shadow-2xl flex flex-col z-50 border border-gray-200 transition-all duration-300`}>
-          <div className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white p-5 rounded-t-2xl flex items-center justify-between shadow-lg">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                <MessageCircle className="w-5 h-5" />
+        <div className={`fixed ${isMinimized ? 'bottom-4 right-4 md:bottom-6 md:right-6' : 'inset-4 md:inset-auto md:bottom-6 md:right-6'} ${isMinimized ? 'w-64 md:w-80' : 'w-auto md:w-[420px]'} ${isMinimized ? 'h-16' : 'h-auto md:h-[600px]'} bg-white rounded-2xl shadow-2xl flex flex-col z-50 border border-gray-200 transition-all duration-300`}>
+          <div className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white p-4 md:p-5 rounded-t-2xl flex items-center justify-between shadow-lg">
+            <div className="flex items-center gap-2 md:gap-3 min-w-0">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm flex-shrink-0">
+                <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
               </div>
-              <div>
-                <h3 className="font-bold text-lg">Support Chat</h3>
+              <div className="min-w-0">
+                <h3 className="font-bold text-base md:text-lg truncate">Support Chat</h3>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                  <p className="text-xs text-cyan-100">We're here to help</p>
+                  <p className="text-xs text-cyan-100 truncate">We're here to help</p>
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
               <button
                 onClick={() => setIsMinimized(!isMinimized)}
-                className="hover:bg-white/10 p-2 rounded-lg transition-colors"
+                className="hover:bg-white/10 p-1.5 md:p-2 rounded-lg transition-colors hidden md:block"
                 aria-label={isMinimized ? "Maximize chat" : "Minimize chat"}
               >
                 {isMinimized ? <Maximize2 className="w-5 h-5" /> : <Minimize2 className="w-5 h-5" />}
               </button>
               <button
                 onClick={() => setIsOpen(false)}
-                className="hover:bg-white/10 p-2 rounded-lg transition-colors"
+                className="hover:bg-white/10 p-1.5 md:p-2 rounded-lg transition-colors"
                 aria-label="Close chat"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4 md:w-5 md:h-5" />
               </button>
             </div>
           </div>
 
           {!isMinimized && (
             <>
-              <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-gradient-to-b from-gray-50 to-white">
+              <div className="flex-1 overflow-y-auto p-3 md:p-5 space-y-3 md:space-y-4 bg-gradient-to-b from-gray-50 to-white">
                 {messages.length === 0 && (
-                  <div className="text-center py-12">
-                    <div className="w-16 h-16 bg-gradient-to-br from-cyan-100 to-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <MessageCircle className="w-8 h-8 text-cyan-600" />
+                  <div className="text-center py-8 md:py-12">
+                    <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-cyan-100 to-blue-100 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+                      <MessageCircle className="w-6 h-6 md:w-8 md:h-8 text-cyan-600" />
                     </div>
-                    <p className="text-gray-900 font-semibold text-lg mb-2">Welcome to Support!</p>
-                    <p className="text-gray-500 text-sm">How can we assist you today?</p>
+                    <p className="text-gray-900 font-semibold text-base md:text-lg mb-2">Welcome to Support!</p>
+                    <p className="text-gray-500 text-xs md:text-sm px-4">How can we assist you today?</p>
                   </div>
                 )}
                 {messages.map((msg) => (
@@ -305,35 +314,35 @@ export default function SupportChat() {
                     className={`flex ${msg.sender_type === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}
                   >
                     <div
-                      className={`max-w-[85%] rounded-2xl p-4 shadow-md ${
+                      className={`max-w-[90%] md:max-w-[85%] rounded-2xl p-3 md:p-4 shadow-md ${
                         msg.sender_type === 'user'
                           ? 'bg-gradient-to-br from-cyan-500 to-blue-600 text-white'
                           : 'bg-white text-gray-900 border border-gray-200'
                       }`}
                     >
-                      <p className="text-sm leading-relaxed">{msg.message}</p>
+                      <p className="text-xs md:text-sm leading-relaxed break-words">{msg.message}</p>
                       {msg.attachment_url && (
-                        <div className="mt-3">
+                        <div className="mt-2 md:mt-3">
                           {isImage(msg.attachment_type) ? (
                             <img
                               src={msg.attachment_url}
                               alt={msg.attachment_name}
                               className="max-w-full rounded-xl border-2 border-white/30 shadow-lg"
-                              style={{ maxHeight: '220px' }}
+                              style={{ maxHeight: '180px' }}
                             />
                           ) : (
                             <a
                               href={msg.attachment_url}
                               download={msg.attachment_name}
-                              className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all hover:scale-105 ${
+                              className={`flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 md:py-3 rounded-xl border-2 transition-all hover:scale-105 ${
                                 msg.sender_type === 'user'
                                   ? 'border-white/30 hover:bg-white/10 bg-white/5'
                                   : 'border-gray-200 hover:bg-gray-50'
                               }`}
                             >
-                              <FileText className="w-5 h-5" />
-                              <span className="text-sm font-medium truncate flex-1">{msg.attachment_name}</span>
-                              <Download className="w-4 h-4" />
+                              <FileText className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
+                              <span className="text-xs md:text-sm font-medium truncate flex-1">{msg.attachment_name}</span>
+                              <Download className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
                             </a>
                           )}
                         </div>
@@ -362,16 +371,16 @@ export default function SupportChat() {
                 <div ref={messagesEndRef} />
               </div>
 
-              <form onSubmit={sendMessage} className="p-5 border-t border-gray-200 bg-white rounded-b-2xl">
+              <form onSubmit={sendMessage} className="p-3 md:p-5 border-t border-gray-200 bg-white rounded-b-2xl">
                 {selectedFile && (
-                  <div className="mb-3 flex items-center gap-3 p-3 bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl border-2 border-cyan-200">
+                  <div className="mb-2 md:mb-3 flex items-center gap-2 md:gap-3 p-2 md:p-3 bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl border-2 border-cyan-200">
                     {isImage(selectedFile.type) ? (
-                      <ImageIcon className="w-5 h-5 text-cyan-600" />
+                      <ImageIcon className="w-4 h-4 md:w-5 md:h-5 text-cyan-600 flex-shrink-0" />
                     ) : (
-                      <FileText className="w-5 h-5 text-cyan-600" />
+                      <FileText className="w-4 h-4 md:w-5 md:h-5 text-cyan-600 flex-shrink-0" />
                     )}
-                    <div className="flex-1">
-                      <span className="text-sm text-cyan-900 font-medium truncate block">{selectedFile.name}</span>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-xs md:text-sm text-cyan-900 font-medium truncate block">{selectedFile.name}</span>
                       <span className="text-xs text-cyan-600">
                         {(selectedFile.size / 1024).toFixed(1)} KB
                       </span>
@@ -379,22 +388,22 @@ export default function SupportChat() {
                     <button
                       type="button"
                       onClick={() => setSelectedFile(null)}
-                      className="text-cyan-600 hover:text-cyan-800 transition-colors"
+                      className="text-cyan-600 hover:text-cyan-800 transition-colors flex-shrink-0"
                       disabled={uploadingFile}
                     >
-                      <X className="w-5 h-5" />
+                      <X className="w-4 h-4 md:w-5 md:h-5" />
                     </button>
                   </div>
                 )}
                 {uploadingFile && (
-                  <div className="mb-3 p-4 bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl border-2 border-cyan-200">
-                    <div className="flex items-center gap-3">
-                      <div className="w-6 h-6 border-3 border-cyan-600 border-t-transparent rounded-full animate-spin" />
-                      <span className="text-sm text-cyan-900 font-medium">Uploading file...</span>
+                  <div className="mb-2 md:mb-3 p-3 md:p-4 bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl border-2 border-cyan-200">
+                    <div className="flex items-center gap-2 md:gap-3">
+                      <div className="w-5 h-5 md:w-6 md:h-6 border-3 border-cyan-600 border-t-transparent rounded-full animate-spin" />
+                      <span className="text-xs md:text-sm text-cyan-900 font-medium">Uploading file...</span>
                     </div>
                   </div>
                 )}
-                <div className="flex gap-3">
+                <div className="flex gap-2 md:gap-3">
                   <input
                     type="file"
                     ref={fileInputRef}
@@ -406,29 +415,29 @@ export default function SupportChat() {
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isLoading || uploadingFile}
-                    className="bg-gradient-to-br from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-700 p-3 rounded-xl transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-sm"
+                    className="bg-gradient-to-br from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-700 p-2 md:p-3 rounded-xl transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-sm"
                     aria-label="Attach file"
                   >
-                    <Paperclip className="w-5 h-5" />
+                    <Paperclip className="w-4 h-4 md:w-5 md:h-5" />
                   </button>
                   <input
                     type="text"
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Type your message..."
-                    className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-sm transition-all"
+                    className="flex-1 px-3 md:px-4 py-2 md:py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-xs md:text-sm transition-all"
                     disabled={isLoading || uploadingFile}
                   />
                   <button
                     type="submit"
                     disabled={isLoading || uploadingFile || (!newMessage.trim() && !selectedFile)}
-                    className="bg-gradient-to-br from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-6 py-3 rounded-xl transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg shadow-cyan-500/30 font-medium"
+                    className="bg-gradient-to-br from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-3 md:px-6 py-2 md:py-3 rounded-xl transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg shadow-cyan-500/30 font-medium"
                     aria-label="Send message"
                   >
                     {uploadingFile ? (
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <div className="w-4 h-4 md:w-5 md:h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     ) : (
-                      <Send className="w-5 h-5" />
+                      <Send className="w-4 h-4 md:w-5 md:h-5" />
                     )}
                   </button>
                 </div>

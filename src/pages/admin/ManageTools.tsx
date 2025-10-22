@@ -113,13 +113,13 @@ export default function ManageTools() {
   if (showForm) {
     return (
       <div>
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
             {editingTool ? 'Edit Tool' : 'Add New Tool'}
           </h1>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-8">
+        <form onSubmit={handleSubmit} className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-4 md:p-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">Name *</label>
@@ -311,16 +311,16 @@ export default function ManageTools() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6 md:mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Manage AI Tools</h1>
-          <p className="text-slate-400">Add, edit, or remove AI tools from your platform</p>
+          <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-2">Manage AI Tools</h1>
+          <p className="text-slate-400 text-sm md:text-base">Add, edit, or remove AI tools from your platform</p>
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg shadow-cyan-500/50"
+          className="flex items-center space-x-2 px-4 md:px-6 py-2.5 md:py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl hover:from-cyan-600 hover:to-blue-700 transition-all shadow-lg shadow-cyan-500/30 font-medium text-sm md:text-base whitespace-nowrap"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-4 h-4 md:w-5 md:h-5" />
           <span>Add New Tool</span>
         </button>
       </div>
@@ -331,63 +331,65 @@ export default function ManageTools() {
         </div>
       ) : (
         <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl overflow-hidden">
-          <div className="overflow-x-auto">
+          <div className="hidden lg:block overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-slate-900/50">
+              <thead className="bg-gradient-to-r from-slate-900/80 to-slate-800/80">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Category</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Views</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Date Added</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Actions</th>
+                  <th className="px-4 xl:px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Name</th>
+                  <th className="px-4 xl:px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Category</th>
+                  <th className="px-4 xl:px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Status</th>
+                  <th className="px-4 xl:px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Views</th>
+                  <th className="px-4 xl:px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Date</th>
+                  <th className="px-4 xl:px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-700">
                 {tools.map((tool) => (
-                  <tr key={tool.id} className="hover:bg-slate-700/30">
-                    <td className="px-6 py-4">
+                  <tr key={tool.id} className="hover:bg-slate-700/30 transition-colors">
+                    <td className="px-4 xl:px-6 py-4">
                       <div className="flex items-center space-x-3">
                         {tool.logo_url && (
-                          <img src={tool.logo_url} alt={tool.name} className="w-8 h-8 rounded object-cover" />
+                          <img src={tool.logo_url} alt={tool.name} className="w-10 h-10 rounded-lg object-cover border-2 border-slate-600" />
                         )}
                         <div>
                           <div className="text-white font-medium">{tool.name}</div>
                           {tool.featured && (
-                            <span className="text-xs text-yellow-400">Featured</span>
+                            <span className="inline-flex items-center gap-1 text-xs text-yellow-400">★ Featured</span>
                           )}
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-slate-300">{tool.category?.name}</td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 xl:px-6 py-4 text-slate-300">{tool.category?.name}</td>
+                    <td className="px-4 xl:px-6 py-4">
                       <span
-                        className={`px-2 py-1 text-xs rounded-full ${
+                        className={`px-3 py-1 text-xs rounded-full font-medium border ${
                           tool.status === 'Published'
-                            ? 'bg-green-500/10 text-green-400'
+                            ? 'bg-green-500/10 text-green-400 border-green-500/20'
                             : tool.status === 'Draft'
-                            ? 'bg-yellow-500/10 text-yellow-400'
-                            : 'bg-gray-500/10 text-gray-400'
+                            ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+                            : 'bg-gray-500/10 text-gray-400 border-gray-500/20'
                         }`}
                       >
                         {tool.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-slate-300">{tool.views}</td>
-                    <td className="px-6 py-4 text-slate-300">
+                    <td className="px-4 xl:px-6 py-4 text-slate-300 font-medium">{tool.views.toLocaleString()}</td>
+                    <td className="px-4 xl:px-6 py-4 text-slate-400 text-sm">
                       {new Date(tool.created_at).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 xl:px-6 py-4">
                       <div className="flex space-x-2">
                         <button
                           onClick={() => handleEdit(tool)}
-                          className="p-2 text-cyan-400 hover:bg-cyan-500/10 rounded transition-colors"
+                          className="p-2 text-cyan-400 hover:bg-cyan-500/20 rounded-lg transition-all border border-transparent hover:border-cyan-500/30"
+                          title="Edit tool"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(tool.id)}
-                          className="p-2 text-red-400 hover:bg-red-500/10 rounded transition-colors"
+                          className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-all border border-transparent hover:border-red-500/30"
+                          title="Delete tool"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -397,6 +399,56 @@ export default function ManageTools() {
                 ))}
               </tbody>
             </table>
+          </div>
+          <div className="lg:hidden space-y-4 p-4">
+            {tools.map((tool) => (
+              <div key={tool.id} className="bg-slate-700/30 border border-slate-600 rounded-xl p-4 hover:border-cyan-500/30 transition-all">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center space-x-3 flex-1">
+                    {tool.logo_url && (
+                      <img src={tool.logo_url} alt={tool.name} className="w-12 h-12 rounded-lg object-cover border-2 border-slate-600" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="text-white font-medium truncate">{tool.name}</div>
+                      <div className="text-slate-400 text-sm">{tool.category?.name}</div>
+                    </div>
+                  </div>
+                  <div className="flex space-x-2 flex-shrink-0">
+                    <button
+                      onClick={() => handleEdit(tool)}
+                      className="p-2 text-cyan-400 hover:bg-cyan-500/20 rounded-lg transition-all"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(tool.id)}
+                      className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-all"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 text-xs">
+                  <span
+                    className={`px-2 py-1 rounded-full font-medium border ${
+                      tool.status === 'Published'
+                        ? 'bg-green-500/10 text-green-400 border-green-500/20'
+                        : tool.status === 'Draft'
+                        ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+                        : 'bg-gray-500/10 text-gray-400 border-gray-500/20'
+                    }`}
+                  >
+                    {tool.status}
+                  </span>
+                  {tool.featured && (
+                    <span className="px-2 py-1 bg-yellow-500/10 text-yellow-400 rounded-full border border-yellow-500/20">★ Featured</span>
+                  )}
+                  <span className="text-slate-400">{tool.views.toLocaleString()} views</span>
+                  <span className="text-slate-500">•</span>
+                  <span className="text-slate-400">{new Date(tool.created_at).toLocaleDateString()}</span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
