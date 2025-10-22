@@ -229,195 +229,197 @@ export default function Header() {
       {showMobileMenu && (
         <>
           <div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
+            className="fixed inset-0 bg-black/70 backdrop-blur-md z-40 md:hidden transition-opacity"
             onClick={() => setShowMobileMenu(false)}
           />
-          <div className="md:hidden fixed top-16 left-0 right-0 bottom-0 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-t border-slate-800 shadow-2xl overflow-y-auto z-50 animate-slide-up">
-              <nav className="flex flex-col py-6 px-6 space-y-1">
-                <div className="mb-6">
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 px-4">Navigation</p>
-                  <Link
-                    to="/"
-                    onClick={() => setShowMobileMenu(false)}
-                    className="flex items-center gap-3 text-slate-300 hover:text-white hover:bg-slate-800/70 px-4 py-3.5 rounded-xl transition-all font-medium"
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center">
-                      <Sparkles className="w-4 h-4 text-cyan-400" />
+          <div className="md:hidden fixed top-0 left-0 right-0 bottom-0 z-50 flex items-start justify-center pt-20 px-4 pointer-events-none">
+            <div className="w-full max-w-md bg-slate-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-700/50 overflow-hidden pointer-events-auto animate-slide-down">
+              {user && (
+                <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border-b border-slate-700/50 px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
+                      <User className="w-6 h-6 text-white" />
                     </div>
-                    Home
-                  </Link>
-                  <Link
-                    to="/explore"
-                    onClick={() => setShowMobileMenu(false)}
-                    className="flex items-center gap-3 text-slate-300 hover:text-white hover:bg-slate-800/70 px-4 py-3.5 rounded-xl transition-all font-medium"
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                      <Zap className="w-4 h-4 text-blue-400" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white font-semibold truncate">{profile?.full_name || 'User'}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <p className="text-slate-400 text-sm truncate">{user.email}</p>
+                      </div>
                     </div>
-                    Explore
-                  </Link>
-                  <Link
-                    to="/top-tools"
-                    onClick={() => setShowMobileMenu(false)}
-                    className="flex items-center gap-3 text-slate-300 hover:text-white hover:bg-slate-800/70 px-4 py-3.5 rounded-xl transition-all font-medium"
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center">
-                      <Crown className="w-4 h-4 text-yellow-400" />
-                    </div>
-                    Top Tools
-                  </Link>
-                  <Link
-                    to="/compare"
-                    onClick={() => setShowMobileMenu(false)}
-                    className="flex items-center gap-3 text-slate-300 hover:text-white hover:bg-slate-800/70 px-4 py-3.5 rounded-xl transition-all font-medium"
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                      <BarChart3 className="w-4 h-4 text-purple-400" />
-                    </div>
-                    Compare
-                  </Link>
-                  {(profile?.subscription_plan === 'plus' || profile?.subscription_plan === 'pro') && (
-                    <Link
-                      to="/news"
-                      onClick={() => setShowMobileMenu(false)}
-                      className="flex items-center gap-3 text-slate-300 hover:text-white hover:bg-slate-800/70 px-4 py-3.5 rounded-xl transition-all font-medium"
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
-                        <MessageSquare className="w-4 h-4 text-green-400" />
-                      </div>
-                      News
-                    </Link>
-                  )}
-                  <Link
-                    to="/submit"
-                    onClick={() => setShowMobileMenu(false)}
-                    className="flex items-center gap-3 text-slate-300 hover:text-white hover:bg-slate-800/70 px-4 py-3.5 rounded-xl transition-all font-medium"
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
-                      <User className="w-4 h-4 text-orange-400" />
-                    </div>
-                    Submit Tool
-                  </Link>
-                  {!(profile?.subscription_plan === 'plus' || profile?.subscription_plan === 'pro') && (
-                    <Link
-                      to="/pricing"
-                      onClick={() => setShowMobileMenu(false)}
-                      className="flex items-center gap-3 text-slate-300 hover:text-white hover:bg-slate-800/70 px-4 py-3.5 rounded-xl transition-all font-medium"
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-pink-500/10 flex items-center justify-center">
-                        <Crown className="w-4 h-4 text-pink-400" />
-                      </div>
-                      Pricing
-                    </Link>
-                  )}
-                </div>
-
-              {user ? (
-                <div className="pt-4 border-t border-slate-700/50 mt-4">
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 px-4">Account</p>
-                  <div className="space-y-1">
-                    <Link
-                      to="/favorites"
-                      onClick={() => setShowMobileMenu(false)}
-                      className="flex items-center gap-3 px-4 py-3.5 text-slate-300 hover:bg-slate-800/70 rounded-xl transition-all font-medium"
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">
-                        <Heart className="w-4 h-4 text-red-400" />
-                      </div>
-                      Favorite Tools
-                    </Link>
-                    {profile && (profile.subscription_plan === 'plus' || profile.subscription_plan === 'pro') && (
-                      <Link
-                        to="/collections"
-                        onClick={() => setShowMobileMenu(false)}
-                        className="flex items-center gap-3 px-4 py-3.5 text-slate-300 hover:bg-slate-800/70 rounded-xl transition-all font-medium"
-                      >
-                        <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
-                          <Folder className="w-4 h-4 text-indigo-400" />
-                        </div>
-                        My Collections
-                      </Link>
-                    )}
-                    {profile && profile.subscription_plan === 'pro' && (
-                      <Link
-                        to="/recommendations"
-                        onClick={() => setShowMobileMenu(false)}
-                        className="flex items-center gap-3 px-4 py-3.5 text-slate-300 hover:bg-slate-800/70 rounded-xl transition-all font-medium"
-                      >
-                        <div className="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center">
-                          <Lightbulb className="w-4 h-4 text-yellow-400" />
-                        </div>
-                        <span className="flex items-center gap-2">
-                          Recommendations
-                          <span className="px-1.5 py-0.5 bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded">PRO</span>
-                        </span>
-                      </Link>
-                    )}
-                    {profile && profile.subscription_plan === 'pro' && (
-                      <Link
-                        to="/analytics"
-                        onClick={() => setShowMobileMenu(false)}
-                        className="flex items-center gap-3 px-4 py-3.5 text-slate-300 hover:bg-slate-800/70 rounded-xl transition-all font-medium"
-                      >
-                        <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                          <BarChart3 className="w-4 h-4 text-purple-400" />
-                        </div>
-                        <span className="flex items-center gap-2">
-                          Analytics
-                          <span className="px-1.5 py-0.5 bg-purple-500/20 text-purple-400 text-xs font-bold rounded">PRO</span>
-                        </span>
-                      </Link>
-                    )}
-                    <Link
-                      to="/settings"
-                      onClick={() => setShowMobileMenu(false)}
-                      className="flex items-center gap-3 px-4 py-3.5 text-slate-300 hover:bg-slate-800/70 rounded-xl transition-all font-medium"
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-slate-500/10 flex items-center justify-center">
-                        <Settings className="w-4 h-4 text-slate-400" />
-                      </div>
-                      Settings
-                    </Link>
-                  </div>
-                  <div className="mt-4 pt-4 border-t border-slate-700/50">
-                    <button
-                      onClick={() => {
-                        signOut();
-                        setShowMobileMenu(false);
-                      }}
-                      className="w-full flex items-center gap-3 px-4 py-3.5 text-red-400 hover:bg-red-500/10 rounded-xl transition-all font-medium"
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">
-                        <LogOut className="w-4 h-4" />
-                      </div>
-                      Sign Out
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="pt-4 border-t border-slate-700/50 mt-4">
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 px-4">Account</p>
-                  <div className="space-y-2 px-4">
-                    <Link
-                      to="/login"
-                      onClick={() => setShowMobileMenu(false)}
-                      className="block px-4 py-3.5 text-center text-slate-300 hover:text-white bg-slate-800/50 hover:bg-slate-800 rounded-xl transition-all font-medium"
-                    >
-                      Sign In
-                    </Link>
-                    <Link
-                      to="/register"
-                      onClick={() => setShowMobileMenu(false)}
-                      className="block px-4 py-3.5 text-center bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg shadow-cyan-500/30 font-semibold"
-                    >
-                      Get Started
-                    </Link>
+                    {getPlanBadge()}
                   </div>
                 </div>
               )}
-          </nav>
-        </div>
-      </>
+
+              <div className="max-h-[calc(100vh-200px)] overflow-y-auto">
+                <nav className="flex flex-col p-4 space-y-1">
+                  <div className="mb-2">
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 px-3">Navigation</p>
+                    <Link
+                      to="/"
+                      onClick={() => setShowMobileMenu(false)}
+                      className="flex items-center gap-3 text-slate-300 hover:text-white hover:bg-slate-800/70 px-3 py-2.5 rounded-lg transition-all"
+                    >
+                      <Sparkles className="w-5 h-5 text-cyan-400" />
+                      <span className="font-medium">Home</span>
+                    </Link>
+                    <Link
+                      to="/explore"
+                      onClick={() => setShowMobileMenu(false)}
+                      className="flex items-center gap-3 text-slate-300 hover:text-white hover:bg-slate-800/70 px-3 py-2.5 rounded-lg transition-all"
+                    >
+                      <Zap className="w-5 h-5 text-blue-400" />
+                      <span className="font-medium">Explore</span>
+                    </Link>
+                    <Link
+                      to="/top-tools"
+                      onClick={() => setShowMobileMenu(false)}
+                      className="flex items-center gap-3 text-slate-300 hover:text-white hover:bg-slate-800/70 px-3 py-2.5 rounded-lg transition-all"
+                    >
+                      <Crown className="w-5 h-5 text-yellow-400" />
+                      <span className="font-medium">Top Tools</span>
+                    </Link>
+                    <Link
+                      to="/compare"
+                      onClick={() => setShowMobileMenu(false)}
+                      className="flex items-center gap-3 text-slate-300 hover:text-white hover:bg-slate-800/70 px-3 py-2.5 rounded-lg transition-all"
+                    >
+                      <BarChart3 className="w-5 h-5 text-cyan-400" />
+                      <span className="font-medium">Compare</span>
+                    </Link>
+                    {(profile?.subscription_plan === 'plus' || profile?.subscription_plan === 'pro') && (
+                      <Link
+                        to="/news"
+                        onClick={() => setShowMobileMenu(false)}
+                        className="flex items-center gap-3 text-slate-300 hover:text-white hover:bg-slate-800/70 px-3 py-2.5 rounded-lg transition-all"
+                      >
+                        <MessageSquare className="w-5 h-5 text-green-400" />
+                        <span className="font-medium">News</span>
+                      </Link>
+                    )}
+                    <Link
+                      to="/submit"
+                      onClick={() => setShowMobileMenu(false)}
+                      className="flex items-center gap-3 text-slate-300 hover:text-white hover:bg-slate-800/70 px-3 py-2.5 rounded-lg transition-all"
+                    >
+                      <Sparkles className="w-5 h-5 text-orange-400" />
+                      <span className="font-medium">Submit Tool</span>
+                    </Link>
+                    {!(profile?.subscription_plan === 'plus' || profile?.subscription_plan === 'pro') && (
+                      <Link
+                        to="/pricing"
+                        onClick={() => setShowMobileMenu(false)}
+                        className="flex items-center gap-3 text-slate-300 hover:text-white hover:bg-slate-800/70 px-3 py-2.5 rounded-lg transition-all"
+                      >
+                        <Crown className="w-5 h-5 text-amber-400" />
+                        <span className="font-medium">Pricing</span>
+                      </Link>
+                    )}
+                    <Link
+                      to="/about"
+                      onClick={() => setShowMobileMenu(false)}
+                      className="flex items-center gap-3 text-slate-300 hover:text-white hover:bg-slate-800/70 px-3 py-2.5 rounded-lg transition-all"
+                    >
+                      <Sparkles className="w-5 h-5 text-slate-400" />
+                      <span className="font-medium">About</span>
+                    </Link>
+                  </div>
+
+                  {user ? (
+                    <div className="pt-3 border-t border-slate-700/50 mt-2">
+                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 px-3">My Account</p>
+                      <div className="space-y-1">
+                        <Link
+                          to="/favorites"
+                          onClick={() => setShowMobileMenu(false)}
+                          className="flex items-center gap-3 px-3 py-2.5 text-slate-300 hover:text-white hover:bg-slate-800/70 rounded-lg transition-all"
+                        >
+                          <Heart className="w-5 h-5 text-red-400" />
+                          <span className="font-medium">Favorites</span>
+                        </Link>
+                        {profile && (profile.subscription_plan === 'plus' || profile.subscription_plan === 'pro') && (
+                          <Link
+                            to="/collections"
+                            onClick={() => setShowMobileMenu(false)}
+                            className="flex items-center gap-3 px-3 py-2.5 text-slate-300 hover:text-white hover:bg-slate-800/70 rounded-lg transition-all"
+                          >
+                            <Folder className="w-5 h-5 text-blue-400" />
+                            <span className="font-medium">Collections</span>
+                          </Link>
+                        )}
+                        {profile && profile.subscription_plan === 'pro' && (
+                          <>
+                            <Link
+                              to="/recommendations"
+                              onClick={() => setShowMobileMenu(false)}
+                              className="flex items-center gap-3 px-3 py-2.5 text-slate-300 hover:text-white hover:bg-slate-800/70 rounded-lg transition-all"
+                            >
+                              <Lightbulb className="w-5 h-5 text-yellow-400" />
+                              <span className="font-medium flex items-center gap-2">
+                                Recommendations
+                                <span className="px-1.5 py-0.5 bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded">PRO</span>
+                              </span>
+                            </Link>
+                            <Link
+                              to="/analytics"
+                              onClick={() => setShowMobileMenu(false)}
+                              className="flex items-center gap-3 px-3 py-2.5 text-slate-300 hover:text-white hover:bg-slate-800/70 rounded-lg transition-all"
+                            >
+                              <BarChart3 className="w-5 h-5 text-green-400" />
+                              <span className="font-medium flex items-center gap-2">
+                                Analytics
+                                <span className="px-1.5 py-0.5 bg-green-500/20 text-green-400 text-xs font-bold rounded">PRO</span>
+                              </span>
+                            </Link>
+                          </>
+                        )}
+                        <Link
+                          to="/settings"
+                          onClick={() => setShowMobileMenu(false)}
+                          className="flex items-center gap-3 px-3 py-2.5 text-slate-300 hover:text-white hover:bg-slate-800/70 rounded-lg transition-all"
+                        >
+                          <Settings className="w-5 h-5 text-slate-400" />
+                          <span className="font-medium">Settings</span>
+                        </Link>
+                      </div>
+                      <div className="mt-3 pt-3 border-t border-slate-700/50">
+                        <button
+                          onClick={() => {
+                            signOut();
+                            setShowMobileMenu(false);
+                          }}
+                          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-red-400 hover:bg-red-500/10 rounded-lg transition-all font-medium"
+                        >
+                          <LogOut className="w-5 h-5" />
+                          Sign Out
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="pt-3 border-t border-slate-700/50 mt-2">
+                      <div className="space-y-2">
+                        <Link
+                          to="/login"
+                          onClick={() => setShowMobileMenu(false)}
+                          className="block px-4 py-2.5 text-center text-slate-300 hover:text-white bg-slate-800/50 hover:bg-slate-800 rounded-lg transition-all font-medium"
+                        >
+                          Sign In
+                        </Link>
+                        <Link
+                          to="/register"
+                          onClick={() => setShowMobileMenu(false)}
+                          className="block px-4 py-2.5 text-center bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg shadow-cyan-500/20 font-semibold"
+                        >
+                          Get Started
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+                </nav>
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </header>
   );

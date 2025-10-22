@@ -145,151 +145,153 @@ export default function TopTools() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <div className="flex items-center justify-center mb-4">
-            <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-full px-4 py-2">
-              {currentFilter?.icon}
-              <span className="text-cyan-400 text-sm font-medium">{currentFilter?.label}</span>
+        <div className="mb-6 sm:mb-8">
+          <div className="flex items-center justify-center mb-3 sm:mb-4">
+            <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-full px-3 sm:px-4 py-1.5 sm:py-2">
+              <div className="scale-90 sm:scale-100">{currentFilter?.icon}</div>
+              <span className="text-cyan-400 text-xs sm:text-sm font-medium">{currentFilter?.label}</span>
             </div>
           </div>
-          <h1 className="text-5xl font-bold text-center mb-3">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-2 sm:mb-3 px-4">
             <span className="bg-gradient-to-r from-white via-cyan-100 to-white bg-clip-text text-transparent">
               Top AI Tools
             </span>
           </h1>
-          <p className="text-slate-400 text-lg text-center max-w-2xl mx-auto">
+          <p className="text-slate-400 text-sm sm:text-base md:text-lg text-center max-w-2xl mx-auto px-4">
             {currentFilter?.description}
           </p>
         </div>
 
-        <div className="mb-8 overflow-x-auto scrollbar-hide">
-          <div className="flex space-x-3 min-w-max justify-center px-4">
-            {filterOptions.map((filter) => {
-              const isLocked = filter.isPremium && !isPaidUser;
-              const isActive = selectedFilter === filter.id;
+        <div className="mb-6 sm:mb-8 -mx-4 sm:mx-0">
+          <div className="overflow-x-auto scrollbar-hide px-4">
+            <div className="flex space-x-2 sm:space-x-3 min-w-max sm:justify-center pb-2">
+              {filterOptions.map((filter) => {
+                const isLocked = filter.isPremium && !isPaidUser;
+                const isActive = selectedFilter === filter.id;
 
-              return (
-                <button
-                  key={filter.id}
-                  onClick={() => handleFilterClick(filter.id, filter.isPremium)}
-                  className={`group relative flex items-center space-x-2 px-5 py-3 rounded-xl font-medium transition-all ${
-                    isActive
-                      ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/30 scale-105'
-                      : isLocked
-                      ? 'bg-slate-800/50 border border-slate-700/50 text-slate-500 hover:border-slate-600'
-                      : 'bg-slate-800/80 border border-slate-700 text-slate-300 hover:border-cyan-500/50 hover:text-white hover:shadow-md hover:shadow-cyan-500/20'
-                  }`}
-                >
-                  {filter.icon}
-                  <span className="whitespace-nowrap">{filter.label}</span>
-                  {isLocked && (
-                    <>
-                      <Lock className="w-4 h-4 ml-1" />
-                      <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
-                        <Crown className="w-3 h-3 text-slate-900" />
-                      </div>
-                    </>
-                  )}
-                </button>
-              );
-            })}
+                return (
+                  <button
+                    key={filter.id}
+                    onClick={() => handleFilterClick(filter.id, filter.isPremium)}
+                    className={`group relative flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-5 py-2 sm:py-3 rounded-lg sm:rounded-xl font-medium transition-all text-sm sm:text-base ${
+                      isActive
+                        ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/30'
+                        : isLocked
+                        ? 'bg-slate-800/50 border border-slate-700/50 text-slate-500 hover:border-slate-600'
+                        : 'bg-slate-800/80 border border-slate-700 text-slate-300 hover:border-cyan-500/50 hover:text-white hover:shadow-md hover:shadow-cyan-500/20'
+                    }`}
+                  >
+                    <span className="scale-90 sm:scale-100">{filter.icon}</span>
+                    <span className="whitespace-nowrap text-xs sm:text-sm">{filter.label}</span>
+                    {isLocked && (
+                      <>
+                        <Lock className="w-3 h-3 sm:w-4 sm:h-4 ml-0.5 sm:ml-1" />
+                        <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
+                          <Crown className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-slate-900" />
+                        </div>
+                      </>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
         {isProUser && (
-          <div className="mb-6 bg-gradient-to-r from-yellow-500/10 via-orange-500/10 to-yellow-500/10 border border-yellow-500/20 rounded-xl p-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
-                <Crown className="w-5 h-5 text-slate-900" />
+          <div className="mb-4 sm:mb-6 bg-gradient-to-r from-yellow-500/10 via-orange-500/10 to-yellow-500/10 border border-yellow-500/20 rounded-lg sm:rounded-xl p-3 sm:p-4">
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center flex-shrink-0">
+                <Crown className="w-4 h-4 sm:w-5 sm:h-5 text-slate-900" />
               </div>
               <div>
-                <p className="text-white font-semibold">Universe Master Access</p>
-                <p className="text-slate-400 text-sm">You have access to all premium ranking filters with advanced algorithms</p>
+                <p className="text-white font-semibold text-sm sm:text-base">Universe Master Access</p>
+                <p className="text-slate-400 text-xs sm:text-sm">You have access to all premium ranking filters with advanced algorithms</p>
               </div>
             </div>
           </div>
         )}
 
         {loading ? (
-          <div className="text-center py-20">
-            <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-cyan-500/20 border-t-cyan-500"></div>
-            <p className="text-slate-400 mt-6 text-lg">Loading {currentFilter?.label.toLowerCase()}...</p>
+          <div className="text-center py-12 sm:py-20">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-4 border-cyan-500/20 border-t-cyan-500"></div>
+            <p className="text-slate-400 mt-4 sm:mt-6 text-base sm:text-lg px-4">Loading {currentFilter?.label.toLowerCase()}...</p>
           </div>
         ) : tools.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-slate-800/50 border border-slate-700 flex items-center justify-center">
-              <Trophy className="w-10 h-10 text-slate-600" />
+          <div className="text-center py-12 sm:py-20 px-4">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6 rounded-full bg-slate-800/50 border border-slate-700 flex items-center justify-center">
+              <Trophy className="w-8 h-8 sm:w-10 sm:h-10 text-slate-600" />
             </div>
-            <h3 className="text-xl font-semibold text-white mb-2">No Rankings Available Yet</h3>
-            <p className="text-slate-400 max-w-md mx-auto">
+            <h3 className="text-lg sm:text-xl font-semibold text-white mb-2">No Rankings Available Yet</h3>
+            <p className="text-slate-400 text-sm sm:text-base max-w-md mx-auto">
               Rankings for this category will be available once we have enough data. Check back soon!
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {tools.map((tool, index) => (
               <Link
                 key={tool.id}
                 to={`/tool/${tool.slug}`}
-                className="group block bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-5 hover:border-cyan-500/50 hover:bg-slate-800/60 hover:shadow-xl hover:shadow-cyan-500/10 transition-all duration-300"
+                className="group block bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-xl sm:rounded-2xl p-3 sm:p-5 hover:border-cyan-500/50 hover:bg-slate-800/60 hover:shadow-xl hover:shadow-cyan-500/10 transition-all duration-300"
               >
-                <div className="flex items-start space-x-5">
+                <div className="flex items-start space-x-3 sm:space-x-5">
                   <div className="flex-shrink-0">
                     <div
-                      className={`w-14 h-14 rounded-xl flex items-center justify-center font-bold text-lg transition-transform group-hover:scale-110 ${getRankBadgeStyle(index)}`}
+                      className={`w-10 h-10 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl flex items-center justify-center font-bold text-base sm:text-lg transition-transform group-hover:scale-110 ${getRankBadgeStyle(index)}`}
                     >
-                      {index < 3 ? <Trophy className="w-7 h-7" /> : tool.rank || index + 1}
+                      {index < 3 ? <Trophy className="w-5 h-5 sm:w-7 sm:h-7" /> : tool.rank || index + 1}
                     </div>
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center space-x-4">
+                    <div className="flex items-start justify-between mb-2 sm:mb-3 gap-2">
+                      <div className="flex items-center space-x-2 sm:space-x-4 flex-1 min-w-0">
                         {tool.logo_url ? (
                           <img
                             src={tool.logo_url}
                             alt={tool.name}
-                            className="w-14 h-14 rounded-xl object-cover border border-slate-600 group-hover:border-cyan-500/50 transition-colors"
+                            className="w-10 h-10 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl object-cover border border-slate-600 group-hover:border-cyan-500/50 transition-colors flex-shrink-0"
                           />
                         ) : (
-                          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center border border-slate-600 group-hover:border-cyan-400 transition-colors">
-                            <Sparkles className="w-7 h-7 text-white" />
+                          <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center border border-slate-600 group-hover:border-cyan-400 transition-colors flex-shrink-0">
+                            <Sparkles className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
                           </div>
                         )}
-                        <div>
-                          <h3 className="text-xl font-bold text-white group-hover:text-cyan-400 transition-colors mb-1">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-base sm:text-xl font-bold text-white group-hover:text-cyan-400 transition-colors mb-0.5 sm:mb-1 truncate">
                             {tool.name}
                           </h3>
-                          <p className="text-slate-400 text-sm">{tool.category?.name}</p>
+                          <p className="text-slate-400 text-xs sm:text-sm truncate">{tool.category?.name}</p>
                         </div>
                       </div>
 
-                      <div className="flex flex-col items-end space-y-2">
+                      <div className="flex flex-col items-end space-y-1 sm:space-y-2 flex-shrink-0">
                         {tool.rating > 0 && (
-                          <div className="flex items-center space-x-1.5 bg-yellow-500/10 border border-yellow-500/20 rounded-lg px-3 py-1">
-                            <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                            <span className="font-semibold text-yellow-400">{tool.rating.toFixed(1)}</span>
+                          <div className="flex items-center space-x-1 sm:space-x-1.5 bg-yellow-500/10 border border-yellow-500/20 rounded px-1.5 py-0.5 sm:px-3 sm:py-1">
+                            <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400 fill-current" />
+                            <span className="font-semibold text-yellow-400 text-xs sm:text-base">{tool.rating.toFixed(1)}</span>
                           </div>
                         )}
-                        <span className="text-slate-500 text-sm font-medium">{tool.views.toLocaleString()} views</span>
+                        <span className="text-slate-500 text-xs sm:text-sm font-medium whitespace-nowrap">{tool.views.toLocaleString()}</span>
                         {tool.score && tool.score > 0 && (
-                          <span className="text-cyan-400 text-xs font-mono bg-cyan-500/10 px-2 py-0.5 rounded">
+                          <span className="text-cyan-400 text-xs font-mono bg-cyan-500/10 px-1.5 sm:px-2 py-0.5 rounded hidden sm:inline">
                             Score: {tool.score.toFixed(0)}
                           </span>
                         )}
                       </div>
                     </div>
 
-                    <p className="text-slate-300 mb-4 leading-relaxed">{tool.description}</p>
+                    <p className="text-slate-300 text-sm sm:text-base mb-2 sm:mb-4 leading-relaxed line-clamp-2 sm:line-clamp-none">{tool.description}</p>
 
-                    <div className="flex items-center flex-wrap gap-2">
-                      <span className="px-3 py-1.5 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 text-cyan-400 text-sm font-medium rounded-lg">
+                    <div className="flex items-center flex-wrap gap-1.5 sm:gap-2">
+                      <span className="px-2 py-1 sm:px-3 sm:py-1.5 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 text-cyan-400 text-xs sm:text-sm font-medium rounded">
                         {tool.pricing_type}
                       </span>
-                      {tool.tags.slice(0, 4).map((tag, idx) => (
+                      {tool.tags.slice(0, window.innerWidth < 640 ? 2 : 4).map((tag, idx) => (
                         <span
                           key={idx}
-                          className="px-3 py-1.5 bg-slate-700/50 border border-slate-600/50 text-slate-300 text-sm rounded-lg hover:bg-slate-700 hover:border-slate-500 transition-colors"
+                          className="px-2 py-1 sm:px-3 sm:py-1.5 bg-slate-700/50 border border-slate-600/50 text-slate-300 text-xs sm:text-sm rounded hover:bg-slate-700 hover:border-slate-500 transition-colors"
                         >
                           {tag}
                         </span>
