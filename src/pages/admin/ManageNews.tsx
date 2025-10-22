@@ -29,10 +29,29 @@ export default function ManageNews() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const newsData = {
+      title: formData.title,
+      description: formData.description,
+      source_url: formData.source_url,
+      source_name: formData.source_name,
+      publication_date: new Date(formData.publication_date).toISOString(),
+      featured: formData.featured,
+    };
+
     if (editingNews) {
-      await supabase.from('ai_news').update(formData).eq('id', editingNews.id);
+      const { error } = await supabase.from('ai_news').update(newsData).eq('id', editingNews.id);
+      if (error) {
+        console.error('Error updating news:', error);
+        alert('Failed to update news: ' + error.message);
+        return;
+      }
     } else {
-      await supabase.from('ai_news').insert([formData]);
+      const { error } = await supabase.from('ai_news').insert([newsData]);
+      if (error) {
+        console.error('Error creating news:', error);
+        alert('Failed to create news: ' + error.message);
+        return;
+      }
     }
 
     resetForm();

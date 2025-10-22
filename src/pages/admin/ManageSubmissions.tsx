@@ -43,23 +43,30 @@ export default function ManageSubmissions() {
       .from('categories')
       .select('id')
       .eq('name', submission.category)
-      .single();
+      .maybeSingle();
 
     const toolData = {
       name: submission.name,
       slug,
       description: submission.description,
       long_description: submission.description,
-      logo_url: submission.logo_url,
+      logo_url: submission.logo_url || '',
       website_url: submission.website_url,
-      category_id: categories?.id,
+      category_id: categories?.id || null,
       pricing_type: submission.pricing_type,
       status: 'Published',
       tags: [submission.category],
       features: [],
     };
 
-    const { data: newTool } = await supabase.from('ai_tools').insert([toolData]).select().single();
+    const { data: newTool, error: insertError } = await supabase.from('ai_tools').insert([toolData]).select().single();
+
+    if (insertError) {
+      console.error('Error creating tool:', insertError);
+      alert('Failed to approve submission: ' + insertError.message);
+      return;
+    }
+
     await supabase.from('tool_submissions').update({ status: 'Approved' }).eq('id', submission.id);
 
     if (submission.user_id && newTool) {

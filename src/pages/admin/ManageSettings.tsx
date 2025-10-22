@@ -27,14 +27,35 @@ export default function ManageSettings() {
         .from('support_settings')
         .select('*')
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error loading settings:', error);
-      } else if (data) {
+      }
+
+      if (data) {
         setSettings(data);
         setIsOnline(data.is_online);
         setCustomMessage(data.custom_message);
+      } else {
+        const { data: user } = await supabase.auth.getUser();
+        const { data: newSettings, error: insertError } = await supabase
+          .from('support_settings')
+          .insert({
+            is_online: true,
+            custom_message: 'Online - We\'ll respond soon',
+            updated_by: user.user?.id
+          })
+          .select()
+          .single();
+
+        if (insertError) {
+          console.error('Error creating settings:', insertError);
+        } else if (newSettings) {
+          setSettings(newSettings);
+          setIsOnline(newSettings.is_online);
+          setCustomMessage(newSettings.custom_message);
+        }
       }
     } catch (error) {
       console.error('Error:', error);

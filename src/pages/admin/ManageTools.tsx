@@ -90,17 +90,36 @@ export default function ManageTools() {
     e.preventDefault();
 
     const toolData = {
-      ...formData,
+      name: formData.name,
+      slug: formData.slug || formData.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+      description: formData.description,
+      long_description: formData.long_description,
+      logo_url: formData.logo_url,
+      website_url: formData.website_url,
+      category_id: formData.category_id || null,
+      pricing_type: formData.pricing_type,
+      rating: Number(formData.rating),
+      launch_date: formData.launch_date,
+      featured: formData.featured,
+      status: formData.status,
       tags: formData.tags.split(',').map((t) => t.trim()).filter(Boolean),
       features: formData.features.split('\n').map((f) => f.trim()).filter(Boolean),
-      rating: Number(formData.rating),
-      slug: formData.slug || formData.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
     };
 
     if (editingTool) {
-      await supabase.from('ai_tools').update(toolData).eq('id', editingTool.id);
+      const { error } = await supabase.from('ai_tools').update(toolData).eq('id', editingTool.id);
+      if (error) {
+        console.error('Error updating tool:', error);
+        alert('Failed to update tool: ' + error.message);
+        return;
+      }
     } else {
-      await supabase.from('ai_tools').insert([toolData]);
+      const { error } = await supabase.from('ai_tools').insert([toolData]);
+      if (error) {
+        console.error('Error creating tool:', error);
+        alert('Failed to create tool: ' + error.message);
+        return;
+      }
     }
 
     resetForm();
