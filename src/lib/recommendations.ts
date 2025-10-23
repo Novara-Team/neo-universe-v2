@@ -109,15 +109,27 @@ async function getUserCollections(userId: string) {
   try {
     const { data } = await supabase
       .from('tool_collections')
-      .select(`
-        id,
-        tool_collection_items(
-          tool_id,
-          ai_tools(tags, category_id)
-        )
-      `)
+      .select('id, user_id')
       .eq('user_id', userId);
-    return data || [];
+
+    if (!data || data.length === 0) return [];
+
+    const collectionIds = data.map(c => c.id);
+
+    const { data: items } = await supabase
+      .from('tool_collection_items')
+      .select(`
+        tool_id,
+        ai_tools!inner(tags, category_id)
+      `)
+      .in('collection_id', collectionIds);
+
+    const collections = data.map(collection => ({
+      ...collection,
+      tool_collection_items: items?.filter(i => i) || []
+    }));
+
+    return collections;
   } catch (error) {
     console.error('Error fetching collections:', error);
     return [];
@@ -175,8 +187,12 @@ async function createPersonalizedRecommendations(
     let query = supabase
       .from('ai_tools')
       .select('id, name, rating, views, tags, category_id')
-      .eq('status', 'Published')
-      .not('id', 'in', `(${Array.from(viewedToolIds).join(',') || 'null'})`);
+      .eq('status', 'Published');
+
+    if (viewedToolIds.size > 0) {
+      const ids = Array.from(viewedToolIds).join(',');
+      query = query.not('id', 'in', `(${ids})`);
+    }
 
     const { data: tools } = await query.limit(100);
 

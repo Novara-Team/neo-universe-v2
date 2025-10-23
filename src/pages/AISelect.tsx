@@ -122,54 +122,54 @@ What kind of AI tools are you looking for today?`,
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pt-24 pb-12">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <div className="flex items-center space-x-3 mb-3">
-            <div className="p-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg">
-              <Bot className="w-6 h-6 text-white" />
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pt-20 md:pt-24 pb-8 md:pb-12">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+        <div className="mb-6 md:mb-8">
+          <div className="flex items-center flex-wrap gap-2 sm:gap-3 mb-2 sm:mb-3">
+            <div className="p-1.5 sm:p-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg">
+              <Bot className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white">AI Select</h1>
-            <span className="px-3 py-1 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs font-medium rounded-full">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">AI Select</h1>
+            <span className="px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs font-medium rounded-full">
               PRO
             </span>
           </div>
-          <p className="text-slate-400 text-lg">
+          <p className="text-slate-400 text-sm sm:text-base md:text-lg">
             Your intelligent assistant for finding the perfect AI tools
           </p>
         </div>
 
-        <div className="bg-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-2xl overflow-hidden shadow-2xl">
-          <div className="h-[600px] overflow-y-auto p-6 space-y-6" style={{ scrollBehavior: 'smooth' }}>
+        <div className="bg-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-xl md:rounded-2xl overflow-hidden shadow-2xl">
+          <div className="h-[400px] sm:h-[500px] md:h-[600px] overflow-y-auto p-3 sm:p-4 md:p-6 space-y-4 md:space-y-6" style={{ scrollBehavior: 'smooth' }}>
             {messages.map((message, index) => (
               <div
                 key={index}
-                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} items-start space-x-3`}
+                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} items-start gap-2 sm:gap-3`}
               >
                 {message.role === 'assistant' && (
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center">
-                    <Bot className="w-5 h-5 text-white" />
+                  <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center">
+                    <Bot className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   </div>
                 )}
 
                 <div
-                  className={`max-w-[75%] rounded-2xl px-6 py-4 ${
+                  className={`max-w-[80%] sm:max-w-[75%] rounded-xl sm:rounded-2xl px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 md:py-4 ${
                     message.role === 'user'
                       ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/30'
                       : 'bg-slate-800/80 text-slate-200 border border-slate-700'
                   }`}
                 >
-                  <div className="text-sm md:text-base whitespace-pre-wrap leading-relaxed">
+                  <div className="text-xs sm:text-sm md:text-base whitespace-pre-wrap leading-relaxed">
                     {message.content}
                   </div>
-                  <div className="text-xs opacity-60 mt-2">
+                  <div className="text-xs opacity-60 mt-1.5 sm:mt-2">
                     {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </div>
                 </div>
 
                 {message.role === 'user' && (
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center">
-                    <User className="w-5 h-5 text-slate-300" />
+                  <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-700 flex items-center justify-center">
+                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-slate-300" />
                   </div>
                 )}
               </div>

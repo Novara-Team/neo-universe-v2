@@ -250,22 +250,22 @@ export default function Benchmarks() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pt-20 px-4 pb-20">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pt-16 md:pt-20 px-3 sm:px-4 pb-12 md:pb-20">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12">
+        <div className="text-center mb-8 md:mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-full text-sm font-semibold mb-6">
             <BarChart3 className="w-4 h-4" />
             Performance Testing
           </div>
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-white via-cyan-100 to-white bg-clip-text text-transparent mb-6">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-white via-cyan-100 to-white bg-clip-text text-transparent mb-4 md:mb-6">
             AI Tool Benchmarks
           </h1>
-          <p className="text-xl text-slate-300 max-w-3xl mx-auto">
+          <p className="text-base sm:text-lg md:text-xl text-slate-300 max-w-3xl mx-auto px-4">
             Comprehensive performance testing and comparisons across similar AI tools
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12">
           <div className="bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-slate-300 font-semibold">Total Benchmarks</h3>
@@ -294,28 +294,28 @@ export default function Benchmarks() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4 mb-8 md:mb-12">
           {categories.map((category) => {
             const Icon = category.icon;
             return (
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                className={`flex flex-col items-center gap-1.5 sm:gap-2 p-2.5 sm:p-3 md:p-4 rounded-lg md:rounded-xl border-2 transition-all ${
                   selectedCategory === category.id
                     ? 'bg-cyan-500/20 border-cyan-500 text-cyan-400'
                     : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:border-slate-600'
                 }`}
               >
-                <Icon className="w-6 h-6" />
-                <span className="text-sm font-medium">{category.name}</span>
+                <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
+                <span className="text-xs sm:text-sm font-medium text-center">{category.name}</span>
               </button>
             );
           })}
         </div>
 
-        <div className="mb-8">
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="mb-6 md:mb-8">
+          <div className="flex flex-col gap-3 md:gap-4 mb-4 md:mb-6">
             <div className="flex-1 relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <input
@@ -327,32 +327,32 @@ export default function Benchmarks() {
               />
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center gap-2 px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-slate-300 hover:border-slate-600 transition-all"
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 bg-slate-800/50 border border-slate-700 rounded-lg sm:rounded-xl text-slate-300 hover:border-slate-600 transition-all text-sm sm:text-base"
               >
                 <Filter className="w-4 h-4" />
-                Filters
+                <span className="hidden sm:inline">Filters</span>
                 <ChevronDown className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
               </button>
 
               {profile?.subscription_plan === 'pro' && (
                 <button
                   onClick={handleExport}
-                  className="flex items-center gap-2 px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-slate-300 hover:border-slate-600 transition-all"
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 bg-slate-800/50 border border-slate-700 rounded-lg sm:rounded-xl text-slate-300 hover:border-slate-600 transition-all text-sm sm:text-base"
                 >
                   <Download className="w-4 h-4" />
-                  Export
+                  <span className="hidden sm:inline">Export</span>
                 </button>
               )}
 
               <button
                 onClick={() => setShowSubmitModal(true)}
-                className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg"
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg sm:rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg text-sm sm:text-base"
               >
                 <Upload className="w-4 h-4" />
-                Submit
+                <span className="hidden sm:inline">Submit</span>
               </button>
             </div>
           </div>

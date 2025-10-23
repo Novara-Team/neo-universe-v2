@@ -82,14 +82,14 @@ export default function Home() {
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMyMmQ3ZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDE0YzAtMS4xLS45LTItMi0ycy0yIC45LTIgMiAuOSAyIDIgMiAyLS45IDItMnptLTEyIDBoMHYuMDFoLS4wMXYtLjAxem0wIDEyYzAgMS4xLS45IDItMiAycy0yLS45LTItMiAuOS0yIDItMiAyIC45IDIgMnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-40"></div>
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-32 pb-16 sm:pb-24">
+        <div className="relative max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 pt-16 sm:pt-24 md:pt-32 pb-12 sm:pb-16 md:pb-24">
           <div className="text-center">
             <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-full px-4 py-2 mb-6 sm:mb-8 backdrop-blur-sm">
               <Sparkles className="w-4 h-4 text-cyan-400 animate-pulse" />
               <span className="text-cyan-400 text-xs sm:text-sm font-medium">Discover the Future of AI</span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6 leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-3 sm:mb-4 md:mb-6 leading-tight px-2">
               <span className="bg-gradient-to-r from-white via-cyan-100 to-white bg-clip-text text-transparent">
                 Find the Best
               </span>
@@ -103,25 +103,25 @@ export default function Home() {
               </span>
             </h1>
 
-            <p className="text-lg sm:text-xl md:text-2xl text-slate-300 mb-8 sm:mb-12 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-slate-300 mb-6 sm:mb-8 md:mb-12 max-w-3xl mx-auto leading-relaxed px-4">
               Explore over <span className="text-cyan-400 font-semibold">{stats.tools}+</span> AI tools, curated and categorized for your needs
             </p>
 
-            <form onSubmit={handleSearch} className="max-w-3xl mx-auto mb-8 sm:mb-12">
+            <form onSubmit={handleSearch} className="max-w-3xl mx-auto mb-6 sm:mb-8 md:mb-12">
               <div className="relative group">
                 <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-2xl opacity-20 group-hover:opacity-30 blur transition-opacity"></div>
                 <div className="relative">
-                  <Search className="absolute left-5 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 z-10" />
+                  <Search className="absolute left-3 sm:left-5 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4 sm:w-5 sm:h-5 z-10" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search for an AI tool..."
-                    className="w-full pl-14 pr-36 py-4 sm:py-5 bg-slate-800/80 border border-slate-700 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent backdrop-blur-xl transition-all"
+                    className="w-full pl-10 sm:pl-14 pr-24 sm:pr-36 py-3 sm:py-4 md:py-5 bg-slate-800/80 border border-slate-700 rounded-xl text-white placeholder-slate-400 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent backdrop-blur-xl transition-all"
                   />
                   <button
                     type="submit"
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 px-6 sm:px-8 py-2.5 sm:py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all font-medium shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50"
+                    className="absolute right-1.5 sm:right-2 top-1/2 transform -translate-y-1/2 px-4 sm:px-6 md:px-8 py-2 sm:py-2.5 md:py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all font-medium shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 text-sm sm:text-base"
                   >
                     Search
                   </button>
@@ -129,7 +129,7 @@ export default function Home() {
               </div>
             </form>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 max-w-3xl mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6 max-w-3xl mx-auto">
               <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-4 sm:p-6 hover:border-cyan-500/50 transition-all group">
                 <div className="flex items-center justify-center mb-2">
                   <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-lg group-hover:scale-110 transition-transform">
@@ -164,22 +164,22 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 sm:mb-12 gap-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-8 sm:py-12 md:py-20">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 md:mb-12 gap-3 sm:gap-4">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Featured AI Tools</h2>
-            <p className="text-slate-400">Handpicked tools that are making waves in the AI world</p>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-1.5 sm:mb-2">Featured AI Tools</h2>
+            <p className="text-sm sm:text-base text-slate-400">Handpicked tools that are making waves in the AI world</p>
           </div>
           <Link
             to="/explore"
-            className="flex items-center space-x-2 text-cyan-400 hover:text-cyan-300 transition-colors group"
+            className="flex items-center space-x-2 text-cyan-400 hover:text-cyan-300 transition-colors group text-sm sm:text-base"
           >
             <span className="font-medium">View All</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16 sm:mb-24">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-12 sm:mb-16 md:mb-24">
           {featuredTools.map((tool) => (
             <Link
               key={tool.id}

@@ -187,9 +187,9 @@ export default function ToolDetails() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pt-24 pb-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-6">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pt-20 md:pt-24 pb-8 md:pb-12">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+        <div className="mb-4 md:mb-6">
           <Link
             to="/explore"
             className="inline-flex items-center text-slate-400 hover:text-cyan-400 transition-colors text-sm font-medium"
@@ -198,70 +198,80 @@ export default function ToolDetails() {
           </Link>
         </div>
 
-        <div className="bg-slate-800/50 backdrop-blur-sm rounded-3xl shadow-2xl border border-slate-700 overflow-hidden mb-8">
-          <div className="relative bg-gradient-to-r from-blue-600 to-cyan-600 p-8 md:p-12">
+        <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl md:rounded-3xl shadow-2xl border border-slate-700 overflow-hidden mb-6 md:mb-8">
+          <div className="relative bg-gradient-to-r from-blue-600 to-cyan-600 p-4 sm:p-6 md:p-8 lg:p-12">
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNnoiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjEpIiBzdHJva2Utd2lkdGg9IjIiLz48L2c+PC9zdmc+')] opacity-20"></div>
 
-            <div className="relative flex flex-col md:flex-row items-start md:items-center gap-6">
-              <div className="flex-shrink-0">
-                {tool.logo_url ? (
-                  <img
-                    src={tool.logo_url}
-                    alt={tool.name}
-                    className="w-24 h-24 md:w-32 md:h-32 rounded-2xl object-cover shadow-2xl ring-4 ring-white/20 bg-white"
-                  />
-                ) : (
-                  <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl bg-white shadow-2xl flex items-center justify-center ring-4 ring-white/20">
-                    <Sparkles className="w-12 h-12 md:w-16 md:h-16 text-blue-600" />
-                  </div>
-                )}
+            <div className="relative flex flex-col gap-4">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="flex-shrink-0">
+                  {tool.logo_url ? (
+                    <img
+                      src={tool.logo_url}
+                      alt={tool.name}
+                      className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-32 lg:h-32 rounded-xl md:rounded-2xl object-cover shadow-2xl ring-2 md:ring-4 ring-white/20 bg-white"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-32 lg:h-32 rounded-xl md:rounded-2xl bg-white shadow-2xl flex items-center justify-center ring-2 md:ring-4 ring-white/20">
+                      <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-16 lg:h-16 text-blue-600" />
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-2 drop-shadow-lg leading-tight">
+                    {tool.name}
+                  </h1>
+                  <p className="text-sm sm:text-base md:text-lg lg:text-xl text-blue-50 leading-relaxed">
+                    {tool.description}
+                  </p>
+                </div>
               </div>
 
-              <div className="flex-1">
-                <h1 className="text-3xl md:text-5xl font-bold text-white mb-3 drop-shadow-lg">
-                  {tool.name}
-                </h1>
-                <p className="text-lg md:text-xl text-blue-50 mb-4 leading-relaxed">
-                  {tool.description}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {tool.tags.slice(0, 5).map((tag, idx) => (
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2 flex-1">
+                  {tool.tags.slice(0, 3).map((tag, idx) => (
                     <span
                       key={idx}
-                      className="px-4 py-1.5 bg-white/20 backdrop-blur-sm text-white text-sm font-medium rounded-full border border-white/30"
+                      className="px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 bg-white/20 backdrop-blur-sm text-white text-xs sm:text-sm font-medium rounded-full border border-white/30"
                     >
                       {tag}
                     </span>
                   ))}
+                  {tool.tags.length > 3 && (
+                    <span className="px-2 sm:px-3 py-1 sm:py-1.5 bg-white/20 backdrop-blur-sm text-white text-xs sm:text-sm font-medium rounded-full border border-white/30">
+                      +{tool.tags.length - 3}
+                    </span>
+                  )}
                 </div>
-              </div>
 
-              <div className="flex md:flex-col gap-3 self-end md:self-start">
-                <button
-                  onClick={handleFavoriteToggle}
-                  disabled={favoriteLoading}
-                  className={`p-3 rounded-xl transition-all shadow-lg ${
-                    isFavorited
-                      ? 'bg-red-500 text-white hover:bg-red-600'
-                      : 'bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 border border-white/30'
-                  } disabled:opacity-50 disabled:cursor-not-allowed`}
-                  title={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
-                >
-                  <Heart className={`w-6 h-6 ${isFavorited ? 'fill-current' : ''}`} />
-                </button>
+                <div className="flex gap-2 flex-shrink-0">
+                  <button
+                    onClick={handleFavoriteToggle}
+                    disabled={favoriteLoading}
+                    className={`p-2 sm:p-2.5 md:p-3 rounded-lg md:rounded-xl transition-all shadow-lg ${
+                      isFavorited
+                        ? 'bg-red-500 text-white hover:bg-red-600'
+                        : 'bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 border border-white/30'
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    title={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+                  >
+                    <Heart className={`w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 ${isFavorited ? 'fill-current' : ''}`} />
+                  </button>
 
-                <button
-                  className="p-3 rounded-xl bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition-all shadow-lg border border-white/30"
-                  title="Share tool"
-                >
-                  <Share2 className="w-6 h-6" />
-                </button>
+                  <button
+                    className="p-2 sm:p-2.5 md:p-3 rounded-lg md:rounded-xl bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition-all shadow-lg border border-white/30"
+                    title="Share tool"
+                  >
+                    <Share2 className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 p-8 md:p-12">
-            <div className="lg:col-span-2 space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 p-4 sm:p-6 md:p-8 lg:p-12">
+            <div className="lg:col-span-2 space-y-4 sm:space-y-6 md:space-y-8">
               <div className="bg-slate-900/50 backdrop-blur-sm rounded-2xl shadow-lg p-8 border border-slate-700">
                 <h2 className="text-2xl font-bold text-white mb-4 flex items-center">
                   <Info className="w-6 h-6 mr-2 text-cyan-400" />

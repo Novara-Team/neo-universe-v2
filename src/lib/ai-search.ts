@@ -197,10 +197,10 @@ function generateNaturalResponse(
 
   switch (intent) {
     case 'search':
-      response = `I found ${results.length} tool${results.length !== 1 ? 's' : ''} for "${query}". `;
+      response = `I found ${results.length} relevant tool${results.length !== 1 ? 's' : ''} for you. `;
       break;
     case 'recommend':
-      response = `Based on your search, here are the top ${Math.min(results.length, 5)} recommended tools: `;
+      response = `Based on your search, here are the top ${Math.min(results.length, 5)} recommended tools. `;
       break;
     case 'pricing':
       response = `I found ${results.length} ${filters.pricing || 'tool'}${results.length !== 1 ? 's' : ''} matching your criteria. `;
