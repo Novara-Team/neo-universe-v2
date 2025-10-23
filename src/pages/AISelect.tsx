@@ -36,7 +36,7 @@ What kind of AI tools are you looking for today?`,
         },
       ]);
     }
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     scrollToBottom();

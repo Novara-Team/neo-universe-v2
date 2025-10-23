@@ -22,11 +22,36 @@ export async function chatWithAIAssistant(
   try {
     const context = await buildToolContext();
 
-    const latestMessage = messages[messages.length - 1].content.toLowerCase();
+    const enrichedRequirements = {
+      ...userRequirements,
+      availableTools: context.tools.map(t => ({
+        name: t.name,
+        description: t.description,
+        pricing: t.pricing_type,
+        rating: t.rating,
+        category: t.category?.name
+      })).slice(0, 20)
+    };
 
-    const response = await analyzeUserRequest(latestMessage, userRequirements, context);
+    const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        messages: messages.map(m => ({ role: m.role, content: m.content })),
+        requirements: enrichedRequirements
+      })
+    });
 
-    return response;
+    if (!response.ok) {
+      throw new Error('Failed to get AI response');
+    }
+
+    const data = await response.json();
+    return data.response;
   } catch (error) {
     console.error('Error in AI assistant:', error);
     return 'I apologize, but I encountered an error. Please try rephrasing your question.';

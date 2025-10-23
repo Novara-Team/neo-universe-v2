@@ -13,7 +13,8 @@ import {
   Bell,
   Settings,
   Menu,
-  X
+  X,
+  BarChart3
 } from 'lucide-react';
 import { logoutAdmin } from '../lib/auth';
 import { useState } from 'react';
@@ -32,6 +33,7 @@ export default function AdminLayout() {
     { path: '/adminpn/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { path: '/adminpn/tools', icon: Wrench, label: 'AI Tools' },
     { path: '/adminpn/submissions', icon: FileText, label: 'Submissions' },
+    { path: '/adminpn/benchmarks', icon: BarChart3, label: 'Benchmarks' },
     { path: '/adminpn/support', icon: MessageCircle, label: 'Support' },
     { path: '/adminpn/reviews', icon: MessageSquare, label: 'Reviews' },
     { path: '/adminpn/news', icon: Newspaper, label: 'AI News' },

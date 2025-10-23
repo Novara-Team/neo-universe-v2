@@ -72,7 +72,16 @@ export async function trackToolInteraction(
 
 export async function generateRecommendations(userId: string) {
   try {
-    await supabase.rpc('calculate_emerging_tools');
+    const interactions = await getUserInteractions(userId);
+
+    if (interactions.length === 0) {
+      await createInitialRecommendations(userId);
+      return true;
+    }
+
+    await supabase.rpc('calculate_emerging_tools').catch(err => {
+      console.log('Emerging tools calculation skipped:', err);
+    });
 
     const { error } = await supabase.rpc('generate_enhanced_recommendations', {
       p_user_id: userId,
@@ -80,13 +89,49 @@ export async function generateRecommendations(userId: string) {
 
     if (error) {
       console.error('Error generating recommendations:', error);
+      await createInitialRecommendations(userId);
       return false;
     }
 
     return true;
   } catch (error) {
     console.error('Error generating recommendations:', error);
+    await createInitialRecommendations(userId);
     return false;
+  }
+}
+
+async function createInitialRecommendations(userId: string) {
+  try {
+    const { data: tools } = await supabase
+      .from('ai_tools')
+      .select('id, rating, views')
+      .eq('status', 'Published')
+      .order('rating', { ascending: false })
+      .limit(20);
+
+    if (!tools || tools.length === 0) return;
+
+    const recommendations = tools.map((tool, index) => ({
+      user_id: userId,
+      tool_id: tool.id,
+      score: 80 - (index * 3),
+      reason: 'Highly rated and popular tool based on community feedback',
+      recommendation_type: 'general',
+      context_score: 10,
+      trend_score: 5
+    }));
+
+    await supabase
+      .from('tool_recommendations')
+      .delete()
+      .eq('user_id', userId);
+
+    await supabase
+      .from('tool_recommendations')
+      .insert(recommendations);
+  } catch (error) {
+    console.error('Error creating initial recommendations:', error);
   }
 }
 

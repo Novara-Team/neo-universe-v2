@@ -31,8 +31,10 @@ export default function Explore() {
   }, []);
 
   useEffect(() => {
-    loadTools();
-  }, [searchQuery, selectedCategory, selectedPricing, selectedTags, minRating, minViews, featuredOnly, sortBy]);
+    if (!aiMode || !searchQuery) {
+      loadTools();
+    }
+  }, [searchQuery, selectedCategory, selectedPricing, selectedTags, minRating, minViews, featuredOnly, sortBy, aiMode]);
 
   const loadCategories = async () => {
     const { data } = await supabase.from('categories').select('*');
@@ -158,8 +160,6 @@ export default function Explore() {
 
       setAiSearching(false);
       setLoading(false);
-    } else {
-      loadTools();
     }
   };
 

@@ -57,8 +57,8 @@ export default function Benchmarks() {
     try {
       const { data, error } = await supabase
         .from('ai_tools')
-        .select('id, name')
-        .eq('is_approved', true)
+        .select('id, name, slug')
+        .eq('status', 'Published')
         .order('name');
 
       if (error) throw error;
