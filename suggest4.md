@@ -79,6 +79,9 @@
 
 ---
 
+neo
+
+**Benefits:** Improves user experience, increases tool discovery, and drives engagement.
 
 ---
 
