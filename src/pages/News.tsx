@@ -181,102 +181,139 @@ export default function News() {
           </div>
 
           {showFilters && (
-            <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm border border-slate-700 rounded-2xl p-6 shadow-xl">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-2">
-                  <SlidersHorizontal className="w-5 h-5 text-cyan-400" />
-                  <h3 className="text-lg font-bold text-white">Filter & Sort</h3>
+            <div className="bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-8 shadow-2xl shadow-cyan-500/5 animate-in slide-in-from-top-4 duration-300">
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl">
+                    <SlidersHorizontal className="w-5 h-5 text-cyan-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white">Advanced Filters</h3>
+                    <p className="text-sm text-slate-400">Refine your news feed</p>
+                  </div>
                 </div>
                 <button
                   onClick={() => setShowFilters(false)}
-                  className="p-1 hover:bg-slate-700/50 rounded-lg transition-colors"
+                  className="p-2 hover:bg-slate-700/50 rounded-xl transition-all group"
                 >
-                  <X className="w-5 h-5 text-slate-400" />
+                  <X className="w-5 h-5 text-slate-400 group-hover:text-white transition-colors" />
                 </button>
               </div>
 
-              <div className="space-y-6">
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-semibold text-slate-300 mb-3">
-                    <Newspaper className="w-4 h-4 text-cyan-400" />
-                    Source
-                  </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-1">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="p-1.5 bg-cyan-500/10 rounded-lg">
+                      <Newspaper className="w-4 h-4 text-cyan-400" />
+                    </div>
+                    <label className="text-sm font-bold text-slate-200 uppercase tracking-wider">
+                      News Source
+                    </label>
+                  </div>
+                  <div className="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-2">
                     <button
                       onClick={() => setCategoryFilter('')}
-                      className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                      className={`w-full px-4 py-3 rounded-xl text-sm font-semibold transition-all flex items-center justify-between group ${
                         categoryFilter === ''
-                          ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg'
-                          : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700 border border-slate-600'
+                          ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/25'
+                          : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50 border border-slate-600/50 hover:border-slate-500'
                       }`}
                     >
-                      All Sources
+                      <span>All Sources</span>
+                      {categoryFilter === '' && <div className="w-2 h-2 bg-white rounded-full animate-pulse" />}
                     </button>
-                    {uniqueSources.slice(0, 5).map(source => (
+                    {uniqueSources.map(source => (
                       <button
                         key={source}
                         onClick={() => setCategoryFilter(source)}
-                        className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                        className={`w-full px-4 py-3 rounded-xl text-sm font-semibold transition-all flex items-center justify-between group ${
                           categoryFilter === source
-                            ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg'
-                            : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700 border border-slate-600'
+                            ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/25'
+                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50 border border-slate-600/50 hover:border-slate-500'
                         }`}
                       >
-                        {source}
+                        <span className="truncate">{source}</span>
+                        {categoryFilter === source && <div className="w-2 h-2 bg-white rounded-full animate-pulse" />}
                       </button>
                     ))}
                   </div>
                 </div>
 
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-semibold text-slate-300 mb-3">
-                    <Clock className="w-4 h-4 text-green-400" />
-                    Time Range
-                  </label>
-                  <div className="grid grid-cols-4 gap-2">
+                <div className="lg:col-span-1">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="p-1.5 bg-green-500/10 rounded-lg">
+                      <Clock className="w-4 h-4 text-green-400" />
+                    </div>
+                    <label className="text-sm font-bold text-slate-200 uppercase tracking-wider">
+                      Time Period
+                    </label>
+                  </div>
+                  <div className="space-y-2">
                     {[
-                      { value: 'all', label: 'All Time' },
-                      { value: 'today', label: 'Today' },
-                      { value: 'week', label: 'This Week' },
-                      { value: 'month', label: 'This Month' }
-                    ].map(({ value, label }) => (
+                      { value: 'all', label: 'All Time', desc: 'View all articles' },
+                      { value: 'today', label: 'Today', desc: 'Last 24 hours' },
+                      { value: 'week', label: 'This Week', desc: 'Last 7 days' },
+                      { value: 'month', label: 'This Month', desc: 'Last 30 days' }
+                    ].map(({ value, label, desc }) => (
                       <button
                         key={value}
                         onClick={() => setTimeFilter(value as typeof timeFilter)}
-                        className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                        className={`w-full px-4 py-3 rounded-xl text-left transition-all group ${
                           timeFilter === value
-                            ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg'
-                            : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700 border border-slate-600'
+                            ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/25'
+                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50 border border-slate-600/50 hover:border-slate-500'
                         }`}
                       >
-                        {label}
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="font-semibold text-sm">{label}</div>
+                            <div className={`text-xs mt-0.5 ${timeFilter === value ? 'text-white/80' : 'text-slate-500'}`}>
+                              {desc}
+                            </div>
+                          </div>
+                          {timeFilter === value && <div className="w-2 h-2 bg-white rounded-full animate-pulse" />}
+                        </div>
                       </button>
                     ))}
                   </div>
                 </div>
 
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-semibold text-slate-300 mb-3">
-                    <TrendingUp className="w-4 h-4 text-purple-400" />
-                    Sort By
-                  </label>
-                  <div className="grid grid-cols-3 gap-2">
+                <div className="lg:col-span-1">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="p-1.5 bg-purple-500/10 rounded-lg">
+                      <TrendingUp className="w-4 h-4 text-purple-400" />
+                    </div>
+                    <label className="text-sm font-bold text-slate-200 uppercase tracking-wider">
+                      Sort Order
+                    </label>
+                  </div>
+                  <div className="space-y-2">
                     {[
-                      { value: 'newest', label: 'Newest', icon: Clock },
-                      { value: 'oldest', label: 'Oldest', icon: Calendar },
-                      { value: 'featured', label: 'Featured', icon: Star }
-                    ].map(({ value, label, icon: Icon }) => (
+                      { value: 'newest', label: 'Newest First', icon: Clock, desc: 'Most recent articles' },
+                      { value: 'oldest', label: 'Oldest First', icon: Calendar, desc: 'Historical articles' },
+                      { value: 'featured', label: 'Featured', icon: Star, desc: 'Editor picks first' }
+                    ].map(({ value, label, icon: Icon, desc }) => (
                       <button
                         key={value}
                         onClick={() => setSortBy(value as typeof sortBy)}
-                        className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                        className={`w-full px-4 py-3 rounded-xl text-left transition-all group ${
                           sortBy === value
-                            ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                            : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700 border border-slate-600'
+                            ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/25'
+                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50 border border-slate-600/50 hover:border-slate-500'
                         }`}
                       >
-                        <Icon className="w-4 h-4" />
-                        {label}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <Icon className="w-4 h-4 flex-shrink-0" />
+                            <div>
+                              <div className="font-semibold text-sm">{label}</div>
+                              <div className={`text-xs mt-0.5 ${sortBy === value ? 'text-white/80' : 'text-slate-500'}`}>
+                                {desc}
+                              </div>
+                            </div>
+                          </div>
+                          {sortBy === value && <div className="w-2 h-2 bg-white rounded-full animate-pulse" />}
+                        </div>
                       </button>
                     ))}
                   </div>
@@ -284,19 +321,24 @@ export default function News() {
               </div>
 
               {(searchQuery || categoryFilter !== '' || timeFilter !== 'all' || sortBy !== 'newest') && (
-                <div className="mt-6 pt-6 border-t border-slate-700">
-                  <button
-                    onClick={() => {
-                      setSearchQuery('');
-                      setCategoryFilter('');
-                      setTimeFilter('all');
-                      setSortBy('newest');
-                    }}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg hover:bg-red-500/20 transition-all font-medium"
-                  >
-                    <X className="w-4 h-4" />
-                    Clear All Filters
-                  </button>
+                <div className="mt-8 pt-6 border-t border-slate-700/50">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-slate-400">
+                      <span className="font-semibold text-white">{news.length}</span> articles match your criteria
+                    </div>
+                    <button
+                      onClick={() => {
+                        setSearchQuery('');
+                        setCategoryFilter('');
+                        setTimeFilter('all');
+                        setSortBy('newest');
+                      }}
+                      className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-red-500/10 to-orange-500/10 border border-red-500/30 text-red-400 rounded-xl hover:from-red-500/20 hover:to-orange-500/20 hover:border-red-500/50 transition-all font-semibold text-sm group"
+                    >
+                      <X className="w-4 h-4 group-hover:rotate-90 transition-transform" />
+                      Reset Filters
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

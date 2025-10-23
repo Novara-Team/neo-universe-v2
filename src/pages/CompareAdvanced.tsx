@@ -271,15 +271,99 @@ export default function CompareAdvanced() {
               </div>
 
               {aiAnalysis && (
-                <div className="mt-6 p-6 bg-slate-900/50 border border-slate-700 rounded-lg">
-                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
-                    <Sparkles className="w-5 h-5 text-cyan-400" />
-                    <span>AI Analysis Results</span>
-                  </h3>
-                  <div className="prose prose-invert prose-slate max-w-none">
-                    <p className="text-slate-300 whitespace-pre-wrap leading-relaxed">
-                      {aiAnalysis}
-                    </p>
+                <div className="mt-6 bg-gradient-to-br from-slate-900/90 to-slate-800/90 border-2 border-cyan-500/30 rounded-2xl p-8 shadow-2xl shadow-cyan-500/10">
+                  <div className="flex items-start justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl animate-pulse">
+                        <Sparkles className="w-6 h-6 text-cyan-400" />
+                      </div>
+                      <div>
+                        <h3 className="text-2xl font-bold text-white">AI Analysis Results</h3>
+                        <p className="text-sm text-cyan-400">Powered by Advanced AI</p>
+                      </div>
+                    </div>
+                    <div className="px-4 py-2 bg-green-500/10 border border-green-500/30 rounded-lg">
+                      <span className="text-green-400 text-sm font-semibold">Generated</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-950/50 border border-slate-700/50 rounded-xl p-6 backdrop-blur-sm">
+                    <div className="prose prose-invert prose-slate max-w-none">
+                      <div className="text-slate-200 leading-relaxed space-y-4">
+                        {aiAnalysis.split('\n\n').map((paragraph, idx) => {
+                          if (paragraph.trim().startsWith('###')) {
+                            return (
+                              <h4 key={idx} className="text-xl font-bold text-cyan-400 mt-6 mb-3 flex items-center gap-2">
+                                <div className="w-1.5 h-6 bg-gradient-to-b from-cyan-500 to-blue-500 rounded-full" />
+                                {paragraph.replace('###', '').trim()}
+                              </h4>
+                            );
+                          } else if (paragraph.trim().startsWith('**')) {
+                            return (
+                              <div key={idx} className="flex items-start gap-3 p-4 bg-cyan-500/5 border-l-4 border-cyan-500 rounded-r-lg">
+                                <Award className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-1" />
+                                <p className="text-slate-300 font-semibold">{paragraph.replace(/\*\*/g, '')}</p>
+                              </div>
+                            );
+                          } else if (paragraph.trim().startsWith('-')) {
+                            return (
+                              <div key={idx} className="flex items-start gap-3 ml-4">
+                                <div className="w-2 h-2 bg-cyan-400 rounded-full mt-2 flex-shrink-0" />
+                                <p className="text-slate-300">{paragraph.substring(1).trim()}</p>
+                              </div>
+                            );
+                          } else {
+                            return (
+                              <p key={idx} className="text-slate-300 leading-relaxed">
+                                {paragraph}
+                              </p>
+                            );
+                          }
+                        })}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-xl p-4">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2 bg-green-500/20 rounded-lg">
+                          <Check className="w-4 h-4 text-green-400" />
+                        </div>
+                        <span className="text-sm font-bold text-green-400">STRENGTHS</span>
+                      </div>
+                      <p className="text-xs text-slate-400">Comprehensive analysis of key advantages</p>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-xl p-4">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2 bg-amber-500/20 rounded-lg">
+                          <TrendingUp className="w-4 h-4 text-amber-400" />
+                        </div>
+                        <span className="text-sm font-bold text-amber-400">INSIGHTS</span>
+                      </div>
+                      <p className="text-xs text-slate-400">Data-driven comparison metrics</p>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20 rounded-xl p-4">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2 bg-blue-500/20 rounded-lg">
+                          <Target className="w-4 h-4 text-blue-400" />
+                        </div>
+                        <span className="text-sm font-bold text-blue-400">RECOMMENDATIONS</span>
+                      </div>
+                      <p className="text-xs text-slate-400">AI-powered suggestions</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 p-4 bg-cyan-500/5 border border-cyan-500/20 rounded-xl">
+                    <div className="flex items-start gap-3">
+                      <MessageSquare className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-sm text-cyan-400 font-semibold mb-1">Want more specific insights?</p>
+                        <p className="text-xs text-slate-400">Ask a specific question above and regenerate the analysis for targeted comparisons.</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}

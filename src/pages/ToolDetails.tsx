@@ -19,6 +19,8 @@ import { addFavorite, removeFavorite, isFavorite } from '../lib/favorites';
 import { trackToolInteraction } from '../lib/recommendations';
 import { trackEvent } from '../lib/analytics';
 import { trackToolView, trackToolClick, trackToolFavorite } from '../lib/ranking-jobs';
+import { getToolReviews, ToolReview } from '../lib/reviews';
+import ReviewForm from '../components/ReviewForm';
 
 export default function ToolDetails() {
   const { slug } = useParams<{ slug: string }>();
@@ -28,6 +30,8 @@ export default function ToolDetails() {
   const [isFavorited, setIsFavorited] = useState(false);
   const [favoriteLoading, setFavoriteLoading] = useState(false);
   const [favoritesCount, setFavoritesCount] = useState(0);
+  const [reviews, setReviews] = useState<ToolReview[]>([]);
+  const [showReviewForm, setShowReviewForm] = useState(false);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -42,8 +46,15 @@ export default function ToolDetails() {
     }
     if (tool) {
       loadFavoritesCount();
+      loadReviews();
     }
   }, [user, tool]);
+
+  const loadReviews = async () => {
+    if (!tool) return;
+    const toolReviews = await getToolReviews(tool.id);
+    setReviews(toolReviews);
+  };
 
   const checkFavoriteStatus = async () => {
     if (!user || !tool) return;
@@ -391,6 +402,142 @@ export default function ToolDetails() {
               </div>
             </div>
           </div>
+        </div>
+
+        <div className="mt-12 bg-slate-800/50 backdrop-blur-sm rounded-3xl shadow-2xl border border-slate-700 p-8 md:p-12">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-3xl font-bold text-white mb-2">User Reviews</h2>
+              <p className="text-slate-400">
+                {reviews.length > 0
+                  ? `${reviews.length} ${reviews.length === 1 ? 'review' : 'reviews'}`
+                  : 'Be the first to review this tool'}
+              </p>
+            </div>
+            {user && !showReviewForm && (
+              <button
+                onClick={() => setShowReviewForm(true)}
+                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg font-semibold"
+              >
+                <Star className="w-5 h-5" />
+                Write a Review
+              </button>
+            )}
+          </div>
+
+          {showReviewForm && (
+            <div className="mb-8">
+              <ReviewForm
+                toolId={tool.id}
+                toolName={tool.name}
+                onSuccess={() => {
+                  setShowReviewForm(false);
+                  loadReviews();
+                }}
+                onCancel={() => setShowReviewForm(false)}
+              />
+            </div>
+          )}
+
+          {reviews.length > 0 ? (
+            <div className="space-y-6">
+              {reviews.map((review) => (
+                <div
+                  key={review.id}
+                  className="bg-slate-900/50 border border-slate-700 rounded-2xl p-6 hover:border-slate-600 transition-all"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-full flex items-center justify-center font-bold text-white">
+                        {review.user_name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <h4 className="text-white font-bold">{review.user_name}</h4>
+                        <div className="flex items-center gap-2 mt-1">
+                          <div className="flex">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`w-4 h-4 ${
+                                  i < review.rating
+                                    ? 'text-yellow-400 fill-yellow-400'
+                                    : 'text-slate-600'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <span className="text-xs text-slate-500">
+                            {new Date(review.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <h5 className="text-white font-semibold text-lg mb-2">{review.title}</h5>
+                  <p className="text-slate-300 leading-relaxed mb-4">{review.review_text}</p>
+
+                  {(review.pros && review.pros.length > 0) || (review.cons && review.cons.length > 0) ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-slate-700">
+                      {review.pros && review.pros.length > 0 && (
+                        <div>
+                          <h6 className="text-green-400 font-semibold mb-2 flex items-center gap-2">
+                            <CheckCircle2 className="w-4 h-4" />
+                            Pros
+                          </h6>
+                          <ul className="space-y-1">
+                            {review.pros.map((pro, idx) => (
+                              <li key={idx} className="text-sm text-slate-400 flex items-start gap-2">
+                                <span className="text-green-400">•</span>
+                                {pro}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {review.cons && review.cons.length > 0 && (
+                        <div>
+                          <h6 className="text-red-400 font-semibold mb-2 flex items-center gap-2">
+                            <Info className="w-4 h-4" />
+                            Cons
+                          </h6>
+                          <ul className="space-y-1">
+                            {review.cons.map((con, idx) => (
+                              <li key={idx} className="text-sm text-slate-400 flex items-start gap-2">
+                                <span className="text-red-400">•</span>
+                                {con}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          ) : !showReviewForm && (
+            <div className="text-center py-12 bg-slate-900/50 border border-slate-700 rounded-2xl">
+              <Star className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+              <p className="text-slate-400 text-lg mb-4">No reviews yet</p>
+              {user ? (
+                <button
+                  onClick={() => setShowReviewForm(true)}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg font-semibold"
+                >
+                  <Star className="w-5 h-5" />
+                  Be the First to Review
+                </button>
+              ) : (
+                <p className="text-slate-500">
+                  <Link to="/login" className="text-cyan-400 hover:text-cyan-300">
+                    Sign in
+                  </Link>
+                  {' '}to write a review
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         {relatedTools.length > 0 && (
