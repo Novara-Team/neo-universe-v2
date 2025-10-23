@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Trash2, Edit2, X, Save, Star, MessageSquare, User, Calendar, ThumbsUp, AlertCircle } from 'lucide-react';
 import { supabase, ToolReview } from '../../lib/supabase';
-import AdminLayout from '../../components/AdminLayout';
 
 type ReviewWithTool = ToolReview & {
   tool?: { name: string; slug: string };
@@ -149,7 +148,6 @@ export default function ManageReviews() {
   };
 
   return (
-    <AdminLayout>
       <div className="space-y-6">
         <div>
           <div className="flex items-center space-x-3 mb-3">
@@ -525,6 +523,5 @@ export default function ManageReviews() {
           </div>
         )}
       </div>
-    </AdminLayout>
   );
 }

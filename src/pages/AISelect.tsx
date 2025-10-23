@@ -43,7 +43,7 @@ What kind of AI tools are you looking for today?`,
   }, [messages]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

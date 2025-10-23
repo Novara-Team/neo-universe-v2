@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { BarChart3, Edit2, Trash2, Save, X, Plus, CheckCircle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import AdminLayout from '../../components/AdminLayout';
 
 interface Benchmark {
   id: string;
@@ -213,17 +212,15 @@ export default function ManageBenchmarks() {
 
   if (loading) {
     return (
-      <AdminLayout>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500"></div>
         </div>
-      </AdminLayout>
     );
   }
 
   return (
-    <AdminLayout>
-      <div className="mb-6 flex items-center justify-between">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-white flex items-center space-x-3">
             <BarChart3 className="w-8 h-8 text-cyan-400" />
@@ -500,6 +497,6 @@ export default function ManageBenchmarks() {
           </div>
         </div>
       )}
-    </AdminLayout>
+    </div>
   );
 }

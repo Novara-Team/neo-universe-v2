@@ -1,5 +1,15 @@
 import { supabase } from './supabase';
 
+function cleanMarkdownFormatting(text: string): string {
+  return text
+    .replace(/\*\*/g, '')
+    .replace(/\* /g, '• ')
+    .replace(/^- /gm, '• ')
+    .replace(/^#+\s/gm, '')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/`([^`]+)`/g, '$1');
+}
+
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
@@ -51,7 +61,8 @@ export async function chatWithAIAssistant(
     }
 
     const data = await response.json();
-    return data.response;
+    const cleanResponse = cleanMarkdownFormatting(data.response);
+    return cleanResponse;
   } catch (error) {
     console.error('Error in AI assistant:', error);
     return 'I apologize, but I encountered an error. Please try rephrasing your question.';

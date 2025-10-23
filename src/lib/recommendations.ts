@@ -72,32 +72,167 @@ export async function trackToolInteraction(
 
 export async function generateRecommendations(userId: string) {
   try {
-    const interactions = await getUserInteractions(userId);
+    const [favorites, collections, analytics] = await Promise.all([
+      getUserFavorites(userId),
+      getUserCollections(userId),
+      getUserAnalytics(userId)
+    ]);
 
-    if (interactions.length === 0) {
+    if (favorites.length === 0 && collections.length === 0 && !analytics) {
       await createInitialRecommendations(userId);
       return true;
     }
 
-    await supabase.rpc('calculate_emerging_tools').catch(err => {
-      console.log('Emerging tools calculation skipped:', err);
-    });
-
-    const { error } = await supabase.rpc('generate_enhanced_recommendations', {
-      p_user_id: userId,
-    });
-
-    if (error) {
-      console.error('Error generating recommendations:', error);
-      await createInitialRecommendations(userId);
-      return false;
-    }
-
+    await createPersonalizedRecommendations(userId, favorites, collections, analytics);
     return true;
   } catch (error) {
     console.error('Error generating recommendations:', error);
     await createInitialRecommendations(userId);
     return false;
+  }
+}
+
+async function getUserFavorites(userId: string) {
+  try {
+    const { data } = await supabase
+      .from('user_favorites')
+      .select('tool_id, ai_tools(tags, category_id)')
+      .eq('user_id', userId);
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching favorites:', error);
+    return [];
+  }
+}
+
+async function getUserCollections(userId: string) {
+  try {
+    const { data } = await supabase
+      .from('tool_collections')
+      .select(`
+        id,
+        tool_collection_items(
+          tool_id,
+          ai_tools(tags, category_id)
+        )
+      `)
+      .eq('user_id', userId);
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching collections:', error);
+    return [];
+  }
+}
+
+async function getUserAnalytics(userId: string) {
+  try {
+    const { data } = await supabase
+      .from('user_analytics')
+      .select('*')
+      .eq('user_id', userId)
+      .order('last_visit', { ascending: false })
+      .limit(20);
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching analytics:', error);
+    return null;
+  }
+}
+
+async function createPersonalizedRecommendations(
+  userId: string,
+  favorites: any[],
+  collections: any[],
+  analytics: any
+) {
+  try {
+    const favoriteTags = new Set<string>();
+    const favoriteCategories = new Set<string>();
+    const viewedToolIds = new Set<string>();
+
+    favorites.forEach(fav => {
+      if (fav.ai_tools) {
+        fav.ai_tools.tags?.forEach((tag: string) => favoriteTags.add(tag));
+        if (fav.ai_tools.category_id) favoriteCategories.add(fav.ai_tools.category_id);
+      }
+    });
+
+    collections.forEach(col => {
+      col.tool_collection_items?.forEach((item: any) => {
+        if (item.ai_tools) {
+          item.ai_tools.tags?.forEach((tag: string) => favoriteTags.add(tag));
+          if (item.ai_tools.category_id) favoriteCategories.add(item.ai_tools.category_id);
+        }
+      });
+    });
+
+    if (analytics && Array.isArray(analytics)) {
+      analytics.forEach(a => {
+        if (a.tool_id) viewedToolIds.add(a.tool_id);
+      });
+    }
+
+    let query = supabase
+      .from('ai_tools')
+      .select('id, name, rating, views, tags, category_id')
+      .eq('status', 'Published')
+      .not('id', 'in', `(${Array.from(viewedToolIds).join(',') || 'null'})`);
+
+    const { data: tools } = await query.limit(100);
+
+    if (!tools || tools.length === 0) {
+      await createInitialRecommendations(userId);
+      return;
+    }
+
+    const recommendations = tools.map(tool => {
+      let score = tool.rating * 10;
+      let reason = [];
+
+      const matchingTags = tool.tags?.filter((tag: string) => favoriteTags.has(tag)).length || 0;
+      if (matchingTags > 0) {
+        score += matchingTags * 15;
+        reason.push('matches your interests');
+      }
+
+      if (favoriteCategories.has(tool.category_id)) {
+        score += 20;
+        reason.push('similar to your favorites');
+      }
+
+      if (tool.rating >= 4.5) {
+        score += 10;
+        reason.push('highly rated');
+      }
+
+      if (tool.views > 1000) {
+        score += 5;
+        reason.push('popular choice');
+      }
+
+      return {
+        user_id: userId,
+        tool_id: tool.id,
+        score: Math.min(score, 100),
+        reason: reason.length > 0 ? reason.join(', ') : 'recommended for you',
+        recommendation_type: 'personalized',
+        context_score: matchingTags * 5,
+        trend_score: Math.log10(tool.views + 1)
+      };
+    }).sort((a, b) => b.score - a.score).slice(0, 20);
+
+    await supabase
+      .from('tool_recommendations')
+      .delete()
+      .eq('user_id', userId);
+
+    if (recommendations.length > 0) {
+      await supabase
+        .from('tool_recommendations')
+        .insert(recommendations);
+    }
+  } catch (error) {
+    console.error('Error creating personalized recommendations:', error);
   }
 }
 
