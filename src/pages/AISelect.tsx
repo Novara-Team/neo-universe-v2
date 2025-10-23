@@ -193,9 +193,9 @@ What kind of AI tools are you looking for today?`,
           </div>
 
           {messages.length <= 1 && (
-            <div className="px-6 pb-4">
-              <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-4">
-                <p className="text-slate-400 text-sm mb-3 font-medium">Quick prompts to get started:</p>
+            <div className="px-3 sm:px-6 pb-4">
+              <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-3 sm:p-4">
+                <p className="text-slate-400 text-sm mb-3 font-medium hidden md:block">Quick prompts to get started:</p>
                 <div className="flex flex-wrap gap-2">
                   {quickPrompts.map((prompt, index) => (
                     <button

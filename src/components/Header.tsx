@@ -1,16 +1,52 @@
 import { Link } from 'react-router-dom';
 import { Sparkles, User, LogOut, Crown, Zap, Settings, Heart, Folder, Lightbulb, BarChart3, Menu, X, MessageSquare, Gift, Bot } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import NotificationBell from './NotificationBell';
 
 export default function Header() {
   const { user, profile, signOut } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerWidth >= 768) {
+        setScrolled(window.scrollY > 50);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
+    handleScroll();
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, []);
 
   const getPlanBadge = () => {
     if (!profile) return null;
+
+    if ((profile as any).custom_badge === 'owner') {
+      return (
+        <span className="ml-2 px-2 py-0.5 bg-gradient-to-r from-orange-500 via-red-500 to-orange-500 text-white text-xs font-bold rounded-full flex items-center gap-1 shadow-lg">
+          <Crown className="w-3 h-3" />
+          OWNER
+        </span>
+      );
+    }
+
+    if ((profile as any).custom_badge === 'team') {
+      return (
+        <span className="ml-2 px-2 py-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs font-bold rounded-full flex items-center gap-1 shadow-lg">
+          <User className="w-3 h-3" />
+          TEAM
+        </span>
+      );
+    }
 
     if (profile.subscription_plan === 'pro') {
       return (
@@ -34,9 +70,17 @@ export default function Header() {
   };
 
   return (
-    <header className="fixed top-0 w-full bg-slate-900/95 backdrop-blur-sm border-b border-slate-800 z-50">
+    <header
+      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+        scrolled
+          ? 'bg-slate-900/98 backdrop-blur-xl shadow-xl shadow-slate-900/50 border-b border-slate-700/50'
+          : 'bg-slate-900/95 backdrop-blur-sm border-b border-slate-800'
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className={`flex items-center justify-between transition-all duration-300 ${
+          scrolled ? 'h-14 md:h-16' : 'h-16 md:h-20'
+        }`}>
           <div className="flex items-center space-x-4">
             <button
               onClick={() => setShowMobileMenu(!showMobileMenu)}
@@ -44,42 +88,56 @@ export default function Header() {
             >
               {showMobileMenu ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
-            <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-            <Sparkles className="w-8 h-8 text-cyan-400" />
-              <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-all">
+              <Sparkles className={`text-cyan-400 transition-all duration-300 ${
+                scrolled ? 'w-6 h-6 md:w-7 md:h-7' : 'w-8 h-8 md:w-9 md:h-9'
+              }`} />
+              <span className={`font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent transition-all duration-300 ${
+                scrolled ? 'text-lg md:text-xl' : 'text-xl md:text-2xl'
+              }`}>
                 AI Universe
               </span>
             </Link>
           </div>
 
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="text-slate-300 hover:text-white transition-colors">
-              Home
+          <nav className={`hidden md:flex items-center transition-all duration-300 ${
+            scrolled ? 'space-x-6' : 'space-x-8'
+          }`}>
+            <Link to="/" className="text-slate-300 hover:text-white transition-all relative group">
+              <span className={`transition-all duration-300 ${scrolled ? 'text-sm' : 'text-base'}`}>Home</span>
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 group-hover:w-full transition-all duration-300"></span>
             </Link>
-            <Link to="/explore" className="text-slate-300 hover:text-white transition-colors">
-              Explore
+            <Link to="/explore" className="text-slate-300 hover:text-white transition-all relative group">
+              <span className={`transition-all duration-300 ${scrolled ? 'text-sm' : 'text-base'}`}>Explore</span>
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 group-hover:w-full transition-all duration-300"></span>
             </Link>
-            <Link to="/top-tools" className="text-slate-300 hover:text-white transition-colors">
-              Top Tools
+            <Link to="/top-tools" className="text-slate-300 hover:text-white transition-all relative group">
+              <span className={`transition-all duration-300 ${scrolled ? 'text-sm' : 'text-base'}`}>Top Tools</span>
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 group-hover:w-full transition-all duration-300"></span>
             </Link>
-            <Link to="/compare" className="text-slate-300 hover:text-white transition-colors">
-              Compare
+            <Link to="/compare" className="text-slate-300 hover:text-white transition-all relative group">
+              <span className={`transition-all duration-300 ${scrolled ? 'text-sm' : 'text-base'}`}>Compare</span>
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 group-hover:w-full transition-all duration-300"></span>
             </Link>
             {(profile?.subscription_plan === 'plus' || profile?.subscription_plan === 'pro') && (
-              <Link to="/news" className="text-slate-300 hover:text-white transition-colors">
-                News
+              <Link to="/news" className="text-slate-300 hover:text-white transition-all relative group">
+                <span className={`transition-all duration-300 ${scrolled ? 'text-sm' : 'text-base'}`}>News</span>
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 group-hover:w-full transition-all duration-300"></span>
               </Link>
             )}
-            <Link to="/submit" className="text-slate-300 hover:text-white transition-colors">
-              Submit Tool
+            <Link to="/submit" className="text-slate-300 hover:text-white transition-all relative group">
+              <span className={`transition-all duration-300 ${scrolled ? 'text-sm' : 'text-base'}`}>Submit Tool</span>
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 group-hover:w-full transition-all duration-300"></span>
             </Link>
             {!(profile?.subscription_plan === 'plus' || profile?.subscription_plan === 'pro') && (
-              <Link to="/pricing" className="text-slate-300 hover:text-white transition-colors">
-                Pricing
+              <Link to="/pricing" className="text-slate-300 hover:text-white transition-all relative group">
+                <span className={`transition-all duration-300 ${scrolled ? 'text-sm' : 'text-base'}`}>Pricing</span>
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 group-hover:w-full transition-all duration-300"></span>
               </Link>
             )}
-            <Link to="/about" className="text-slate-300 hover:text-white transition-colors">
-              About
+            <Link to="/about" className="text-slate-300 hover:text-white transition-all relative group">
+              <span className={`transition-all duration-300 ${scrolled ? 'text-sm' : 'text-base'}`}>About</span>
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 group-hover:w-full transition-all duration-300"></span>
             </Link>
           </nav>
 
@@ -142,7 +200,7 @@ export default function Header() {
                             className="flex items-center gap-3 px-4 py-2 text-slate-300 hover:bg-slate-700 rounded-lg transition-colors"
                           >
                             <Folder className="w-4 h-4" />
-                            My Collections
+                            Collections
                           </Link>
                         )}
 

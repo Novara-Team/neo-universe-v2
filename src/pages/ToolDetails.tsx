@@ -11,7 +11,10 @@ import {
   Users,
   CheckCircle2,
   Info,
-  Share2
+  Share2,
+  Crown,
+  Zap,
+  User as UserIcon
 } from 'lucide-react';
 import { supabase, AITool } from '../lib/supabase';
 import { useAuth } from '../lib/useAuth';
@@ -462,7 +465,33 @@ export default function ToolDetails() {
                         {review.user_name.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <h4 className="text-white font-bold">{review.user_name}</h4>
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-white font-bold">{review.user_name}</h4>
+                          {review.user_badge === 'owner' && (
+                            <span className="px-2 py-0.5 bg-gradient-to-r from-orange-500 via-red-500 to-orange-500 text-white text-xs font-bold rounded-full flex items-center gap-1 shadow-lg">
+                              <Crown className="w-3 h-3" />
+                              OWNER
+                            </span>
+                          )}
+                          {review.user_badge === 'team' && (
+                            <span className="px-2 py-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs font-bold rounded-full flex items-center gap-1 shadow-lg">
+                              <UserIcon className="w-3 h-3" />
+                              TEAM
+                            </span>
+                          )}
+                          {!review.user_badge && review.subscription_plan === 'pro' && (
+                            <span className="px-2 py-0.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs font-bold rounded-full flex items-center gap-1">
+                              <Crown className="w-3 h-3" />
+                              PRO
+                            </span>
+                          )}
+                          {!review.user_badge && review.subscription_plan === 'plus' && (
+                            <span className="px-2 py-0.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs font-bold rounded-full flex items-center gap-1">
+                              <Zap className="w-3 h-3" />
+                              PLUS
+                            </span>
+                          )}
+                        </div>
                         <div className="flex items-center gap-2 mt-1">
                           <div className="flex">
                             {[...Array(5)].map((_, i) => (

@@ -17,6 +17,8 @@ export interface ToolReview {
   approved: boolean;
   created_at: string;
   updated_at?: string;
+  user_badge?: string | null;
+  subscription_plan?: string;
 }
 
 export interface HelpfulVote {
@@ -29,7 +31,13 @@ export interface HelpfulVote {
 export async function getToolReviews(toolId: string): Promise<ToolReview[]> {
   const { data, error } = await supabase
     .from('tool_reviews')
-    .select('*')
+    .select(`
+      *,
+      user_profiles!tool_reviews_user_id_fkey (
+        custom_badge,
+        subscription_plan
+      )
+    `)
     .eq('tool_id', toolId)
     .eq('approved', true)
     .order('helpful_count', { ascending: false })
@@ -40,7 +48,12 @@ export async function getToolReviews(toolId: string): Promise<ToolReview[]> {
     return [];
   }
 
-  return data || [];
+  return (data || []).map((review: any) => ({
+    ...review,
+    user_badge: review.user_profiles?.custom_badge,
+    subscription_plan: review.user_profiles?.subscription_plan,
+    user_profiles: undefined
+  }));
 }
 
 export async function createReview(review: {
