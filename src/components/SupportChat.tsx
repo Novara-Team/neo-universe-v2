@@ -299,7 +299,7 @@ export default function SupportChat() {
             setIsOpen(true);
             setUnreadCount(0);
           }}
-          className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-br from-cyan-500 via-blue-500 to-blue-600 hover:from-cyan-600 hover:via-blue-600 hover:to-blue-700 text-white rounded-2xl shadow-2xl flex items-center justify-center transition-all hover:scale-110 z-50 group"
+          className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-br from-cyan-500 via-blue-500 to-blue-600 hover:from-cyan-600 hover:via-blue-600 hover:to-blue-700 text-white rounded-2xl shadow-2xl flex items-center justify-center transition-all hover:scale-110 z-50 group animate-in fade-in slide-in-from-bottom-5 duration-500"
           aria-label="Open support chat"
         >
           <MessageCircle className="w-7 h-7 group-hover:rotate-12 transition-transform" />
@@ -312,7 +312,7 @@ export default function SupportChat() {
       )}
 
       {isOpen && (
-        <div className={`fixed ${isMinimized ? 'bottom-6 right-6' : 'bottom-0 right-0 sm:bottom-6 sm:right-6'} ${isMinimized ? 'w-80' : 'w-full h-full sm:w-[440px] sm:h-[min(680px,80vh)] lg:h-[min(700px,85vh)]'} bg-white sm:rounded-3xl shadow-2xl flex flex-col z-50 border-0 sm:border border-slate-200 transition-all duration-300 overflow-hidden`}>
+        <div className={`fixed ${isMinimized ? 'bottom-6 right-6' : 'bottom-0 right-0 sm:bottom-6 sm:right-6'} ${isMinimized ? 'w-80' : 'w-full h-full sm:w-[440px] sm:h-[min(680px,80vh)] lg:h-[min(700px,85vh)]'} bg-white sm:rounded-3xl shadow-2xl flex flex-col z-50 border-0 sm:border border-slate-200 transition-all duration-500 overflow-hidden ${isMinimized ? 'animate-in slide-in-from-bottom-10 fade-in duration-300' : 'animate-in slide-in-from-bottom-20 fade-in zoom-in-95 duration-500'}`}>
           <div className="bg-gradient-to-br from-cyan-500 via-blue-500 to-blue-600 text-white px-6 py-5 sm:rounded-t-3xl flex items-center justify-between shadow-xl relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
             <div className="flex items-center gap-4 min-w-0 relative z-10">
@@ -332,17 +332,17 @@ export default function SupportChat() {
             <div className="flex items-center gap-2 flex-shrink-0 relative z-10">
               <button
                 onClick={() => setIsMinimized(!isMinimized)}
-                className="hover:bg-white/20 p-2.5 rounded-xl transition-all hover:scale-110 backdrop-blur-sm hidden sm:block"
+                className="hover:bg-white/20 p-2.5 rounded-xl transition-all hover:scale-110 hover:rotate-12 backdrop-blur-sm hidden sm:block"
                 aria-label={isMinimized ? "Maximize chat" : "Minimize chat"}
               >
-                {isMinimized ? <Maximize2 className="w-5 h-5" /> : <Minimize2 className="w-5 h-5" />}
+                {isMinimized ? <Maximize2 className="w-5 h-5 transition-transform" /> : <Minimize2 className="w-5 h-5 transition-transform" />}
               </button>
               <button
                 onClick={() => setIsOpen(false)}
-                className="hover:bg-white/20 p-2.5 rounded-xl transition-all hover:scale-110 backdrop-blur-sm"
+                className="hover:bg-white/20 p-2.5 rounded-xl transition-all hover:scale-110 hover:rotate-90 backdrop-blur-sm"
                 aria-label="Close chat"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5 transition-transform duration-300" />
               </button>
             </div>
           </div>

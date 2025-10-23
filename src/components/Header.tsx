@@ -84,9 +84,9 @@ export default function Header() {
           <div className="flex items-center space-x-4">
             <button
               onClick={() => setShowMobileMenu(!showMobileMenu)}
-              className="md:hidden text-slate-300 hover:text-white transition-colors"
+              className="md:hidden text-slate-300 hover:text-white transition-all hover:scale-110"
             >
-              {showMobileMenu ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {showMobileMenu ? <X className="w-6 h-6 transition-transform rotate-90" /> : <Menu className="w-6 h-6 transition-transform" />}
             </button>
             <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-all">
               <Sparkles className={`text-cyan-400 transition-all duration-300 ${
@@ -156,7 +156,7 @@ export default function Header() {
                 <div className="relative hidden sm:block">
                   <button
                     onClick={() => setShowUserMenu(!showUserMenu)}
-                    className="flex items-center space-x-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
+                    className="flex items-center space-x-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg transition-all hover:scale-105"
                   >
                     <User className="w-5 h-5 text-cyan-400" />
                     <span className="text-white text-sm flex items-center">
@@ -168,10 +168,10 @@ export default function Header() {
                 {showUserMenu && (
                   <>
                     <div
-                      className="fixed inset-0 z-10"
+                      className="fixed inset-0 z-10 animate-in fade-in duration-200"
                       onClick={() => setShowUserMenu(false)}
                     />
-                    <div className="absolute right-0 mt-2 w-64 bg-slate-800 rounded-lg shadow-xl border border-slate-700 overflow-hidden z-20">
+                    <div className="absolute right-0 mt-2 w-64 bg-slate-800 rounded-lg shadow-xl border border-slate-700 overflow-hidden z-20 animate-in slide-in-from-top-2 fade-in zoom-in-95 duration-200">
                       <div className="p-4 border-b border-slate-700">
                         <p className="text-white font-semibold">{profile?.full_name || 'User'}</p>
                         <p className="text-slate-400 text-sm">{user.email}</p>
@@ -325,11 +325,11 @@ export default function Header() {
       {showMobileMenu && (
         <>
           <div
-            className="fixed inset-0 bg-black/70 backdrop-blur-md z-40 md:hidden transition-opacity"
+            className="fixed inset-0 bg-black/70 backdrop-blur-md z-40 md:hidden animate-in fade-in duration-300"
             onClick={() => setShowMobileMenu(false)}
           />
           <div className="md:hidden fixed top-0 left-0 right-0 bottom-0 z-50 flex items-start justify-center pt-20 px-4 pointer-events-none">
-            <div className="w-full max-w-md bg-slate-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-700/50 overflow-hidden pointer-events-auto animate-slide-down">
+            <div className="w-full max-w-md bg-slate-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-700/50 overflow-hidden pointer-events-auto animate-in slide-in-from-top-10 fade-in zoom-in-95 duration-300">
               {user && (
                 <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border-b border-slate-700/50 px-6 py-4">
                   <div className="flex items-center gap-3">

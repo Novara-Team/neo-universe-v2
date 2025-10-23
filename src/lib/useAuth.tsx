@@ -111,11 +111,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       (async () => {
         setUser(session?.user ?? null);
         if (session?.user) {
           await loadProfile(session.user.id);
+
+          if (event === 'SIGNED_IN') {
+            const referralCode = localStorage.getItem('referral_code');
+            if (referralCode) {
+              const { trackReferral } = await import('./referrals');
+              await trackReferral(referralCode, session.user.id);
+              localStorage.removeItem('referral_code');
+            }
+          }
         } else {
           setProfile(null);
           setLimits(null);

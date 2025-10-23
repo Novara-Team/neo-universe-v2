@@ -19,6 +19,7 @@ export default function Register() {
     const ref = searchParams.get('ref');
     if (ref) {
       setReferralCode(ref);
+      localStorage.setItem('referral_code', ref);
     }
   }, [searchParams]);
 
@@ -63,14 +64,14 @@ export default function Register() {
     setError('');
 
     try {
-      const redirectUrl = referralCode
-        ? `${window.location.origin}/?ref=${referralCode}`
-        : `${window.location.origin}/`;
+      if (referralCode) {
+        localStorage.setItem('referral_code', referralCode);
+      }
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: redirectUrl,
+          redirectTo: window.location.origin,
         },
       });
 

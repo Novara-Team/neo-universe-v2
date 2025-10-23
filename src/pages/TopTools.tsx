@@ -213,9 +213,17 @@ export default function TopTools() {
         )}
 
         {loading ? (
-          <div className="text-center py-12 sm:py-20">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-4 border-cyan-500/20 border-t-cyan-500"></div>
-            <p className="text-slate-400 mt-4 sm:mt-6 text-base sm:text-lg px-4">Loading {currentFilter?.label.toLowerCase()}...</p>
+          <div className="text-center py-12 sm:py-20 animate-in fade-in duration-500">
+            <div className="relative inline-flex items-center justify-center">
+              <div className="absolute animate-ping rounded-full h-16 w-16 sm:h-20 sm:w-20 bg-cyan-500/30"></div>
+              <div className="relative animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-4 border-cyan-500/20 border-t-cyan-500 shadow-lg shadow-cyan-500/20"></div>
+            </div>
+            <p className="text-slate-400 mt-4 sm:mt-6 text-base sm:text-lg px-4 font-medium">Loading {currentFilter?.label.toLowerCase()}...</p>
+            <div className="flex justify-center mt-3 space-x-2">
+              <div className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce" style={{animationDelay: '0s'}}></div>
+              <div className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+              <div className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
+            </div>
           </div>
         ) : tools.length === 0 ? (
           <div className="text-center py-12 sm:py-20 px-4">

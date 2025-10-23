@@ -9,10 +9,11 @@ import { supabase } from '../lib/supabase';
 export default function Collections() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'my-collections' | 'trending' | 'featured' | 'categories'>('my-collections');
+  const [activeTab, setActiveTab] = useState<'my-collections' | 'trending' | 'featured' | 'categories' | 'leaderboard'>('my-collections');
   const [collections, setCollections] = useState<Collection[]>([]);
   const [trendingCollections, setTrendingCollections] = useState<Collection[]>([]);
   const [featuredCollections, setFeaturedCollections] = useState<Collection[]>([]);
+  const [leaderboardCollections, setLeaderboardCollections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newCollectionName, setNewCollectionName] = useState('');
@@ -28,6 +29,7 @@ export default function Collections() {
       loadCollections();
       loadTrendingCollections();
       loadFeaturedCollections();
+      loadLeaderboard();
     } else if (profile && profile.subscription_plan === 'free') {
       navigate('/pricing');
     }
@@ -51,9 +53,8 @@ export default function Collections() {
         .from('tool_collections')
         .select('*')
         .eq('is_public', true)
-        .eq('is_trending', true)
         .order('view_count', { ascending: false })
-        .limit(6);
+        .limit(12);
       setTrendingCollections(data || []);
     } catch (error) {
       console.error('Error loading trending collections:', error);
@@ -66,12 +67,46 @@ export default function Collections() {
         .from('tool_collections')
         .select('*')
         .eq('is_public', true)
-        .eq('is_featured', true)
         .order('created_at', { ascending: false })
-        .limit(6);
+        .limit(12);
       setFeaturedCollections(data || []);
     } catch (error) {
       console.error('Error loading featured collections:', error);
+    }
+  };
+
+  const loadLeaderboard = async () => {
+    try {
+      const { data } = await supabase
+        .from('tool_collections')
+        .select(`
+          *,
+          user:user_profiles!user_id(full_name, email)
+        `)
+        .eq('is_public', true)
+        .order('view_count', { ascending: false })
+        .limit(50);
+
+      if (data) {
+        const rankedCollections = data.map((collection, index) => {
+          const viewScore = collection.view_count * 10;
+          const toolScore = (collection.tool_count || 0) * 5;
+          const ageInDays = Math.floor((Date.now() - new Date(collection.created_at).getTime()) / (1000 * 60 * 60 * 24));
+          const freshnessPenalty = Math.max(0, ageInDays * 0.1);
+          const totalScore = viewScore + toolScore - freshnessPenalty;
+
+          return {
+            ...collection,
+            rank: index + 1,
+            score: Math.round(totalScore),
+            user_name: collection.user?.full_name || collection.user?.email?.split('@')[0] || 'Anonymous'
+          };
+        }).sort((a, b) => b.score - a.score).map((c, index) => ({ ...c, rank: index + 1 }));
+
+        setLeaderboardCollections(rankedCollections);
+      }
+    } catch (error) {
+      console.error('Error loading leaderboard:', error);
     }
   };
 
@@ -284,6 +319,17 @@ export default function Collections() {
                 <Grid className="w-4 h-4" />
                 Categories
               </button>
+              <button
+                onClick={() => setActiveTab('leaderboard')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-all ${
+                  activeTab === 'leaderboard'
+                    ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg'
+                    : 'bg-slate-800/50 text-slate-300 hover:text-white hover:bg-slate-800'
+                }`}
+              >
+                <BarChart3 className="w-4 h-4" />
+                Leaderboard
+              </button>
             </div>
 
             {activeTab === 'my-collections' && (
@@ -374,6 +420,62 @@ export default function Collections() {
               ))}
             </div>
           </div>
+        )}
+
+        {activeTab === 'leaderboard' && (
+          leaderboardCollections.length === 0 ? (
+            <div className="text-center py-16 bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl">
+              <BarChart3 className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+              <h2 className="text-xl font-semibold text-white mb-2">No collections yet</h2>
+              <p className="text-slate-400">Be the first to create a public collection!</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {leaderboardCollections.map((collection, index) => {
+                const getRankColor = () => {
+                  if (index === 0) return 'from-yellow-400 to-yellow-600';
+                  if (index === 1) return 'from-slate-300 to-slate-500';
+                  if (index === 2) return 'from-orange-400 to-orange-600';
+                  return 'from-slate-700 to-slate-800';
+                };
+
+                return (
+                  <div
+                    key={collection.id}
+                    className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-5 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/20 transition-all"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={`w-14 h-14 bg-gradient-to-br ${getRankColor()} rounded-xl flex items-center justify-center font-bold text-xl text-slate-900 shadow-lg flex-shrink-0`}>
+                        {collection.rank}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3 mb-2">
+                          <Link
+                            to={`/collections/${collection.slug}`}
+                            className="text-white font-semibold text-lg hover:text-cyan-400 transition-colors truncate"
+                          >
+                            {collection.name}
+                          </Link>
+                          <span className="px-2 py-1 bg-cyan-500/20 text-cyan-400 text-xs font-bold rounded-full whitespace-nowrap">
+                            {collection.score} pts
+                          </span>
+                        </div>
+                        <p className="text-slate-400 text-sm mb-2 line-clamp-1">{collection.description || 'No description'}</p>
+                        <div className="flex items-center gap-4 text-xs text-slate-500">
+                          <span className="flex items-center gap-1">
+                            <Crown className="w-3 h-3" />
+                            {collection.user_name}
+                          </span>
+                          <span>{collection.view_count} views</span>
+                          <span>{collection.tool_count || 0} tools</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )
         )}
       </div>
 

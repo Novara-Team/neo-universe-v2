@@ -161,9 +161,17 @@ export default function ToolDetails() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pt-24 flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-slate-700 border-t-cyan-400 mb-4"></div>
-          <p className="text-slate-300 font-medium">Loading tool details...</p>
+        <div className="text-center animate-in fade-in duration-500">
+          <div className="relative inline-flex items-center justify-center mb-4">
+            <div className="absolute animate-ping rounded-full h-20 w-20 bg-cyan-500/30"></div>
+            <div className="relative animate-spin rounded-full h-16 w-16 border-4 border-cyan-500/20 border-t-cyan-500 shadow-lg shadow-cyan-500/20"></div>
+          </div>
+          <p className="text-slate-300 font-medium text-lg">Loading tool details...</p>
+          <div className="flex justify-center mt-4 space-x-2">
+            <div className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce" style={{animationDelay: '0s'}}></div>
+            <div className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+            <div className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
+          </div>
         </div>
       </div>
     );

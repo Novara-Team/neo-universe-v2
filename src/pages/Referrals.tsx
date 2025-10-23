@@ -9,6 +9,7 @@ import {
   getProgressPercentage,
   getNextMilestone,
   getReferredUsers,
+  claimReward,
   type ReferralData,
   type ReferralReward,
   type ReferralMilestone,
@@ -24,6 +25,7 @@ export default function Referrals() {
   const [referredUsers, setReferredUsers] = useState<ReferredUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [claimingReward, setClaimingReward] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -78,6 +80,21 @@ export default function Referrals() {
         handleCopyLink();
       }
     }
+  };
+
+  const handleClaimReward = async (rewardId: string) => {
+    setClaimingReward(rewardId);
+    const success = await claimReward(rewardId);
+
+    if (success) {
+      setRewards(rewards.map(r =>
+        r.id === rewardId ? { ...r, claimed: true, claimed_at: new Date().toISOString() } : r
+      ));
+    } else {
+      alert('Failed to claim reward. Please try again.');
+    }
+
+    setClaimingReward(null);
   };
 
   const nextMilestone = referralData ? getNextMilestone(referralData.total_referrals, milestones) : null;
@@ -318,9 +335,21 @@ export default function Referrals() {
                       <div className="flex-1">
                         <div className="flex items-start justify-between gap-2 mb-2">
                           <h4 className="font-bold text-white text-lg">{reward.reward_name}</h4>
-                          {reward.claimed && (
+                          {reward.claimed ? (
                             <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs font-semibold rounded-full whitespace-nowrap">
                               Claimed
+                            </span>
+                          ) : referralData && referralData.total_referrals >= reward.referrals_required ? (
+                            <button
+                              onClick={() => handleClaimReward(reward.id)}
+                              disabled={claimingReward === reward.id}
+                              className="px-3 py-1 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white text-xs font-semibold rounded-full whitespace-nowrap transition-all disabled:opacity-50"
+                            >
+                              {claimingReward === reward.id ? 'Claiming...' : 'Claim'}
+                            </button>
+                          ) : (
+                            <span className="px-3 py-1 bg-slate-700/50 text-slate-400 text-xs font-semibold rounded-full whitespace-nowrap">
+                              Locked
                             </span>
                           )}
                         </div>
