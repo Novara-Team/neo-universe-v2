@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Sparkles, User, LogOut, Crown, Zap, Settings, Heart, Folder, Lightbulb, BarChart3, Menu, X, MessageSquare, Gift, Bot } from 'lucide-react';
+import { Sparkles, User, LogOut, Crown, Zap, Settings, Heart, Folder, Lightbulb, BarChart3, Menu, X, MessageSquare, Gift, Bot, Baby, UserPlus, Award, ShieldCheck, Trophy } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
 import { useState, useEffect } from 'react';
 import NotificationBell from './NotificationBell';
@@ -44,6 +44,51 @@ export default function Header() {
         <span className="ml-2 px-2 py-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs font-bold rounded-full flex items-center gap-1 shadow-lg">
           <User className="w-3 h-3" />
           TEAM
+        </span>
+      );
+    }
+
+    if ((profile as any).custom_badge === 'noob') {
+      return (
+        <span className="ml-2 px-2 py-0.5 bg-gradient-to-r from-slate-500 to-slate-600 text-white text-xs font-bold rounded-full flex items-center gap-1 shadow-lg">
+          <Baby className="w-3 h-3" />
+          NOOB
+        </span>
+      );
+    }
+
+    if ((profile as any).custom_badge === 'friend') {
+      return (
+        <span className="ml-2 px-2 py-0.5 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs font-bold rounded-full flex items-center gap-1 shadow-lg">
+          <UserPlus className="w-3 h-3" />
+          FRIEND
+        </span>
+      );
+    }
+
+    if ((profile as any).custom_badge === 'contributor') {
+      return (
+        <span className="ml-2 px-2 py-0.5 bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white text-xs font-bold rounded-full flex items-center gap-1 shadow-lg">
+          <Award className="w-3 h-3" />
+          CONTRIBUTOR
+        </span>
+      );
+    }
+
+    if ((profile as any).custom_badge === 'expert') {
+      return (
+        <span className="ml-2 px-2 py-0.5 bg-gradient-to-r from-yellow-500 to-amber-500 text-white text-xs font-bold rounded-full flex items-center gap-1 shadow-lg">
+          <Trophy className="w-3 h-3" />
+          EXPERT
+        </span>
+      );
+    }
+
+    if ((profile as any).custom_badge === 'verified') {
+      return (
+        <span className="ml-2 px-2 py-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-bold rounded-full flex items-center gap-1 shadow-lg">
+          <ShieldCheck className="w-3 h-3" />
+          VERIFIED
         </span>
       );
     }

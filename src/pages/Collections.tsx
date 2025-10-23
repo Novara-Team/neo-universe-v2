@@ -49,29 +49,49 @@ export default function Collections() {
 
   const loadTrendingCollections = async () => {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('tool_collections')
-        .select('*')
+        .select(`
+          *,
+          user:user_profiles!user_id(full_name, email)
+        `)
         .eq('is_public', true)
         .order('view_count', { ascending: false })
         .limit(12);
-      setTrendingCollections(data || []);
+
+      if (error) {
+        console.error('Error loading trending collections:', error);
+        setTrendingCollections([]);
+      } else {
+        setTrendingCollections(data || []);
+      }
     } catch (error) {
       console.error('Error loading trending collections:', error);
+      setTrendingCollections([]);
     }
   };
 
   const loadFeaturedCollections = async () => {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('tool_collections')
-        .select('*')
+        .select(`
+          *,
+          user:user_profiles!user_id(full_name, email)
+        `)
         .eq('is_public', true)
         .order('created_at', { ascending: false })
         .limit(12);
-      setFeaturedCollections(data || []);
+
+      if (error) {
+        console.error('Error loading featured collections:', error);
+        setFeaturedCollections([]);
+      } else {
+        setFeaturedCollections(data || []);
+      }
     } catch (error) {
       console.error('Error loading featured collections:', error);
+      setFeaturedCollections([]);
     }
   };
 

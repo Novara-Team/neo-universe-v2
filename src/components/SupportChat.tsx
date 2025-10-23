@@ -312,7 +312,14 @@ export default function SupportChat() {
       )}
 
       {isOpen && (
-        <div className={`fixed ${isMinimized ? 'bottom-6 right-6' : 'bottom-0 right-0 sm:bottom-6 sm:right-6'} ${isMinimized ? 'w-80' : 'w-full h-full sm:w-[440px] sm:h-[min(680px,80vh)] lg:h-[min(700px,85vh)]'} bg-white sm:rounded-3xl shadow-2xl flex flex-col z-50 border-0 sm:border border-slate-200 transition-all duration-500 overflow-hidden ${isMinimized ? 'animate-in slide-in-from-bottom-10 fade-in duration-300' : 'animate-in slide-in-from-bottom-20 fade-in zoom-in-95 duration-500'}`}>
+        <div
+          className={`fixed ${isMinimized ? 'bottom-6 right-6' : 'bottom-0 right-0 sm:bottom-6 sm:right-6'} ${isMinimized ? 'w-80' : 'w-full h-full sm:w-[440px] sm:h-[min(680px,80vh)] lg:h-[min(700px,85vh)]'} bg-white sm:rounded-3xl shadow-2xl flex flex-col z-50 border-0 sm:border border-slate-200 overflow-hidden transition-all duration-700 ease-out ${isMinimized ? '' : ''}`}
+          style={{
+            animation: isMinimized
+              ? 'minimizeChat 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards'
+              : 'openChat 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards'
+          }}
+        >
           <div className="bg-gradient-to-br from-cyan-500 via-blue-500 to-blue-600 text-white px-6 py-5 sm:rounded-t-3xl flex items-center justify-between shadow-xl relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
             <div className="flex items-center gap-4 min-w-0 relative z-10">
