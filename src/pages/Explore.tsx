@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Search, Filter, Sparkles, Star, TrendingUp, Calendar, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, Filter, Sparkles, Star, TrendingUp, Calendar, X, ChevronDown, ChevronUp, MessageSquare, Send, Mic } from 'lucide-react';
 import { supabase, AITool, Category } from '../lib/supabase';
 import Checkbox from '../components/Checkbox';
+import { performAISearch, SearchMessage } from '../lib/ai-search';
 
 export default function Explore() {
   const [searchParams] = useSearchParams();
@@ -19,6 +20,10 @@ export default function Explore() {
   const [loading, setLoading] = useState(true);
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+  const [aiMode, setAiMode] = useState(false);
+  const [conversationHistory, setConversationHistory] = useState<SearchMessage[]>([]);
+  const [aiResponse, setAiResponse] = useState<string>('');
+  const [aiSearching, setAiSearching] = useState(false);
 
   useEffect(() => {
     loadCategories();
@@ -119,9 +124,61 @@ export default function Explore() {
     );
   };
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    loadTools();
+
+    if (aiMode && searchQuery.trim()) {
+      setAiSearching(true);
+
+      const userMessage: SearchMessage = { role: 'user', content: searchQuery };
+      const updatedHistory = [...conversationHistory, userMessage];
+      setConversationHistory(updatedHistory);
+
+      const result = await performAISearch(searchQuery, updatedHistory);
+
+      const assistantMessage: SearchMessage = { role: 'assistant', content: result.response };
+      setConversationHistory([...updatedHistory, assistantMessage]);
+      setAiResponse(result.response);
+
+      if (result.results && result.results.length > 0) {
+        setTools(result.results);
+      }
+
+      if (result.suggestedFilters) {
+        if (result.suggestedFilters.category) {
+          const category = categories.find(c =>
+            c.name.toLowerCase().includes(result.suggestedFilters.category.toLowerCase())
+          );
+          if (category) setSelectedCategory(category.slug);
+        }
+        if (result.suggestedFilters.pricing) {
+          setSelectedPricing(result.suggestedFilters.pricing);
+        }
+      }
+
+      setAiSearching(false);
+      setLoading(false);
+    } else {
+      loadTools();
+    }
+  };
+
+  const handleVoiceSearch = () => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.continuous = false;
+
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setSearchQuery(transcript);
+      };
+
+      recognition.start();
+    } else {
+      alert('Voice search is not supported in your browser');
+    }
   };
 
   return (
@@ -132,18 +189,102 @@ export default function Explore() {
           <p className="text-slate-400">Discover and filter through our collection of AI tools</p>
         </div>
 
-        <form onSubmit={handleSearch} className="mb-8">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search for tools..."
-              className="w-full pl-12 pr-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-            />
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setAiMode(false)}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                  !aiMode
+                    ? 'bg-cyan-500 text-white shadow-lg shadow-cyan-500/50'
+                    : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                }`}
+              >
+                <Search className="w-4 h-4 inline mr-2" />
+                Standard Search
+              </button>
+              <button
+                onClick={() => setAiMode(true)}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                  aiMode
+                    ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/50'
+                    : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                }`}
+              >
+                <Sparkles className="w-4 h-4 inline mr-2" />
+                AI Search
+              </button>
+            </div>
           </div>
-        </form>
+
+          <form onSubmit={handleSearch}>
+            <div className="relative">
+              {aiMode ? (
+                <MessageSquare className="absolute left-4 top-1/2 transform -translate-y-1/2 text-cyan-400 w-5 h-5" />
+              ) : (
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+              )}
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={aiMode ? 'Ask me anything... e.g., "Show me free AI tools for image editing"' : 'Search for tools...'}
+                className={`w-full pl-12 pr-32 py-4 bg-slate-800/50 border rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 transition-all ${
+                  aiMode
+                    ? 'border-cyan-500/50 focus:ring-cyan-500 shadow-lg shadow-cyan-500/20'
+                    : 'border-slate-700 focus:ring-cyan-500'
+                }`}
+              />
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
+                {aiMode && (
+                  <button
+                    type="button"
+                    onClick={handleVoiceSearch}
+                    className="p-2 text-slate-400 hover:text-cyan-400 transition-colors"
+                    title="Voice search"
+                  >
+                    <Mic className="w-5 h-5" />
+                  </button>
+                )}
+                <button
+                  type="submit"
+                  disabled={aiSearching}
+                  className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all disabled:opacity-50 flex items-center space-x-2"
+                >
+                  {aiSearching ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Send className="w-4 h-4" />
+                  )}
+                  <span className="hidden sm:inline">{aiSearching ? 'Searching...' : 'Search'}</span>
+                </button>
+              </div>
+            </div>
+          </form>
+
+          {aiMode && conversationHistory.length > 0 && (
+            <div className="mt-4 bg-slate-800/50 backdrop-blur-sm border border-cyan-500/30 rounded-xl p-4 max-h-64 overflow-y-auto">
+              <div className="space-y-3">
+                {conversationHistory.slice(-4).map((msg, idx) => (
+                  <div
+                    key={idx}
+                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-[80%] px-4 py-2 rounded-lg ${
+                        msg.role === 'user'
+                          ? 'bg-cyan-500 text-white'
+                          : 'bg-slate-700 text-slate-200'
+                      }`}
+                    >
+                      <p className="text-sm">{msg.content}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           <div className="lg:col-span-1">

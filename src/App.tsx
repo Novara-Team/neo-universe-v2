@@ -39,6 +39,7 @@ import Documentation from './pages/Documentation';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfUse from './pages/TermsOfUse';
 import Referrals from './pages/Referrals';
+import AISelect from './pages/AISelect';
 import NotFound from './pages/NotFound';
 import Offline from './pages/Offline';
 import SupportChat from './components/SupportChat';
@@ -115,6 +116,7 @@ function App() {
                     <Route path="/collections" element={<Collections />} />
                     <Route path="/collections/:slug" element={<CollectionDetail />} />
                     <Route path="/recommendations" element={<Recommendations />} />
+                    <Route path="/ai-select" element={<AISelect />} />
                     <Route path="/analytics" element={<PersonalAnalytics />} />
                     <Route path="/benchmarks" element={<Benchmarks />} />
                     <Route path="/news" element={<News />} />
